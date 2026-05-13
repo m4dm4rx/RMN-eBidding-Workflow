@@ -181,6 +181,35 @@ textarea{resize:vertical;min-height:60px}
 .progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
 .api-note{background:#e8f4fd;border:1px solid #bee3f8;border-radius:var(--radius-sm);
   padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-bottom:1rem}
+/* ── Dashboard header ──────────────────────────────────────────── */
+.dash-header{
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#1a5fa8 100%);
+  border-radius:var(--radius);margin-bottom:1.2rem;
+  padding:1.4rem 1.6rem;color:#fff;position:relative;overflow:hidden}
+.dash-header::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,
+    transparent 0 18px,rgba(255,255,255,.025) 18px 19px);
+  pointer-events:none}
+.dash-header-inner{display:flex;justify-content:space-between;align-items:flex-end;
+  gap:1rem;flex-wrap:wrap;position:relative}
+.dash-title{font-size:20px;font-weight:800;letter-spacing:.01em}
+.dash-subtitle{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px}
+.dash-meta{font-size:11px;color:rgba(255,255,255,.6);text-align:right}
+.dash-meta strong{color:#7dd3fc;display:block;margin-top:2px}
+/* ── Dashboard status chips ─────────────────────────────────────── */
+.dash-status-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.2rem}
+.ds-chip{display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:20px;font-size:12px;font-weight:600;color:#fff;cursor:default}
+.ds-chip .ds-n{font-size:16px;font-weight:800;line-height:1}
+.ds-chip.contract{background:linear-gradient(135deg,#065f46,#047857)}
+.ds-chip.winner{background:linear-gradient(135deg,#0c4a6e,#0369a1)}
+.ds-chip.win-pending{background:linear-gradient(135deg,#1e3a8a,#1d4ed8)}
+.ds-chip.lose-pending{background:linear-gradient(135deg,#78350f,#b45309)}
+.ds-chip.lose{background:linear-gradient(135deg,#7f1d1d,#b91c1c)}
+.ds-chip.disqualified{background:linear-gradient(135deg,#7f1d1d,#991b1b)}
+.ds-chip.cancelled{background:linear-gradient(135deg,#1f2937,#374151)}
+.ds-chip.withdrawn{background:linear-gradient(135deg,#3b0764,#6d28d9)}
 /* ── Report tab (G-Lead style) ─────────────────────────────────── */
 :root{
   --navy:#1e2a5e; --navy-dk:#15204a;
@@ -266,12 +295,15 @@ textarea{resize:vertical;min-height:60px}
 .proj-status-tag{
   background:var(--status-new);color:#fff;font-size:11px;
   font-weight:700;padding:4px 12px;border-radius:5px}
-.proj-status-tag.winner{background:#3b82f6}
-.proj-status-tag.contract{background:#10b981}
+.proj-status-tag.winner{background:#16a34a}
+.proj-status-tag.contract{background:#065f46}
+.proj-status-tag.cancelled{background:#1f2937}
 .proj-status-tag.pending{background:#f59e0b}
+.proj-status-tag.win-pending{background:#1d4ed8}
 .proj-status-tag.win-price{background:#0284c7}
 .proj-status-tag.lose-price{background:#d97706}
 .proj-status-tag.lose{background:#dc2626}
+.proj-status-tag.disqualified{background:#dc2626}
 .proj-id-label{font-size:11px;color:#64748b}
 .proj-id-value{font-size:12px;color:var(--navy);font-weight:600;font-family:monospace}
 .proj-card-body{padding:1rem 1.1rem .8rem}
@@ -320,6 +352,12 @@ textarea{resize:vertical;min-height:60px}
 .proj-fin-value{font-size:14px;font-weight:700;color:#0f172a}
 .proj-fin-value.win{color:#0f9d58}
 .proj-fin-value.budget{color:var(--navy)}
+.dark-card .bar{background:rgba(255,255,255,.12)}
+.dark-card .bar-fill{background:#60a5fa}
+.dark-card span{color:#e6edf3}
+.proj-fin-input{width:100%;font-size:13px;font-weight:600;border:1px solid var(--border);border-radius:5px;padding:3px 6px;background:var(--bg);color:var(--text);font-family:inherit}
+.proj-fin-input:focus{outline:none;border-color:var(--blue)}
+html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
 
 /* Wins timeline (vertical) */
 .win-tl-item{
@@ -378,10 +416,22 @@ textarea{resize:vertical;min-height:60px}
 
   <!-- Dashboard -->
   <div id="tab-dashboard" class="section active">
-    <div class="metrics" id="metrics"></div>
+    <div class="dash-header">
+      <div class="dash-header-inner">
+        <div>
+          <div class="dash-title">📊 ภาพรวมการประมูล</div>
+          <div class="dash-subtitle">ห้างหุ้นส่วน RMN · ปีงบประมาณ 2569</div>
+        </div>
+        <div class="dash-meta" id="dash-updated"></div>
+      </div>
+    </div>
+    <div class="kpi-grid" id="dash-kpi"></div>
+    <div class="dash-status-row" id="dash-status"></div>
     <div class="two-col">
-      <div class="card"><div class="card-title">Breakdown by ห้าง</div><div id="entity-bars"></div></div>
-      <div class="card"><div class="card-title">จังหวัด</div><div id="province-bars"></div></div>
+      <div class="card dark-card" style="background:linear-gradient(160deg,#1e3a5f 0%,#1a2f4e 100%);color:#e6edf3">
+        <div class="card-title" style="color:#7dd3fc">🏢 Breakdown by ห้าง</div><div id="entity-bars"></div></div>
+      <div class="card dark-card" style="background:linear-gradient(160deg,#064e3b 0%,#065f46 100%);color:#e6edf3">
+        <div class="card-title" style="color:#6ee7b7">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
     </div>
   </div>
 
@@ -396,9 +446,6 @@ textarea{resize:vertical;min-height:60px}
         <div class="report-meta" id="report-updated"></div>
       </div>
     </div>
-
-    <!-- KPI cards -->
-    <div class="kpi-grid" id="kpi-grid"></div>
 
     <!-- Filter pills -->
     <div class="report-pills">
@@ -479,6 +526,7 @@ textarea{resize:vertical;min-height:60px}
         <div class="form-group"><label>งบประมาณ (บาท)</label><input id="f-budget" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคากลาง (บาท)</label><input id="f-midprice" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคาที่ยื่น (บาท)</label><input id="f-bid" type="number" placeholder="0"></div>
+        <div class="form-group full"><label>คู่แข่งที่ได้งาน (กรณีแพ้)</label><input id="f-competitor" type="text" placeholder="ชื่อบริษัท/ห้างที่ชนะ"></div>
         <div class="form-group">
           <label>ห้างที่ใช้เสนอ</label>
           <select id="f-entity">
@@ -955,6 +1003,11 @@ const Store = (() => {
       if (bid) { bid.status = status; persist(); }
     },
 
+    patch(id, key, value) {
+      const bid = this.findById(id);
+      if (bid) { bid[key] = value; persist(); }
+    },
+
     updateApiData(id, { status, midPrice, contractPrice, name }) {
       const bid = this.findById(id);
       if (!bid) return;
@@ -1185,33 +1238,6 @@ const App = (() => {
     UI.setHTML('report-updated',
       `🔄 อัพเดทล่าสุด<strong>${dStr} เวลา ${tStr} น.</strong>`);
 
-    // KPI cards (matches screenshot blue gradient with stripes)
-    UI.setHTML('kpi-grid', `
-      <div class="kpi-card blue"><div class="kpi-card-inner">
-        <div class="kpi-icon">📋</div>
-        <div class="kpi-label">จำนวนโครงการทั้งหมด</div>
-        <div class="kpi-value">${UI.fmt(total)}</div>
-        <div class="kpi-unit">โครงการ ปี 2569</div>
-      </div></div>
-      <div class="kpi-card green"><div class="kpi-card-inner">
-        <div class="kpi-icon">💰</div>
-        <div class="kpi-label">มูลค่าที่ชนะแล้ว</div>
-        <div class="kpi-value">${UI.fmt(totalValue)}</div>
-        <div class="kpi-unit">บาท · ${won.length} โครงการ</div>
-      </div></div>
-      <div class="kpi-card purple"><div class="kpi-card-inner">
-        <div class="kpi-icon">🏆</div>
-        <div class="kpi-label">อัตราการชนะ</div>
-        <div class="kpi-value">${winRate}%</div>
-        <div class="kpi-unit">${won.length}/${decided} โครงการที่รู้ผล</div>
-      </div></div>
-      <div class="kpi-card orange"><div class="kpi-card-inner">
-        <div class="kpi-icon">📉</div>
-        <div class="kpi-label">% ต่ำกว่าราคากลาง เฉลี่ย</div>
-        <div class="kpi-value">${avgDrop}%</div>
-        <div class="kpi-unit">เฉลี่ยทุกโครงการ</div>
-      </div></div>`);
-
     // Update pill counts
     const contract = bids.filter(b => b.status === STATUS.CONTRACT);
     document.querySelector('[data-filter="all"]').textContent          = `ทั้งหมด (${total})`;
@@ -1343,17 +1369,17 @@ const App = (() => {
       : type === 'cancelled'    ? 'ยกเลิก'
       : type === 'withdrawn'    ? 'ห้างยกเลิก'
       : 'มีสัญญา';
-    const tagClass = (type === 'win-pending' || type === 'lose-pending') ? 'pending' : type;
+    const tagClass = type === 'win-pending' ? 'win-pending' : type === 'lose-pending' ? 'pending' : type;
     const subLabel = type === 'win-pending'  ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› เป็นผู้เสนอต่ำสุด</span>'
       : type === 'lose-pending' ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
       : type === 'disqualified' ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› ขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</span>'
       : '';
-    // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา
-    const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', 'เซ็นสัญญา'];
-    const doneCount = type === 'contract'   ? 5
+    // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา/แพ้
+    const isLose = type === 'lose' || type === 'disqualified';
+    const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', isLose ? 'แพ้' : 'เซ็นสัญญา'];
+    const doneCount = (type === 'contract' || type === 'lose' || type === 'disqualified') ? 5
       : type === 'winner'                                            ? 4
       : (type === 'win-pending' || type === 'lose-pending')          ? 2
-      : type === 'disqualified'                                      ? 2
       : 1;
     const activeIdx = (type === 'contract' || type === 'winner' || type === 'lose' || type === 'disqualified') ? -1
       : (type === 'win-pending' || type === 'lose-pending')          ? 2
@@ -1417,11 +1443,13 @@ const App = (() => {
               }</div>
             </div>
             <div class="proj-fin-item">
-              <div class="proj-fin-label">ราคาที่ตกลงจ้าง</div>
-              <div class="proj-fin-value win">${
-                b.contractPrice ? UI.fmt(b.contractPrice)
-                : b.lowest ? UI.fmt(b.lowest)
-                : (type === 'contract' || type === 'winner') ? UI.fmt(b.bid) : '—'
+              <div class="proj-fin-label">${isLose ? 'คู่แข่งที่ได้งาน' : 'ราคาที่ตกลงจ้าง'}</div>
+              <div class="proj-fin-value ${isLose ? '' : 'win'}">${
+                isLose
+                  ? (b.competitor ? UI.esc(b.competitor) : '—')
+                  : b.contractPrice ? UI.fmt(b.contractPrice)
+                  : b.lowest ? UI.fmt(b.lowest)
+                  : (type === 'contract' || type === 'winner') ? UI.fmt(b.bid) : '—'
               }</div>
             </div>
           </div>
@@ -1435,34 +1463,65 @@ const App = (() => {
     const { STATUS } = CONFIG;
 
     if (!bids.length) {
-      UI.setHTML('metrics', '<div class="metric"><div class="metric-label">โครงการทั้งหมด</div><div class="metric-value">0</div></div>');
+      UI.setHTML('dash-kpi', '');
+      UI.setHTML('dash-status', '');
       UI.setHTML('entity-bars', '<div class="empty" style="padding:1rem">ยังไม่มีข้อมูล</div>');
       UI.setHTML('province-bars', '');
       return;
     }
 
-    const total    = bids.length;
-    const contract     = bids.filter(b => b.status === STATUS.CONTRACT).length;
-    const winner       = bids.filter(b => b.status === STATUS.WINNER).length;
-    const winPendingSt = bids.filter(b => b.status === STATUS.WIN_PENDING).length;
-    const losePendingSt= bids.filter(b => b.status === STATUS.LOSE_PENDING).length;
-    const disqualSt    = bids.filter(b => b.status === STATUS.DISQUALIFIED).length;
-    const lose         = bids.filter(b => b.status === STATUS.LOSE).length;
-    const income       = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
-    const budget   = bids.reduce((s, b) => s + b.budget, 0);
-    const avgDrop  = Math.round(bids.reduce((s,b)=>s+(b.midPrice?((b.midPrice-b.bid)/b.midPrice*100):b.pct),0)/total);
+    const total      = bids.length;
+    const contract   = bids.filter(b => b.status === STATUS.CONTRACT).length;
+    const winner     = bids.filter(b => b.status === STATUS.WINNER).length;
+    const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING).length;
+    const losePending= bids.filter(b => b.status === STATUS.LOSE_PENDING || b.status === STATUS.LOSE_PRICE).length;
+    const disqualSt  = bids.filter(b => b.status === STATUS.DISQUALIFIED).length;
+    const lose       = bids.filter(b => b.status === STATUS.LOSE).length;
+    const cancelled  = bids.filter(b => b.status === STATUS.CANCELLED).length;
+    const withdrawn  = bids.filter(b => b.status === STATUS.WITHDRAWN).length;
+    const decided    = (contract + winner + lose + disqualSt);
+    const won        = contract + winner;
+    const winRate    = decided ? Math.round(won / decided * 100) : 0;
+    const income     = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
+    const avgDrop    = Math.round(bids.reduce((s,b)=>s+(b.midPrice?((b.midPrice-b.bid)/b.midPrice*100):b.pct),0)/total);
 
-    UI.setHTML('metrics', [
-      metric('โครงการทั้งหมด', total,                                      'ปี 2569'),
-      metric('จัดทำสัญญาแล้ว',     contract,     '', '#155724'),
-      metric('อนุมัติสั่งจ้าง',   winner,       '', '#0c5460'),
-      metric('รอผล/เสนอต่ำสุด',  winPendingSt, '', '#075985'),
-      metric('รอผล/ไม่ต่ำสุด',   losePendingSt,'', '#92400e'),
-      metric('แพ้การประมูล',      lose,         '', '#9b1c1c'),
-      metric('แพ้ขาดคุณสมบัติ',   disqualSt,    '', '#7f1d1d'),
-      metric('มูลค่าที่ได้รับ',   `฿${UI.fmt(income)}`,                    '', '#155724', '15px'),
-      metric('งบฯรวม',             `฿${UI.fmt(budget)}`,                   '', '',        '15px'),
-      metric('% ต่ำกว่าราคากลาง เฉลี่ย', `${avgDrop}%`,                      ''),
+    // Timestamp
+    const now = new Date();
+    UI.setHTML('dash-updated', `อัพเดทล่าสุด<strong>${now.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'})} เวลา ${now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} น.</strong>`);
+
+    // KPI cards
+    UI.setHTML('dash-kpi', `
+      <div class="kpi-card blue"><div class="kpi-card-inner">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-label">โครงการทั้งหมด</div>
+        <div class="kpi-value">${UI.fmt(total)}</div>
+        <div class="kpi-unit">โครงการ ปี 2569</div>
+      </div></div>
+      <div class="kpi-card green"><div class="kpi-card-inner">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">มูลค่าที่ชนะแล้ว</div>
+        <div class="kpi-value">${UI.fmt(income)}</div>
+        <div class="kpi-unit">บาท · ${won} โครงการ</div>
+      </div></div>
+      <div class="kpi-card purple"><div class="kpi-card-inner">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-label">อัตราการชนะ</div>
+        <div class="kpi-value">${winRate}%</div>
+        <div class="kpi-unit">${won}/${decided} โครงการที่รู้ผล</div>
+      </div></div>
+      `);
+
+    // Status chips
+    const chip = (cls, icon, label, n) => n > 0 ? `<div class="ds-chip ${cls}"><span class="ds-n">${n}</span>${icon} ${label}</div>` : '';
+    UI.setHTML('dash-status', [
+      chip('contract',    '🟢', 'จัดทำสัญญา',      contract),
+      chip('winner',      '🔵', 'อนุมัติสั่งจ้าง', winner),
+      chip('win-pending', '⏳', 'รอผล/เสนอต่ำสุด', winPending),
+      chip('lose-pending','⏳', 'รอผล/ไม่ต่ำสุด',  losePending),
+      chip('lose',        '❌', 'แพ้การประมูล',     lose),
+      chip('disqualified','❌', 'ขาดคุณสมบัติ',     disqualSt),
+      chip('cancelled',   '⬛', 'ยกเลิก',            cancelled),
+      chip('withdrawn',   '🟣', 'ห้างขอยกเลิก',     withdrawn),
     ].join(''));
 
     // Entity bars
@@ -1479,10 +1538,10 @@ const App = (() => {
       .map(([name, v]) => `
         <div style="margin-bottom:.8rem">
           <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
-            <span style="font-weight:600">${name}</span>
-            <span style="color:#888">${v.c} · ฿${UI.fmt(v.b)}</span>
+            <span style="font-weight:600;color:#e6edf3">${name}</span>
+            <span style="color:#94a3b8">${v.c} · ฿${UI.fmt(v.b)}</span>
           </div>
-          ${UI.bar(Math.round(v.c / maxEnt * 100))}
+          <div class="bar" style="background:rgba(255,255,255,.12)"><div class="bar-fill" style="width:${Math.round(v.c / maxEnt * 100)}%;background:#60a5fa"></div></div>
         </div>`).join(''));
 
     // Province bars
@@ -1493,9 +1552,9 @@ const App = (() => {
       .sort(([, a], [, b]) => b - a)
       .map(([p, c]) => `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px">
-          <span style="width:90px;color:#888">${p}</span>
-          <div class="bar" style="flex:1"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%"></div></div>
-          <span style="font-weight:600;width:20px">${c}</span>
+          <span style="width:90px;color:#86efac">${p}</span>
+          <div class="bar" style="flex:1;background:rgba(255,255,255,.12)"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%;background:#34d399"></div></div>
+          <span style="font-weight:700;width:20px;color:#e6edf3">${c}</span>
         </div>`).join(''));
   }
 
@@ -1518,7 +1577,9 @@ const App = (() => {
     const fSort   = document.getElementById('fsort')?.value ?? 'date-desc';
     const { STATUS } = CONFIG;
     const pending = bids.filter(b =>
-      b.status === STATUS.WIN_PENDING || b.status === STATUS.LOSE_PENDING
+      b.status === STATUS.WIN_PENDING || b.status === STATUS.LOSE_PENDING ||
+      b.status === STATUS.WIN_PRICE   || b.status === STATUS.LOSE_PRICE   ||
+      b.status === STATUS.PENDING
     ).length;
 
     UI.setHTML('pending-banner', pending
@@ -1810,9 +1871,10 @@ const App = (() => {
       midPrice,
       bid,
       pct:      budget > 0 ? Math.round((budget - bid) / budget * 10_000) / 100 : 0,
-      entity:   document.getElementById('f-entity').value,
-      status:   document.getElementById('f-status').value,
-      seq:      existing?.seq ?? Store.getAll().length + 1,
+      entity:     document.getElementById('f-entity').value,
+      status:     document.getElementById('f-status').value,
+      competitor: document.getElementById('f-competitor').value.trim() || undefined,
+      seq:        existing?.seq ?? Store.getAll().length + 1,
     });
 
     clearForm();
@@ -1831,8 +1893,9 @@ const App = (() => {
     _setField('f-agency',   b.agency   ?? '');
     _setField('f-province', b.province ?? '');
     _setField('f-budget',   b.budget   ?? 0);
-    _setField('f-midprice', b.midPrice ?? 0);
-    _setField('f-bid',      b.bid      ?? 0);
+    _setField('f-midprice',   b.midPrice   ?? 0);
+    _setField('f-bid',        b.bid        ?? 0);
+    _setField('f-competitor', b.competitor ?? '');
     document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
@@ -1847,7 +1910,7 @@ const App = (() => {
   }
 
   function clearForm() {
-    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid']
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-competitor']
       .forEach(id => { document.getElementById(id).value = ''; });
     UI.setHTML('autofill-result', '');
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
