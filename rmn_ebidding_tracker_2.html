@@ -51,9 +51,12 @@ html.dark .progress-bar{background:#21262d}
 html.dark .api-note{background:#051d2c;border-color:#1f6feb;color:#58a6ff}
 html.dark .proj-card{background:#161b22;border-color:#30363d}
 html.dark .proj-card:hover{border-color:#1f6feb;box-shadow:0 4px 12px rgba(0,0,0,.5)}
-html.dark .proj-card-header{background:#0d1117;border-bottom-color:#30363d}
-html.dark .proj-card-name{color:#e6edf3}
-html.dark .proj-meta-item-val{color:#e6edf3}
+html.dark .proj-card-header{background:#0d1f3c;border-bottom-color:#1f6feb}
+html.dark .proj-meta-item-val{color:#e6edf3 !important}
+html.dark .proj-card-name{color:#8b949e !important;border-bottom-color:#21262d}
+html.dark .proj-fin-item{background:#0d1117;border-color:#30363d}
+html.dark .proj-fin-item:last-child{background:#0a1f12;border-color:#30363d}
+html.dark .proj-fin-label{color:#8b949e}
 html.dark .proj-id-label,.html.dark .proj-status-label{color:#8b949e}
 html.dark .proj-id-value{color:#79c0ff}
 html.dark .proj-status-value{color:#f85149}
@@ -257,8 +260,9 @@ textarea{resize:vertical;min-height:60px}
   transition:all .2s}
 .proj-card:hover{border-color:var(--kpi-blue-1);box-shadow:0 4px 12px rgba(43,57,144,.08)}
 .proj-card-header{
-  display:flex;align-items:center;gap:10px;padding:.75rem 1.1rem;
-  background:#fafbff;border-bottom:1px solid var(--card-border);flex-wrap:wrap}
+  display:flex;align-items:center;gap:10px;padding:.7rem 1.1rem;
+  background:#f0f4ff;border-bottom:2px solid var(--card-border);flex-wrap:wrap}
+.proj-header-actions{margin-left:auto;display:flex;gap:5px;align-items:center}
 .proj-status-tag{
   background:var(--status-new);color:#fff;font-size:11px;
   font-weight:700;padding:4px 12px;border-radius:5px}
@@ -270,19 +274,18 @@ textarea{resize:vertical;min-height:60px}
 .proj-status-tag.lose{background:#dc2626}
 .proj-id-label{font-size:11px;color:#64748b}
 .proj-id-value{font-size:12px;color:var(--navy);font-weight:600;font-family:monospace}
-.proj-status-label{font-size:11px;color:#64748b;margin-left:auto}
-.proj-status-value{font-size:11px;color:#dc2626;font-weight:500}
-.proj-card-body{padding:1rem 1.1rem}
+.proj-card-body{padding:1rem 1.1rem .8rem}
 .proj-card-name{
-  font-size:13px;font-weight:600;color:#1e293b;
-  line-height:1.55;margin-bottom:.85rem}
+  font-size:11.5px;font-weight:400;color:#1e293b;
+  line-height:1.6;margin-bottom:.9rem;
+  border-bottom:1px solid var(--card-border);padding-bottom:.6rem}
 .proj-meta-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem .8rem;
-  font-size:11.5px;color:#475569;margin-bottom:1rem}
-.proj-meta-item{display:flex;gap:5px;align-items:flex-start}
-.proj-meta-item-icon{color:var(--kpi-blue-1);flex-shrink:0;margin-top:1px}
-.proj-meta-item-label{color:#64748b;display:block;font-size:10px}
-.proj-meta-item-val{color:#1e293b;font-weight:500}
+  display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem .8rem;
+  margin-bottom:1rem}
+.proj-meta-item{display:flex;gap:6px;align-items:flex-start}
+.proj-meta-item-icon{color:var(--kpi-blue-1);flex-shrink:0;font-size:13px}
+.proj-meta-item-label{color:#94a3b8;display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em}
+.proj-meta-item-val{color:#0f172a;font-weight:700;font-size:13px}
 
 /* Timeline progress */
 .proj-timeline{
@@ -309,12 +312,12 @@ textarea{resize:vertical;min-height:60px}
   gap:0;border-top:1px solid var(--card-border);
   margin:0 -1.1rem -1rem;padding-top:0}
 .proj-fin-item{
-  padding:.75rem 1.1rem;
+  padding:.65rem 1rem;
   border-right:1px solid var(--card-border);
-  background:#fafbff}
-.proj-fin-item:last-child{border-right:none}
-.proj-fin-label{font-size:10px;color:#64748b;margin-bottom:3px}
-.proj-fin-value{font-size:14px;font-weight:700;color:#1e293b}
+  background:#f1f5f9}
+.proj-fin-item:last-child{border-right:none;background:#e8f0e8}
+.proj-fin-label{font-size:9.5px;color:#475569;margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;font-weight:600}
+.proj-fin-value{font-size:14px;font-weight:700;color:#0f172a}
 .proj-fin-value.win{color:#0f9d58}
 .proj-fin-value.budget{color:var(--navy)}
 
@@ -1082,8 +1085,8 @@ const App = (() => {
     const { STATUS } = CONFIG;
     const total      = bids.length;
     const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
-    const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING);
-    const losePending= bids.filter(b => b.status === STATUS.LOSE_PENDING);
+    const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING  || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING);
+    const losePending= bids.filter(b => b.status === STATUS.LOSE_PENDING || b.status === STATUS.LOSE_PRICE);
     const disqualified = bids.filter(b => b.status === STATUS.DISQUALIFIED);
     const lose       = bids.filter(b => b.status === STATUS.LOSE);
     const cancelled  = bids.filter(b => b.status === STATUS.CANCELLED);
@@ -1147,10 +1150,12 @@ const App = (() => {
   /** Re-render pipeline section only (called by pill clicks) */
   function renderPipelineFiltered(allBids) {
     const { STATUS } = CONFIG;
+    const isWinPending  = b => b.status === STATUS.WIN_PENDING  || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING;
+    const isLosePending = b => b.status === STATUS.LOSE_PENDING || b.status === STATUS.LOSE_PRICE;
     const filterMap = {
       all:            allBids,
-      'win-pending':  allBids.filter(b => b.status === STATUS.WIN_PENDING),
-      'lose-pending': allBids.filter(b => b.status === STATUS.LOSE_PENDING),
+      'win-pending':  allBids.filter(isWinPending),
+      'lose-pending': allBids.filter(isLosePending),
       disqualified:   allBids.filter(b => b.status === STATUS.DISQUALIFIED),
       winner:         allBids.filter(b => b.status === STATUS.WINNER),
       contract:       allBids.filter(b => b.status === STATUS.CONTRACT),
@@ -1169,9 +1174,14 @@ const App = (() => {
       b.status === STATUS.LOSE_PENDING  ? 'lose-pending'  :
       b.status === STATUS.DISQUALIFIED  ? 'disqualified'  :
       b.status === STATUS.WINNER        ? 'winner'        :
+      b.status === STATUS.CONTRACT      ? 'contract'      :
       b.status === STATUS.LOSE          ? 'lose'          :
       b.status === STATUS.CANCELLED     ? 'cancelled'     :
-      b.status === STATUS.WITHDRAWN     ? 'withdrawn'     : 'contract'
+      b.status === STATUS.WITHDRAWN     ? 'withdrawn'     :
+      b.status === STATUS.WIN_PRICE     ? 'win-pending'   :  // legacy
+      b.status === STATUS.LOSE_PRICE    ? 'lose-pending'  :  // legacy
+      b.status === STATUS.PENDING       ? 'win-pending'   :  // legacy
+      'win-pending'
     )).join(''));
   }
 
@@ -1243,7 +1253,7 @@ const App = (() => {
   }
 
   /** Single project card matching G-Lead screenshot layout */
-  function projectCard(b, type = 'pending') {
+  function projectCard(b, type = 'pending', actionsHtml = '') {
     const tagText = (type === 'pending' || type === 'win-pending' || type === 'lose-pending') ? 'รอผลพิจารณา'
       : type === 'winner'       ? 'ชนะ'
       : type === 'lose'         ? 'แพ้'
@@ -1252,9 +1262,9 @@ const App = (() => {
       : type === 'withdrawn'    ? 'ห้างยกเลิก'
       : 'มีสัญญา';
     const tagClass = (type === 'win-pending' || type === 'lose-pending') ? 'pending' : type;
-    const subLabel = type === 'win-pending'  ? '<span style="display:block;font-size:11px;font-weight:600;color:var(--blue);margin-top:2px">› เป็นผู้เสนอต่ำสุด</span>'
-      : type === 'lose-pending' ? '<span style="display:block;font-size:11px;font-weight:600;color:#e3a000;margin-top:2px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
-      : type === 'disqualified' ? '<span style="display:block;font-size:11px;font-weight:600;color:#c0392b;margin-top:2px">› ขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</span>'
+    const subLabel = type === 'win-pending'  ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› เป็นผู้เสนอต่ำสุด</span>'
+      : type === 'lose-pending' ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
+      : type === 'disqualified' ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› ขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</span>'
       : '';
     // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา
     const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', 'เซ็นสัญญา'];
@@ -1275,17 +1285,10 @@ const App = (() => {
     return `
       <div class="proj-card">
         <div class="proj-card-header">
-          <span class="proj-status-tag ${tagClass}">${tagText}</span>
+          <span class="proj-status-tag ${tagClass}">${tagText}${subLabel}</span>
           <span class="proj-id-label">เลขที่โครงการ</span>
           <span class="proj-id-value">${UI.esc(b.id)}</span>
-          <span class="proj-status-label">สถานะ</span>
-          <span class="proj-status-value">${
-            type === 'pending'      ? 'รอผลพิจารณา' :
-            type === 'win-pending'  ? 'รอผลพิจารณา' + subLabel :
-            type === 'lose-pending' ? 'รอผลพิจารณา' + subLabel :
-            type === 'disqualified' ? 'แพ้' + subLabel :
-            UI.esc(b.status)
-          }</span>
+          ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
         </div>
         <div class="proj-card-body">
           <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
@@ -1326,13 +1329,17 @@ const App = (() => {
               <div class="proj-fin-value">${UI.fmt(b.bid)}</div>
             </div>
             <div class="proj-fin-item">
-              <div class="proj-fin-label">ราคาที่ตกลงจ้าง</div>
-              <div class="proj-fin-value" style="${b.lowest ? (b.lowest<=b.bid ? 'color:#0f9d58' : 'color:#dc2626') : ''}">${b.lowest ? UI.fmt(b.lowest) : '—'}</div>
-            </div>
-            <div class="proj-fin-item">
               <div class="proj-fin-label">คิดเป็น % ของราคากลาง</div>
               <div class="proj-fin-value">${
                 b.midPrice ? (b.bid/b.midPrice*100).toFixed(1)+'%' : b.pct ? (100-b.pct).toFixed(1)+'%' : '—'
+              }</div>
+            </div>
+            <div class="proj-fin-item">
+              <div class="proj-fin-label">ราคาที่ตกลงจ้าง</div>
+              <div class="proj-fin-value win">${
+                b.contractPrice ? UI.fmt(b.contractPrice)
+                : b.lowest ? UI.fmt(b.lowest)
+                : (type === 'contract' || type === 'winner') ? UI.fmt(b.bid) : '—'
               }</div>
             </div>
           </div>
@@ -1463,18 +1470,20 @@ const App = (() => {
         : b.status === STATUS.LOSE_PENDING  ? 'lose-pending'
         : b.status === STATUS.DISQUALIFIED  ? 'disqualified'
         : b.status === STATUS.WINNER        ? 'winner'
+        : b.status === STATUS.CONTRACT      ? 'contract'
         : b.status === STATUS.LOSE          ? 'lose'
         : b.status === STATUS.CANCELLED     ? 'cancelled'
         : b.status === STATUS.WITHDRAWN     ? 'withdrawn'
-        : 'contract';
-      const base = projectCard(b, type);
-      const actions = `
-        <div style="display:flex;gap:6px;justify-content:flex-end;padding:.6rem 1.1rem;border-top:1px solid var(--card-border)">
-          <button class="btn btn-sm btn-api" data-action="check" data-id="${UI.esc(b._id)}">🔍 ตรวจสอบ</button>
-          <button class="btn btn-sm" data-action="edit" data-id="${UI.esc(b._id)}">✏️ แก้ไข</button>
-          <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${UI.esc(b._id)}">✕ ลบ</button>
-        </div>`;
-      return base.replace(/<\/div>\s*$/, actions + '</div>');
+        : b.status === STATUS.WIN_PRICE     ? 'win-pending'   // legacy
+        : b.status === STATUS.LOSE_PRICE    ? 'lose-pending'  // legacy
+        : b.status === STATUS.PENDING       ? 'win-pending'   // legacy
+        : 'win-pending'; // safe fallback
+      const id = UI.esc(b._id);
+      const actionsHtml = `
+        <button class="btn btn-sm btn-api" data-action="check" data-id="${id}">🔍</button>
+        <button class="btn btn-sm" data-action="edit" data-id="${id}">✏️ แก้ไข</button>
+        <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${id}">✕</button>`;
+      return projectCard(b, type, actionsHtml);
     }).join(''));
   }
 
