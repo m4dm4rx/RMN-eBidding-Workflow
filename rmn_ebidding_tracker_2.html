@@ -36,6 +36,9 @@ html.dark .b-winner{background:#0c2d3f;color:#79c0ff}
 html.dark .b-pending{background:#2f2008;color:#e3b341}
 html.dark .b-win-price{background:#051d2c;color:#58c8e8}
 html.dark .b-lose-price{background:#2c1a00;color:#ffa657}
+html.dark .b-win-pending{background:#051d2c;color:#58c8e8}
+html.dark .b-lose-pending{background:#2c1a00;color:#ffa657}
+html.dark .b-disqualified{background:#300808;color:#fca5a5}
 html.dark .b-lose{background:#300808;color:#f85149}
 html.dark .b-cancelled{background:#21262d;color:#8b949e}
 html.dark .b-withdrawn{background:#2d1a3d;color:#c084fc}
@@ -129,6 +132,9 @@ tr:hover td{background:var(--bg)}
 .b-pending{background:#fff3cd;color:#856404}
 .b-win-price{background:#e0f2fe;color:#075985}
 .b-lose-price{background:#fef3c7;color:#92400e}
+.b-win-pending{background:#e0f2fe;color:#075985}
+.b-lose-pending{background:#fef3c7;color:#92400e}
+.b-disqualified{background:#fde8e8;color:#7f1d1d}
 .b-lose{background:#fde8e8;color:#9b1c1c}
 .b-cancelled{background:#e2e3e5;color:#555}
 .b-withdrawn{background:#fce8ff;color:#7c3aed}
@@ -395,10 +401,10 @@ textarea{resize:vertical;min-height:60px}
       <button class="pill active" data-filter="all">ทั้งหมด</button>
       <button class="pill" data-filter="contract">มีสัญญา</button>
       <button class="pill" data-filter="winner">ประกาศผู้ชนะ</button>
-      <button class="pill" data-filter="win-price">เป็นผู้เสนอต่ำสุด</button>
-      <button class="pill" data-filter="lose-price">ไม่ได้เป็นผู้เสนอต่ำสุด</button>
-      <button class="pill" data-filter="pending">รอผล</button>
-      <button class="pill" data-filter="lose">แพ้สิ้นสุด</button>
+      <button class="pill" data-filter="win-pending">รอผล/เสนอต่ำสุด</button>
+      <button class="pill" data-filter="lose-pending">รอผล/ไม่ต่ำสุด</button>
+      <button class="pill" data-filter="lose">แพ้การประมูล</button>
+      <button class="pill" data-filter="disqualified">แพ้ขาดคุณสมบัติ</button>
       <button class="pill" data-filter="cancelled">ยกเลิกโครงการ</button>
       <button class="pill" data-filter="withdrawn">ห้างขอยกเลิกเอง</button>
     </div>
@@ -474,12 +480,12 @@ textarea{resize:vertical;min-height:60px}
         <div class="form-group">
           <label>สถานะ</label>
           <select id="f-status">
-            <option>อยู่ระหว่างพิจารณาผล</option>
-            <option value="ราคาต่ำสุด">เป็นผู้เสนอต่ำสุด</option>
-            <option value="ราคาไม่ต่ำสุด">ไม่ได้เป็นผู้เสนอต่ำสุด</option>
+            <option>รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด</option>
+            <option>รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด</option>
             <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
             <option>จัดทำสัญญาแล้ว</option>
             <option>แพ้การประมูล</option>
+            <option>แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</option>
             <option>ยกเลิกโครงการ</option>
             <option>ห้างขอยกเลิกเอง</option>
           </select>
@@ -531,14 +537,17 @@ const CONFIG = Object.freeze({
   TIMEOUT_PROXY:  15_000,
   BULK_DELAY:     800,
   STATUS: Object.freeze({
-    PENDING:    'อยู่ระหว่างพิจารณาผล',
-    WIN_PRICE:  'ราคาต่ำสุด',
-    LOSE_PRICE: 'ราคาไม่ต่ำสุด',
-    WINNER:     'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',
-    CONTRACT:   'จัดทำสัญญาแล้ว',
-    LOSE:       'แพ้การประมูล',
-    CANCELLED:  'ยกเลิกโครงการ',
-    WITHDRAWN:  'ห้างขอยกเลิกเอง',
+    PENDING:      'อยู่ระหว่างพิจารณาผล',   // legacy
+    WIN_PRICE:    'ราคาต่ำสุด',               // legacy
+    LOSE_PRICE:   'ราคาไม่ต่ำสุด',            // legacy
+    WIN_PENDING:  'รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด',
+    LOSE_PENDING: 'รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด',
+    DISQUALIFIED: 'แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์',
+    WINNER:       'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',
+    CONTRACT:     'จัดทำสัญญาแล้ว',
+    LOSE:         'แพ้การประมูล',
+    CANCELLED:    'ยกเลิกโครงการ',
+    WITHDRAWN:    'ห้างขอยกเลิกเอง',
   }),
   DEFAULT_ENTITY: 'ห้างหุ้นส่วน RMN',
   // เลขผู้เสียภาษี (winner_tin) ของแต่ละนิติบุคคลในกลุ่ม RMN (ครบทุกห้าง)
@@ -995,9 +1004,11 @@ const UI = (() => {
   const badgeClass = s => ({
     [CONFIG.STATUS.CONTRACT]:   'b-contract',
     [CONFIG.STATUS.WINNER]:     'b-winner',
-    [CONFIG.STATUS.PENDING]:    'b-pending',
-    [CONFIG.STATUS.WIN_PRICE]:  'b-win-price',
-    [CONFIG.STATUS.LOSE_PRICE]: 'b-lose-price',
+    [CONFIG.STATUS.WIN_PRICE]:    'b-win-price',
+    [CONFIG.STATUS.LOSE_PRICE]:   'b-lose-price',
+    [CONFIG.STATUS.WIN_PENDING]:  'b-win-pending',
+    [CONFIG.STATUS.LOSE_PENDING]: 'b-lose-pending',
+    [CONFIG.STATUS.DISQUALIFIED]: 'b-disqualified',
     [CONFIG.STATUS.LOSE]:       'b-lose',
     [CONFIG.STATUS.CANCELLED]:  'b-cancelled',
     [CONFIG.STATUS.WITHDRAWN]:  'b-withdrawn',
@@ -1065,14 +1076,14 @@ const App = (() => {
     const { STATUS } = CONFIG;
     const total      = bids.length;
     const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
-    const winPrice   = bids.filter(b => b.status === STATUS.WIN_PRICE);
-    const losePrice  = bids.filter(b => b.status === STATUS.LOSE_PRICE);
-    const pending    = bids.filter(b => b.status === STATUS.PENDING);
+    const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING);
+    const losePending= bids.filter(b => b.status === STATUS.LOSE_PENDING);
+    const disqualified = bids.filter(b => b.status === STATUS.DISQUALIFIED);
     const lose       = bids.filter(b => b.status === STATUS.LOSE);
     const cancelled  = bids.filter(b => b.status === STATUS.CANCELLED);
     const withdrawn  = bids.filter(b => b.status === STATUS.WITHDRAWN);
     const totalValue = won.reduce((s,b)=>s+b.bid, 0);
-    const decided    = won.length + lose.length;
+    const decided    = won.length + lose.length + disqualified.length;
     const winRate    = decided ? Math.round(won.length / decided * 100) : 0;
     const avgDrop    = total ? Math.round(bids.reduce((s,b)=>s+(b.midPrice?(b.bid/b.midPrice*100):(100-b.pct)),0)/total) : 0;
 
@@ -1112,15 +1123,15 @@ const App = (() => {
 
     // Update pill counts
     const contract = bids.filter(b => b.status === STATUS.CONTRACT);
-    document.querySelector('[data-filter="all"]').textContent        = `ทั้งหมด (${total})`;
-    document.querySelector('[data-filter="contract"]').textContent   = `มีสัญญา (${contract.length})`;
-    document.querySelector('[data-filter="winner"]').textContent     = `ประกาศผู้ชนะ (${won.filter(b=>b.status===STATUS.WINNER).length})`;
-    document.querySelector('[data-filter="win-price"]').textContent  = `เป็นผู้เสนอต่ำสุด (${winPrice.length})`;
-    document.querySelector('[data-filter="lose-price"]').textContent = `ไม่ได้เป็นผู้เสนอต่ำสุด (${losePrice.length})`;
-    document.querySelector('[data-filter="pending"]').textContent    = `รอผล (${pending.length})`;
-    document.querySelector('[data-filter="lose"]').textContent       = `แพ้สิ้นสุด (${lose.length})`;
-    document.querySelector('[data-filter="cancelled"]').textContent  = `ยกเลิกโครงการ (${cancelled.length})`;
-    document.querySelector('[data-filter="withdrawn"]').textContent  = `ห้างขอยกเลิกเอง (${withdrawn.length})`;
+    document.querySelector('[data-filter="all"]').textContent          = `ทั้งหมด (${total})`;
+    document.querySelector('[data-filter="contract"]').textContent     = `มีสัญญา (${contract.length})`;
+    document.querySelector('[data-filter="winner"]').textContent       = `ประกาศผู้ชนะ (${won.filter(b=>b.status===STATUS.WINNER).length})`;
+    document.querySelector('[data-filter="win-pending"]').textContent  = `รอผล/เสนอต่ำสุด (${winPending.length})`;
+    document.querySelector('[data-filter="lose-pending"]').textContent = `รอผล/ไม่ต่ำสุด (${losePending.length})`;
+    document.querySelector('[data-filter="lose"]').textContent         = `แพ้การประมูล (${lose.length})`;
+    document.querySelector('[data-filter="disqualified"]').textContent = `แพ้ขาดคุณสมบัติ (${disqualified.length})`;
+    document.querySelector('[data-filter="cancelled"]').textContent    = `ยกเลิกโครงการ (${cancelled.length})`;
+    document.querySelector('[data-filter="withdrawn"]').textContent    = `ห้างขอยกเลิกเอง (${withdrawn.length})`;
 
     renderPipelineFiltered(bids);
     renderWinsTimeline(won);
@@ -1131,15 +1142,15 @@ const App = (() => {
   function renderPipelineFiltered(allBids) {
     const { STATUS } = CONFIG;
     const filterMap = {
-      all:        allBids,
-      pending:    allBids.filter(b => b.status === STATUS.PENDING),
-      'win-price':  allBids.filter(b => b.status === STATUS.WIN_PRICE),
-      'lose-price': allBids.filter(b => b.status === STATUS.LOSE_PRICE),
-      winner:     allBids.filter(b => b.status === STATUS.WINNER),
-      contract:   allBids.filter(b => b.status === STATUS.CONTRACT),
-      lose:       allBids.filter(b => b.status === STATUS.LOSE),
-      cancelled:  allBids.filter(b => b.status === STATUS.CANCELLED),
-      withdrawn:  allBids.filter(b => b.status === STATUS.WITHDRAWN),
+      all:            allBids,
+      'win-pending':  allBids.filter(b => b.status === STATUS.WIN_PENDING),
+      'lose-pending': allBids.filter(b => b.status === STATUS.LOSE_PENDING),
+      disqualified:   allBids.filter(b => b.status === STATUS.DISQUALIFIED),
+      winner:         allBids.filter(b => b.status === STATUS.WINNER),
+      contract:       allBids.filter(b => b.status === STATUS.CONTRACT),
+      lose:           allBids.filter(b => b.status === STATUS.LOSE),
+      cancelled:      allBids.filter(b => b.status === STATUS.CANCELLED),
+      withdrawn:      allBids.filter(b => b.status === STATUS.WITHDRAWN),
     };
     const filtered = filterMap[_reportFilter] ?? allBids;
     if (!filtered.length) {
@@ -1148,13 +1159,13 @@ const App = (() => {
     }
     const sorted = [...filtered].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? ''));
     UI.setHTML('pipeline-list', sorted.map(b => projectCard(b,
-      b.status === STATUS.PENDING    ? 'pending'    :
-      b.status === STATUS.WIN_PRICE  ? 'win-price'  :
-      b.status === STATUS.LOSE_PRICE ? 'lose-price' :
-      b.status === STATUS.WINNER     ? 'winner'     :
-      b.status === STATUS.LOSE       ? 'lose'       :
-      b.status === STATUS.CANCELLED  ? 'cancelled'  :
-      b.status === STATUS.WITHDRAWN  ? 'withdrawn'  : 'contract'
+      b.status === STATUS.WIN_PENDING   ? 'win-pending'   :
+      b.status === STATUS.LOSE_PENDING  ? 'lose-pending'  :
+      b.status === STATUS.DISQUALIFIED  ? 'disqualified'  :
+      b.status === STATUS.WINNER        ? 'winner'        :
+      b.status === STATUS.LOSE          ? 'lose'          :
+      b.status === STATUS.CANCELLED     ? 'cancelled'     :
+      b.status === STATUS.WITHDRAWN     ? 'withdrawn'     : 'contract'
     )).join(''));
   }
 
@@ -1227,24 +1238,27 @@ const App = (() => {
 
   /** Single project card matching G-Lead screenshot layout */
   function projectCard(b, type = 'pending') {
-    const tagText = (type === 'pending' || type === 'win-price' || type === 'lose-price') ? 'รอผลพิจารณา'
-      : type === 'winner'     ? 'ชนะ'
-      : type === 'lose'       ? 'แพ้'
-      : type === 'cancelled'  ? 'ยกเลิก'
-      : type === 'withdrawn'  ? 'ห้างยกเลิก'
+    const tagText = (type === 'pending' || type === 'win-pending' || type === 'lose-pending') ? 'รอผลพิจารณา'
+      : type === 'winner'       ? 'ชนะ'
+      : type === 'lose'         ? 'แพ้'
+      : type === 'disqualified' ? 'แพ้'
+      : type === 'cancelled'    ? 'ยกเลิก'
+      : type === 'withdrawn'    ? 'ห้างยกเลิก'
       : 'มีสัญญา';
-    const tagClass = (type === 'win-price' || type === 'lose-price') ? 'pending' : type;
-    const subLabel = type === 'win-price'  ? '<span style="display:block;font-size:11px;font-weight:600;color:var(--blue);margin-top:2px">› เป็นผู้เสนอต่ำสุด</span>'
-      : type === 'lose-price' ? '<span style="display:block;font-size:11px;font-weight:600;color:#e3a000;margin-top:2px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
+    const tagClass = (type === 'win-pending' || type === 'lose-pending') ? 'pending' : type;
+    const subLabel = type === 'win-pending'  ? '<span style="display:block;font-size:11px;font-weight:600;color:var(--blue);margin-top:2px">› เป็นผู้เสนอต่ำสุด</span>'
+      : type === 'lose-pending' ? '<span style="display:block;font-size:11px;font-weight:600;color:#e3a000;margin-top:2px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
+      : type === 'disqualified' ? '<span style="display:block;font-size:11px;font-weight:600;color:#c0392b;margin-top:2px">› ขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</span>'
       : '';
     // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา
     const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', 'เซ็นสัญญา'];
     const doneCount = type === 'contract'   ? 5
-      : type === 'winner'                   ? 4
-      : (type === 'win-price' || type === 'lose-price') ? 2
+      : type === 'winner'                                            ? 4
+      : (type === 'win-pending' || type === 'lose-pending')          ? 2
+      : type === 'disqualified'                                      ? 2
       : 1;
-    const activeIdx = (type === 'contract' || type === 'winner' || type === 'lose') ? -1
-      : (type === 'win-price' || type === 'lose-price') ? 2
+    const activeIdx = (type === 'contract' || type === 'winner' || type === 'lose' || type === 'disqualified') ? -1
+      : (type === 'win-pending' || type === 'lose-pending')          ? 2
       : 1;
     const tl = steps.map((s, i) => `
       <div class="tl-step ${i < doneCount ? 'done' : i === activeIdx ? 'active' : ''}">
@@ -1260,9 +1274,10 @@ const App = (() => {
           <span class="proj-id-value">${UI.esc(b.id)}</span>
           <span class="proj-status-label">สถานะ</span>
           <span class="proj-status-value">${
-            type === 'pending' ? 'รอผลพิจารณา' :
-            type === 'win-price'  ? 'รอผลพิจารณา' + subLabel :
-            type === 'lose-price' ? 'รอผลพิจารณา' + subLabel :
+            type === 'pending'      ? 'รอผลพิจารณา' :
+            type === 'win-pending'  ? 'รอผลพิจารณา' + subLabel :
+            type === 'lose-pending' ? 'รอผลพิจารณา' + subLabel :
+            type === 'disqualified' ? 'แพ้' + subLabel :
             UI.esc(b.status)
           }</span>
         </div>
@@ -1333,24 +1348,24 @@ const App = (() => {
     }
 
     const total    = bids.length;
-    const contract = bids.filter(b => b.status === STATUS.CONTRACT).length;
-    const winner   = bids.filter(b => b.status === STATUS.WINNER).length;
-    const winPrice = bids.filter(b => b.status === STATUS.WIN_PRICE).length;
-    const losePrice= bids.filter(b => b.status === STATUS.LOSE_PRICE).length;
-    const pending  = bids.filter(b => b.status === STATUS.PENDING).length;
-    const lose     = bids.filter(b => b.status === STATUS.LOSE).length;
-    const income   = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
+    const contract     = bids.filter(b => b.status === STATUS.CONTRACT).length;
+    const winner       = bids.filter(b => b.status === STATUS.WINNER).length;
+    const winPendingSt = bids.filter(b => b.status === STATUS.WIN_PENDING).length;
+    const losePendingSt= bids.filter(b => b.status === STATUS.LOSE_PENDING).length;
+    const disqualSt    = bids.filter(b => b.status === STATUS.DISQUALIFIED).length;
+    const lose         = bids.filter(b => b.status === STATUS.LOSE).length;
+    const income       = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
     const budget   = bids.reduce((s, b) => s + b.budget, 0);
     const avgDrop  = Math.round(bids.reduce((s,b)=>s+(b.midPrice?(b.bid/b.midPrice*100):(100-b.pct)),0)/total);
 
     UI.setHTML('metrics', [
       metric('โครงการทั้งหมด', total,                                      'ปี 2569'),
-      metric('จัดทำสัญญาแล้ว', contract,                                   '', '#155724'),
-      metric('อนุมัติสั่งจ้าง',  winner,                                   '', '#0c5460'),
-      metric('เสนอต่ำสุด',        winPrice,                                  '', '#075985'),
-      metric('ไม่ต่ำสุด',         losePrice,                                 '', '#92400e'),
-      metric('รอพิจารณา',         pending,                                  '', '#856404'),
-      metric('แพ้การประมูล',       lose,                                    '', '#9b1c1c'),
+      metric('จัดทำสัญญาแล้ว',     contract,     '', '#155724'),
+      metric('อนุมัติสั่งจ้าง',   winner,       '', '#0c5460'),
+      metric('รอผล/เสนอต่ำสุด',  winPendingSt, '', '#075985'),
+      metric('รอผล/ไม่ต่ำสุด',   losePendingSt,'', '#92400e'),
+      metric('แพ้การประมูล',      lose,         '', '#9b1c1c'),
+      metric('แพ้ขาดคุณสมบัติ',   disqualSt,    '', '#7f1d1d'),
       metric('มูลค่าที่ได้รับ',   `฿${UI.fmt(income)}`,                    '', '#155724', '15px'),
       metric('งบฯรวม',             `฿${UI.fmt(budget)}`,                   '', '',        '15px'),
       metric('% ของราคากลาง เฉลี่ย', `${avgDrop}%`,                        ''),
@@ -1406,7 +1421,10 @@ const App = (() => {
     const q       = document.getElementById('fsearch').value.toLowerCase();
     const fStatus = document.getElementById('fstatus').value;
     const fEntity = document.getElementById('fentity').value;
-    const pending = bids.filter(b => b.status === CONFIG.STATUS.PENDING).length;
+    const { STATUS } = CONFIG;
+    const pending = bids.filter(b =>
+      b.status === STATUS.WIN_PENDING || b.status === STATUS.LOSE_PENDING
+    ).length;
 
     UI.setHTML('pending-banner', pending
       ? `<div class="refresh-banner">⏳ มี <strong>${pending} โครงการ</strong>รอพิจารณาผล
@@ -1427,14 +1445,14 @@ const App = (() => {
       return;
     }
 
-    const { STATUS } = CONFIG;
     UI.setHTML('records-list', filtered.map(b => {
-      const type = b.status === STATUS.PENDING    ? 'pending'
-        : b.status === STATUS.WIN_PRICE  ? 'win-price'
-        : b.status === STATUS.LOSE_PRICE ? 'lose-price'
-        : b.status === STATUS.WINNER     ? 'winner'
-        : b.status === STATUS.LOSE       ? 'lose'
-        : b.status === STATUS.CANCELLED  ? 'cancelled'
+      const type = b.status === STATUS.WIN_PENDING   ? 'win-pending'
+        : b.status === STATUS.LOSE_PENDING  ? 'lose-pending'
+        : b.status === STATUS.DISQUALIFIED  ? 'disqualified'
+        : b.status === STATUS.WINNER        ? 'winner'
+        : b.status === STATUS.LOSE          ? 'lose'
+        : b.status === STATUS.CANCELLED     ? 'cancelled'
+        : b.status === STATUS.WITHDRAWN     ? 'withdrawn'
         : 'contract';
       const base = projectCard(b, type);
       const actions = `
@@ -1477,14 +1495,14 @@ const App = (() => {
 
   /* ── Bulk refresh all pending ────────────────────────────── */
   async function bulkRefresh() {
-    // Include pending, win-price, lose-price bids (not yet finalized)
+    // Include win-pending, lose-pending bids (not yet finalized)
     // Also include any record missing price data. Exclude only LOSE and CONTRACT.
+    const { STATUS } = CONFIG;
     const pending = Store.getAll().filter(b => b.id
-      && b.status !== CONFIG.STATUS.LOSE
-      && b.status !== CONFIG.STATUS.CONTRACT
-      && (b.status === CONFIG.STATUS.PENDING
-        || b.status === CONFIG.STATUS.WIN_PRICE
-        || b.status === CONFIG.STATUS.LOSE_PRICE
+      && b.status !== STATUS.LOSE
+      && b.status !== STATUS.CONTRACT
+      && (b.status === STATUS.WIN_PENDING
+        || b.status === STATUS.LOSE_PENDING
         || !b.midPrice || !b.contractPrice)
     );
     if (!pending.length) { UI.toast('ข้อมูลครบแล้ว ไม่มีอะไรต้อง Refresh'); return; }
@@ -1712,7 +1730,7 @@ const App = (() => {
     _setField('f-midprice', b.midPrice ?? 0);
     _setField('f-bid',      b.bid      ?? 0);
     document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
-    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.PENDING;
+    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
   }
 
@@ -1729,7 +1747,7 @@ const App = (() => {
       .forEach(id => { document.getElementById(id).value = ''; });
     UI.setHTML('autofill-result', '');
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
-    document.getElementById('f-status').value = CONFIG.STATUS.PENDING;
+    document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
     document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
     _editId = null;
   }
