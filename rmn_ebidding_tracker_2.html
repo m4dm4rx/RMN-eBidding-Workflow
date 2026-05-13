@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RMN e-Bidding Tracker 2569</title>
+<style>
+/* ── Design tokens ─────────────────────────────────────────────── */
+:root{
+  --blue:#1a5fa8; --blue-dk:#155090;
+  --green:#1a8a4a; --red:#a00;
+  --bg:#f8f9fa; --surface:#fff;
+  --border:#e5e7eb; --text:#1a1a1a; --muted:#666;
+  --radius:10px; --radius-sm:7px;
+  --shadow:0 1px 4px rgba(0,0,0,.08);
+}
+html.dark{
+  --blue:#4a9eff;--blue-dk:#3a8eef;
+  --green:#4ade80;--red:#f87171;
+  --bg:#0d1117;--surface:#161b22;
+  --border:#30363d;--text:#e6edf3;--muted:#8b949e;
+  --shadow:0 2px 8px rgba(0,0,0,.6);
+  --navy:#79c0ff;--navy-dk:#58a6ff;
+  --card-border:#30363d;
+  --pill-bg:#21262d;--pill-active:#1f6feb;
+}
+html.dark .metric-sub,html.dark .entity-tag{color:#8b949e}
+html.dark .empty{color:#8b949e}
+html.dark label{color:#8b949e}
+html.dark td{border-bottom-color:#21262d}
+html.dark .btn:hover{background:#21262d}
+html.dark .btn-primary{background:#e6edf3;color:#0d1117}
+html.dark .btn-primary:hover{background:#b1bac4}
+html.dark .b-contract{background:#0d3321;color:#56d364}
+html.dark .b-winner{background:#0c2d3f;color:#79c0ff}
+html.dark .b-pending{background:#2f2008;color:#e3b341}
+html.dark .b-win-price{background:#051d2c;color:#58c8e8}
+html.dark .b-lose-price{background:#2c1a00;color:#ffa657}
+html.dark .b-lose{background:#300808;color:#f85149}
+html.dark .b-new{background:#21262d;color:#8b949e}
+html.dark .bar{background:#21262d}
+html.dark .spinner{border-color:#30363d;border-top-color:var(--blue)}
+html.dark .refresh-banner{background:#1a2008;border-color:#d97706;color:#e6edf3}
+html.dark .progress-wrap{background:#161b22;border:1px solid #30363d}
+html.dark .progress-bar{background:#21262d}
+html.dark .api-note{background:#051d2c;border-color:#1f6feb;color:#58a6ff}
+html.dark .proj-card{background:#161b22;border-color:#30363d}
+html.dark .proj-card:hover{border-color:#1f6feb;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+html.dark .proj-card-header{background:#0d1117;border-bottom-color:#30363d}
+html.dark .proj-card-name{color:#e6edf3}
+html.dark .proj-meta-item-val{color:#e6edf3}
+html.dark .proj-id-label,.html.dark .proj-status-label{color:#8b949e}
+html.dark .proj-id-value{color:#79c0ff}
+html.dark .proj-status-value{color:#f85149}
+html.dark .proj-fin-item{background:#0d1117;border-color:#30363d}
+html.dark .proj-fin-value{color:#e6edf3}
+html.dark .report-section-title{color:#79c0ff;border-bottom-color:#30363d}
+html.dark .win-tl-item{border-bottom-color:#21262d}
+html.dark .win-tl-name{color:#e6edf3}
+html.dark .win-tl-meta{color:#8b949e}
+html.dark .tl-dot{background:#21262d;border-color:#0d1117;box-shadow:0 0 0 1.5px #30363d}
+html.dark .tl-line{background:#30363d}
+html.dark .tl-step-label{color:#8b949e}
+/* ── Reset ─────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;font-size:14px;background:var(--bg);color:var(--text)}
+/* ── Layout ────────────────────────────────────────────────────── */
+.app{max-width:1200px;margin:0 auto;padding:1rem}
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1.2rem;flex-wrap:wrap;gap:8px;
+  background:var(--surface);padding:1rem 1.2rem;
+  border-radius:var(--radius);box-shadow:var(--shadow)}
+.logo-area h1{font-size:17px;font-weight:700}
+.logo-area p{font-size:12px;color:var(--muted)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.two-col,.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:1}}
+/* ── Tabs ──────────────────────────────────────────────────────── */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.2rem;
+  background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;
+  padding:.5rem 1rem 0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.tab{padding:9px 16px;font-size:13px;cursor:pointer;border:none;background:none;
+  color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;
+  font-family:inherit;font-weight:500}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+.section{display:none}.section.active{display:block}
+/* ── Cards ─────────────────────────────────────────────────────── */
+.card{background:var(--surface);border-radius:var(--radius);padding:1.1rem;
+  margin-bottom:1rem;box-shadow:var(--shadow)}
+.card-title{font-size:12px;font-weight:700;margin-bottom:1rem;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+/* ── Metrics ───────────────────────────────────────────────────── */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-bottom:1.2rem}
+.metric{background:var(--surface);border-radius:var(--radius);
+  padding:1rem;box-shadow:var(--shadow)}
+.metric-label{font-size:11px;color:var(--muted);margin-bottom:4px;
+  text-transform:uppercase;letter-spacing:.04em}
+.metric-value{font-size:24px;font-weight:700}
+.metric-sub{font-size:11px;color:#888;margin-top:2px}
+/* ── Buttons ───────────────────────────────────────────────────── */
+.btn{padding:8px 15px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;
+  border:1.5px solid var(--border);background:var(--surface);
+  color:var(--text);font-family:inherit;white-space:nowrap;font-weight:500}
+.btn:hover{background:#f3f4f6}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--text);color:var(--surface);border-color:var(--text)}.btn-primary:hover{background:#333}
+.btn-api{background:var(--blue);color:var(--surface);border-color:var(--blue)}.btn-api:hover{background:var(--blue-dk)}
+.btn-green{background:var(--green);color:var(--surface);border-color:var(--green)}.btn-green:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-row{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+/* ── Table ─────────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:9px 10px;font-size:10px;font-weight:700;
+  color:var(--muted);border-bottom:2px solid var(--border);
+  text-transform:uppercase;white-space:nowrap;background:var(--bg)}
+td{padding:9px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:hover td{background:var(--bg)}
+.proj-name{max-width:260px;font-size:11px;line-height:1.5}
+.entity-tag{font-size:10px;color:#888;max-width:130px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── Badges ────────────────────────────────────────────────────── */
+.badge{display:inline-block;font-size:10px;padding:3px 9px;
+  border-radius:99px;font-weight:600;white-space:nowrap}
+.b-contract{background:#d4edda;color:#155724}
+.b-winner{background:#d1ecf1;color:#0c5460}
+.b-pending{background:#fff3cd;color:#856404}
+.b-win-price{background:#e0f2fe;color:#075985}
+.b-lose-price{background:#fef3c7;color:#92400e}
+.b-lose{background:#fde8e8;color:#9b1c1c}
+.b-new{background:#e2e3e5;color:#383d41}
+/* ── Bars ──────────────────────────────────────────────────────── */
+.bar{height:7px;border-radius:4px;background:#f0f0f0;margin-top:3px}
+.bar-fill{height:100%;border-radius:4px;background:var(--blue)}
+/* ── Form ──────────────────────────────────────────────────────── */
+.filter-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.filter-row input,.filter-row select{flex:1;min-width:120px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;color:#555;font-weight:600}
+input,select,textarea{
+  padding:8px 10px;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-size:13px;
+  background:var(--surface);color:var(--text);
+  width:100%;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)}
+textarea{resize:vertical;min-height:60px}
+/* ── Misc ──────────────────────────────────────────────────────── */
+.empty{text-align:center;padding:3rem;color:#888;font-size:13px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);
+  color:var(--surface);padding:11px 20px;border-radius:9px;font-size:13px;
+  opacity:0;transition:opacity .3s;pointer-events:none;
+  z-index:999;max-width:320px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.toast.show{opacity:1}
+.spinner{display:inline-block;width:13px;height:13px;
+  border:2px solid #ccc;border-top-color:var(--blue);
+  border-radius:50%;animation:spin .6s linear infinite;
+  vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.refresh-banner{background:#fffbeb;border:1.5px solid #f59e0b;
+  border-radius:9px;padding:.75rem 1rem;margin-bottom:1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;font-size:13px;flex-wrap:wrap}
+.progress-wrap{margin-bottom:1rem;padding:.75rem 1rem;
+  background:#f0f7ff;border-radius:9px;display:none}
+.progress-bar{height:5px;background:#dde;border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
+.api-note{background:#e8f4fd;border:1px solid #bee3f8;border-radius:var(--radius-sm);
+  padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-bottom:1rem}
+/* ── Report tab (G-Lead style) ─────────────────────────────────── */
+:root{
+  --navy:#1e2a5e; --navy-dk:#15204a;
+  --kpi-blue-1:#2b3990; --kpi-blue-2:#1e2a5e;
+  --kpi-green-1:#0f9d58; --kpi-green-2:#0d8a4d;
+  --pill-bg:#f1f3f9; --pill-active:#2b3990;
+  --card-border:#e5e9f2;
+  --status-new:#10b981;
+}
+.report-header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dk) 100%);
+  border-radius:var(--radius);
+  margin-bottom:1.2rem;
+  padding:1.25rem 1.5rem;
+  color:#fff;
+  position:relative;overflow:hidden}
+.report-header::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,
+    transparent 0 18px,rgba(255,255,255,.03) 18px 19px);
+  pointer-events:none}
+.report-header-inner{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  gap:1rem;flex-wrap:wrap;position:relative}
+.report-title{font-size:18px;font-weight:700;letter-spacing:.01em}
+.report-subtitle{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+.report-meta{font-size:11px;color:rgba(255,255,255,.7);text-align:right}
+.report-meta strong{color:#7dd3fc;display:block;margin-top:2px}
+
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:1.2rem}
+.kpi-card{
+  position:relative;overflow:hidden;
+  border-radius:var(--radius);
+  padding:1.5rem 1.6rem;
+  color:#fff;
+  box-shadow:0 4px 14px rgba(43,57,144,.18)}
+.kpi-card.blue{background:linear-gradient(135deg,var(--kpi-blue-1) 0%,var(--kpi-blue-2) 100%)}
+.kpi-card.green{background:linear-gradient(135deg,var(--kpi-green-1) 0%,var(--kpi-green-2) 100%)}
+.kpi-card.purple{background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%)}
+.kpi-card.orange{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)}
+.kpi-card::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,
+    transparent 0 24px,rgba(255,255,255,.05) 24px 25px);
+  pointer-events:none}
+.kpi-card-inner{position:relative;z-index:1}
+.kpi-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(255,255,255,.15);font-size:18px;margin-bottom:10px}
+.kpi-label{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:4px}
+.kpi-value{font-size:30px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
+.kpi-unit{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px}
+
+/* Filter pills */
+.report-pills{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
+.pill{
+  padding:8px 16px;border-radius:99px;
+  background:var(--pill-bg);color:#475569;
+  border:1.5px solid transparent;
+  font-size:13px;font-weight:500;font-family:inherit;
+  cursor:pointer;transition:all .15s}
+.pill:hover{background:#e2e8f0}
+.pill.active{background:var(--pill-active);color:#fff;border-color:var(--pill-active)}
+
+/* Section titles */
+.report-section-title{
+  font-size:15px;font-weight:700;color:var(--navy);
+  margin:0 0 .8rem;padding-bottom:8px;
+  border-bottom:2px solid #e5e9f2}
+
+/* Project cards (G-Lead card style) */
+.proj-card{
+  background:#fff;border:1px solid var(--card-border);
+  border-radius:10px;margin-bottom:12px;overflow:hidden;
+  transition:all .2s}
+.proj-card:hover{border-color:var(--kpi-blue-1);box-shadow:0 4px 12px rgba(43,57,144,.08)}
+.proj-card-header{
+  display:flex;align-items:center;gap:10px;padding:.75rem 1.1rem;
+  background:#fafbff;border-bottom:1px solid var(--card-border);flex-wrap:wrap}
+.proj-status-tag{
+  background:var(--status-new);color:#fff;font-size:11px;
+  font-weight:700;padding:4px 12px;border-radius:5px}
+.proj-status-tag.winner{background:#3b82f6}
+.proj-status-tag.contract{background:#10b981}
+.proj-status-tag.pending{background:#f59e0b}
+.proj-status-tag.win-price{background:#0284c7}
+.proj-status-tag.lose-price{background:#d97706}
+.proj-status-tag.lose{background:#dc2626}
+.proj-id-label{font-size:11px;color:#64748b}
+.proj-id-value{font-size:12px;color:var(--navy);font-weight:600;font-family:monospace}
+.proj-status-label{font-size:11px;color:#64748b;margin-left:auto}
+.proj-status-value{font-size:11px;color:#dc2626;font-weight:500}
+.proj-card-body{padding:1rem 1.1rem}
+.proj-card-name{
+  font-size:13px;font-weight:600;color:#1e293b;
+  line-height:1.55;margin-bottom:.85rem}
+.proj-meta-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem .8rem;
+  font-size:11.5px;color:#475569;margin-bottom:1rem}
+.proj-meta-item{display:flex;gap:5px;align-items:flex-start}
+.proj-meta-item-icon{color:var(--kpi-blue-1);flex-shrink:0;margin-top:1px}
+.proj-meta-item-label{color:#64748b;display:block;font-size:10px}
+.proj-meta-item-val{color:#1e293b;font-weight:500}
+
+/* Timeline progress */
+.proj-timeline{
+  display:flex;align-items:center;gap:0;
+  margin:.8rem 0 1rem;padding:0 .25rem}
+.tl-step{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;text-align:center;width:80px}
+.tl-dot{
+  width:22px;height:22px;border-radius:50%;
+  background:#e2e8f0;border:2px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#94a3b8;
+  box-shadow:0 0 0 1.5px #cbd5e1;
+  position:relative;z-index:1}
+.tl-step.done .tl-dot{background:var(--kpi-blue-1);color:#fff;box-shadow:0 0 0 1.5px var(--kpi-blue-1)}
+.tl-step.active .tl-dot{background:var(--kpi-blue-1);color:#fff;box-shadow:0 0 0 1.5px var(--kpi-blue-1),0 0 0 5px rgba(43,57,144,.15)}
+.tl-line{flex:1 1 auto;height:2px;background:#e2e8f0;margin-top:11px;min-width:30px}
+.tl-line.done{background:var(--kpi-blue-1)}
+.tl-step-label{font-size:9px;color:#64748b;margin-top:6px;line-height:1.3;font-weight:500}
+.tl-step.done .tl-step-label,.tl-step.active .tl-step-label{color:var(--navy)}
+
+/* Financial footer 3-column */
+.proj-fin-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:0;border-top:1px solid var(--card-border);
+  margin:0 -1.1rem -1rem;padding-top:0}
+.proj-fin-item{
+  padding:.75rem 1.1rem;
+  border-right:1px solid var(--card-border);
+  background:#fafbff}
+.proj-fin-item:last-child{border-right:none}
+.proj-fin-label{font-size:10px;color:#64748b;margin-bottom:3px}
+.proj-fin-value{font-size:14px;font-weight:700;color:#1e293b}
+.proj-fin-value.win{color:#0f9d58}
+.proj-fin-value.budget{color:var(--navy)}
+
+/* Wins timeline (vertical) */
+.win-tl-item{
+  display:flex;gap:14px;padding:.85rem 0;
+  border-bottom:1px solid #f1f3f9}
+.win-tl-item:last-child{border-bottom:none}
+.win-tl-date{
+  flex-shrink:0;width:60px;text-align:right;
+  font-size:11px;color:#64748b;line-height:1.4;padding-top:3px}
+.win-tl-date-day{font-size:18px;font-weight:700;color:var(--navy);display:block}
+.win-tl-bullet{
+  flex-shrink:0;width:14px;height:14px;border-radius:50%;
+  background:#0f9d58;margin-top:6px;
+  box-shadow:0 0 0 4px rgba(16,185,129,.15)}
+.win-tl-content{flex:1}
+.win-tl-name{font-size:12.5px;font-weight:600;color:#1e293b;line-height:1.5;margin-bottom:3px}
+.win-tl-meta{font-size:11px;color:#64748b;display:flex;gap:1rem;flex-wrap:wrap}
+.win-tl-meta strong{color:#0f9d58;font-weight:700}
+
+@media(max-width:600px){
+  .proj-meta-grid{grid-template-columns:1fr}
+  .proj-fin-grid{grid-template-columns:repeat(2,1fr)}
+  .proj-fin-item{border-right:none;border-bottom:1px solid var(--card-border)}
+  .tl-step{width:auto}
+  .tl-step-label{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="logo-area" style="display:flex;align-items:center;gap:12px">
+      <img src="output-onlinepngtools.png" style="height:52px;width:auto">
+      <div>
+        <h1>R.M.N. Enterprise — e-Bidding Tracker</h1>
+        <p>ระบบติดตามการประมูล ปีงบประมาณ 2569 · govspending API</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">☀️</button>
+      <button class="btn" onclick="App.exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-green" id="btn-bulk" onclick="App.bulkRefresh()">🔄 Refresh Pending</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="App.navigate('dashboard')">📊 Dashboard</button>
+    <button class="tab" onclick="App.navigate('report')">📑 Report</button>
+    <button class="tab" onclick="App.navigate('records')">📋 Records</button>
+    <button class="tab" onclick="App.navigate('add')">➕ Add Bid</button>
+    <button class="tab" onclick="App.navigate('lookup')">🔍 API Lookup</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="tab-dashboard" class="section active">
+    <div class="metrics" id="metrics"></div>
+    <div class="two-col">
+      <div class="card"><div class="card-title">Breakdown by ห้าง</div><div id="entity-bars"></div></div>
+      <div class="card"><div class="card-title">จังหวัด</div><div id="province-bars"></div></div>
+    </div>
+  </div>
+
+  <!-- Report (G-Lead style company BI report) -->
+  <div id="tab-report" class="section">
+    <div class="report-header">
+      <div class="report-header-inner">
+        <div>
+          <div class="report-title">📑 รายงานจัดซื้อจัดจ้างภาครัฐ</div>
+          <div class="report-subtitle">บริษัท R.M.N. Enterprise · ปีงบประมาณ 2569</div>
+        </div>
+        <div class="report-meta" id="report-updated"></div>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <!-- Filter pills -->
+    <div class="report-pills">
+      <button class="pill active" data-filter="all">ทั้งหมด</button>
+      <button class="pill" data-filter="contract">มีสัญญา</button>
+      <button class="pill" data-filter="winner">ประกาศผู้ชนะ</button>
+      <button class="pill" data-filter="win-price">เป็นผู้เสนอต่ำสุด</button>
+      <button class="pill" data-filter="lose-price">ไม่ได้เป็นผู้เสนอต่ำสุด</button>
+      <button class="pill" data-filter="pending">รอผล</button>
+      <button class="pill" data-filter="lose">แพ้สิ้นสุด</button>
+    </div>
+
+    <!-- Pending pipeline + Recent wins side by side -->
+    <div class="report-section-title">⏳ Pipeline งานรอผล</div>
+    <div id="pipeline-list"></div>
+
+    <div class="report-section-title" style="margin-top:1.5rem">🏆 Recent Wins Timeline</div>
+    <div id="wins-timeline"></div>
+
+    <div class="report-section-title" style="margin-top:1.5rem" id="lose-section-title"></div>
+    <div id="lose-timeline"></div>
+  </div>
+
+  <!-- Records -->
+  <div id="tab-records" class="section">
+    <div id="pending-banner"></div>
+    <div class="progress-wrap" id="progress-wrap">
+      <div style="font-size:12px;color:var(--blue);font-weight:600" id="progress-label"></div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="filter-row">
+      <input id="fsearch" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderTable()">
+      <select id="fstatus" onchange="App.renderTable()">
+        <option value="">ทุกสถานะ</option>
+        <option>จัดทำสัญญาแล้ว</option>
+        <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
+        <option value="ราคาต่ำสุด">เป็นผู้เสนอต่ำสุด</option>
+        <option value="ราคาไม่ต่ำสุด">ไม่ได้เป็นผู้เสนอต่ำสุด</option>
+        <option>อยู่ระหว่างพิจารณาผล</option>
+        <option>แพ้การประมูล</option>
+      </select>
+      <select id="fentity" onchange="App.renderTable()"><option value="">ทุกห้าง</option></select>
+    </div>
+    <div id="records-list"></div>
+  </div>
+
+  <!-- Add / Edit -->
+  <div id="tab-add" class="section">
+    <div class="card">
+      <div class="card-title" id="form-title">เพิ่มโครงการใหม่</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>เลขที่โครงการ (Project ID)</label>
+          <div style="display:flex;gap:8px">
+            <input id="f-id" type="text" placeholder="เช่น 69039516906" style="flex:1">
+            <button class="btn btn-api" id="btn-autofill" onclick="App.autofillFromAPI()">⚡ ดึงจาก API</button>
+          </div>
+        </div>
+        <div class="form-group full"><label>ชื่อโครงการ</label><textarea id="f-name" placeholder="ชื่อเต็มของโครงการ"></textarea></div>
+        <div class="form-group"><label>วันที่ประมูล</label><input id="f-date" type="date"></div>
+        <div class="form-group"><label>หน่วยงาน</label><input id="f-agency" type="text"></div>
+        <div class="form-group"><label>จังหวัด</label><input id="f-province" type="text"></div>
+        <div class="form-group"><label>งบประมาณ (บาท)</label><input id="f-budget" type="number" placeholder="0"></div>
+        <div class="form-group"><label>ราคากลาง (บาท)</label><input id="f-midprice" type="number" placeholder="0"></div>
+        <div class="form-group"><label>ราคาที่ยื่น (บาท)</label><input id="f-bid" type="number" placeholder="0"></div>
+        <div class="form-group">
+          <label>ห้างที่ใช้เสนอ</label>
+          <select id="f-entity">
+            <option>ห้างหุ้นส่วน RMN</option>
+            <option>กิจการร่วมค้า RMN</option>
+            <option>กิจการร่วมค้า ตักสิลา</option>
+            <option>ห้างหุ้นส่วนจำกัด อาร์เอ็มเอ็น เอ็นเตอร์ไพส์</option>
+            <option>บริษัท ตักสิลา อาร์เอ็มเอ็น จำกัด</option>
+            <option>ห้างหุ้นส่วนจำกัด รักดีการโยธา</option>
+            <option>กิจการร่วมค้า รักดี</option>
+            <option>กิจการร่วมค้า อาร์เอ็มเอ็น</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>สถานะ</label>
+          <select id="f-status">
+            <option>อยู่ระหว่างพิจารณาผล</option>
+            <option value="ราคาต่ำสุด">เป็นผู้เสนอต่ำสุด</option>
+            <option value="ราคาไม่ต่ำสุด">ไม่ได้เป็นผู้เสนอต่ำสุด</option>
+            <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
+            <option>จัดทำสัญญาแล้ว</option>
+            <option>แพ้การประมูล</option>
+          </select>
+        </div>
+      </div>
+      <div id="autofill-result"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="App.saveBid()">💾 บันทึก</button>
+        <button class="btn" onclick="App.clearForm()">✕ ล้างฟอร์ม</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lookup -->
+  <div id="tab-lookup" class="section">
+    <div class="api-note">⚡ หากใช้ corsproxy ไม่ได้ ให้รันผ่าน <strong>python -m http.server 8080</strong> แล้วเปิดใน Chrome</div>
+    <div class="card">
+      <div class="card-title">🔍 ค้นหาโครงการ (egp-contract)</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+        <input id="lookup-id" type="text" placeholder="เลขที่โครงการ เช่น 68109441956" style="flex:1">
+        <button class="btn btn-api" id="btn-lookup" onclick="App.doLookup()">🔍 ค้นหา</button>
+      </div>
+      <div id="lookup-result"><div class="empty">ใส่เลขโครงการแล้วกดค้นหา</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏢 ค้นหาผู้ชนะ (egp-winner)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="winner-kw" type="text" placeholder="เช่น RMN, ตักสิลา, รักดี" style="flex:1">
+        <button class="btn btn-api" id="btn-winner" onclick="App.doWinnerLookup()">🔍 ค้นหา</button>
+      </div>
+      <div id="winner-result" style="margin-top:.8rem"><div class="empty">ค้นหาจาก egp-winner API</div></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFIG  — all magic strings in one place
+═══════════════════════════════════════════════════════════════ */
+const CONFIG = Object.freeze({
+  EGP_KEY:       'pOZwkh6baWEOuhKOSksDcKxVozruHed7',
+  EGP_BASE:      'https://opend.data.go.th/govspending',
+  CORS_PROXY:    'https://corsproxy.io/?url=',
+  STORAGE_KEY:   'rmn_v6',
+  TIMEOUT_DIRECT: 8_000,
+  TIMEOUT_PROXY:  15_000,
+  BULK_DELAY:     800,
+  STATUS: Object.freeze({
+    PENDING:    'อยู่ระหว่างพิจารณาผล',
+    WIN_PRICE:  'ราคาต่ำสุด',
+    LOSE_PRICE: 'ราคาไม่ต่ำสุด',
+    WINNER:     'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',
+    CONTRACT:   'จัดทำสัญญาแล้ว',
+    LOSE:       'แพ้การประมูล',
+  }),
+  DEFAULT_ENTITY: 'ห้างหุ้นส่วน RMN',
+  // เลขผู้เสียภาษี (winner_tin) ของแต่ละนิติบุคคลในกลุ่ม RMN (ครบทุกห้าง)
+  ENTITY_TIN: Object.freeze({
+    'ห้างหุ้นส่วนจำกัด อาร์เอ็มเอ็น เอ็นเตอร์ไพส์': '0443561001307',
+    'ห้างหุ้นส่วน RMN':                               '0443561001307',
+    'กิจการร่วมค้า RMN':                              '0993000469275',
+    'กิจการร่วมค้า อาร์เอ็มเอ็น':                    '0993000469275',
+    'บริษัท ตักสิลา อาร์เอ็มเอ็น จำกัด':             '0105551027685',
+    'กิจการร่วมค้า ตักสิลา':                          '0993000529367',
+    'กิจการร่วมค้า รักดี':                            '0993000516095',
+    'ห้างหุ้นส่วนจำกัด รักดีการโยธา':                '0443567000931',
+  }),
+  // TIN ทั้งหมดของกลุ่ม (ใช้ค้นแบบ bulk)
+  ALL_TINS: Object.freeze([
+    '0443561001307',  // อาร์เอ็มเอ็น เอ็นเตอร์ไพส์
+    '0993000469275',  // กิจการร่วมค้า อาร์เอ็มเอ็น
+    '0105551027685',  // ตักสิลา อาร์เอ็มเอ็น
+    '0993000516095',  // กิจการร่วมค้า รักดี
+    '0443567000931',  // รักดีการโยธา
+    '0993000529367',  // กิจการร่วมค้า ตักสิลา
+  ]),
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   SEED DATA
+═══════════════════════════════════════════════════════════════ */
+const SEED_BIDS = [
+{"id":"68109441956","seq":1,"name":"ซ่อมสร้างถนนแอสฟัลท์ติกคอนกรีต จากทางหลวง 202-ประตูวัด ตำบลหนองบัวแก้ว","agency":"อบต.หนองบัวแก้ว","province":"มหาสารคาม","budget":2499400,"bid":1296000,"pct":48.15,"entity":"กิจการร่วมค้า ตักสิลา","status":"จัดทำสัญญาแล้ว","date":"2568-12-16","contractPrice":1296000},
+{"id":"68129065918","seq":2,"name":"ซ่อมสร้างถนนลาดยาง OVERLAY รหัส มค.ถ.20-006","agency":"อบต.ก้ามปู","province":"มหาสารคาม","budget":1625000,"bid":968000,"pct":40.43,"entity":"กิจการร่วมค้า ตักสิลา","status":"จัดทำสัญญาแล้ว","date":"2568-12-16","contractPrice":968000},
+{"id":"68109387622","seq":3,"name":"ปรับปรุงผิวจราจรแอสฟัลติกคอนกรีต ถนนไชยกาล ชุมชนวังหิน ตำบลกมลาไสย","agency":"เทศบาลตำบลกมลาไสย","province":"กาฬสินธุ์","budget":7709000,"bid":3878000,"pct":49.7,"entity":"กิจการร่วมค้า ตักสิลา","status":"จัดทำสัญญาแล้ว","date":"2568-12-26","contractPrice":3878000},
+{"id":"68129308304","seq":4,"name":"ปรับปรุงถนนแอสฟัลติกคอนกรีต สายบ้านเมืองเก่า-บ้านหนองแต้ ชัยภูมิ","agency":"แขวงทางหลวงชนบทชัยภูมิ","province":"ชัยภูมิ","budget":5000000,"bid":4994000,"pct":0.12,"entity":"กิจการร่วมค้า ตักสิลา","status":"จัดทำสัญญาแล้ว","date":"2568-12-30","contractPrice":4994000},
+{"id":"68129494483","seq":5,"name":"ก่อสร้างถนนแอสฟัลท์ติกคอนกรีต สายหน้า อบต.ดอนงัว ไปวัดบ้านดอนงัว","agency":"อบต.ดอนงัว","province":"มหาสารคาม","budget":900000,"bid":536000,"pct":40.44,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-05","midPrice":893836,"contractPrice":536000},
+{"id":"68129174612","seq":6,"name":"ปรับปรุงถนนเป็นแอสฟัลท์ติกคอนกรีต สายบ้านนาแก-บ้านดงมะไฟ สกลนคร","agency":"อบต.ดงมะไฟ","province":"สกลนคร","budget":7624000,"bid":4268000,"pct":44.02,"entity":"กิจการร่วมค้า RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-06","contractPrice":4268000},
+{"id":"68129510402","seq":7,"name":"เสริมผิวแอสฟัลท์ติก สายไปวัดสวนป่า หมู่ที่ 8 บ้านสามัคคี ตำบลดอนสมบูรณ์","agency":"อบต.ดอนสมบูรณ์","province":"กาฬสินธุ์","budget":1213000,"bid":588000,"pct":51.53,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-06","midPrice":1116637,"contractPrice":588000},
+{"id":"68109060639","seq":8,"name":"เสริมผิวจราจรแอสฟัลท์ติกคอนกรีต ถนนใจผาสุก เทศบาลนครสกลนคร","agency":"เทศบาลนครสกลนคร","province":"สกลนคร","budget":3078000,"bid":2288000,"pct":25.67,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-07","midPrice":2951726,"contractPrice":2288000},
+{"id":"68129169489","seq":9,"name":"ปรับปรุงถนนคอนกรีต บ้านนาซอ หมู่ที่ 10 ปูทับด้วยแอสฟัลท์คอนกรีต","agency":"เทศบาลตำบลนาซอ","province":"สกลนคร","budget":1488000,"bid":998000,"pct":32.93,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-16","midPrice":1440372,"contractPrice":998000},
+{"id":"68119464503","seq":10,"name":"ซ่อมแซมถนนคอนกรีต ตำบลโนนราษี สายบ้านห้วยทราย-บ้านบ่อหลุบ","agency":"อบต.โนนราษี","province":"มหาสารคาม","budget":7661000,"bid":4988000,"pct":34.89,"entity":"กิจการร่วมค้า RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-20","contractPrice":4988000},
+{"id":"69019337346","seq":11,"name":"เสริมผิวจราจรแอสฟัลต์คอนกรีต รหัส กส.ถ.23-028 สายถนนราษฏรนิมิต ตำบลธัญญา","agency":"เทศบาลตำบลธัญญา","province":"กาฬสินธุ์","budget":2461900,"bid":1188000,"pct":51.74,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-28","midPrice":2204808,"contractPrice":1188000},
+{"id":"69019291469","seq":12,"name":"ปรับปรุงถนนลาดยางแอสฟัลต์คอนกรีต รหัส ขก.ถ.144-02 บ้านหนองคอง 2","agency":"เทศบาลตำบลหนองนาคำ","province":"ขอนแก่น","budget":3070000,"bid":1628000,"pct":46.97,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-01-30","midPrice":3080529,"contractPrice":1628000},
+{"id":"69019364527","seq":13,"name":"เสริมผิวแอสฟัลท์ติกคอนกรีต รหัส ขก.ถ.196-54 ถนนซอยตรงข้ามศาลาประชาคม","agency":"อบต.หนองกุงธนสาร","province":"ขอนแก่น","budget":555000,"bid":288000,"pct":48.11,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-02","midPrice":555000,"contractPrice":288000},
+{"id":"69019099341","seq":14,"name":"ก่อสร้างถนนลาดยางทับคอนกรีตเดิม ถนนสาย 10 หน้าวัดบูรพา-วัดศรีบุญเรือง","agency":"เทศบาลตำบลคำตากล้า","province":"สกลนคร","budget":2000000,"bid":1128000,"pct":43.6,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-03","midPrice":1812673,"contractPrice":1128000},
+{"id":"69019099694","seq":15,"name":"ก่อสร้างถนนลาดยางทับคอนกรีตเดิม ถนนเทศบาลสาย 32-ถนนเทศบาลสาย 26","agency":"เทศบาลตำบลคำตากล้า","province":"สกลนคร","budget":3500000,"bid":1948000,"pct":44.34,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-03","midPrice":3137442,"contractPrice":1948000},
+{"id":"68119343622","seq":16,"name":"เสริมผิวแอสฟัลต์คอนกรีต รหัส ขก.ถ.117-13 ศาลากลางบ้าน-หน้าวัดศรีพอง","agency":"อบต.ทุ่งโป่ง","province":"ขอนแก่น","budget":793000,"bid":448000,"pct":43.51,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-02-04"},
+{"id":"68129195491","seq":17,"name":"เสริมผิวทางแอสฟัลท์ติกคอนกรีต บ้านหนองแข้ หมู่ที่ 7 อบต.หนองไผ่","agency":"อบต.หนองไผ่","province":"ร้อยเอ็ด","budget":2082000,"bid":1056000,"pct":49.28,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-11","midPrice":1998492,"contractPrice":1056000},
+{"id":"68129131723","seq":18,"name":"เสริมผิวทางแอสฟัลท์ติกคอนกรีต บ้านดอนกลอย หมู่ที่ 11 อบต.หนองไผ่","agency":"อบต.หนองไผ่","province":"ร้อยเอ็ด","budget":2582000,"bid":1312000,"pct":49.19,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-11","midPrice":2478858,"contractPrice":1312000},
+{"id":"69019019593","seq":19,"name":"ปรับปรุงผิวจราจรแอสฟัลท์คอนกรีต ถนนสายบ้านขามหวาน-วัดโพธิ์ศรีแกดำ","agency":"เทศบาลตำบลแกดำ","province":"มหาสารคาม","budget":1021900,"bid":578000,"pct":43.44,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-11","midPrice":973669,"contractPrice":578000},
+{"id":"69029031848","seq":20,"name":"เสริมผิวแอสฟัลท์ติกคอนกรีต บ้านดอนเกลือ ม.10 ต.บึงงาม ร้อยเอ็ด","agency":"อบต.บึงงาม","province":"ร้อยเอ็ด","budget":2026100,"bid":1188000,"pct":41.37,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-12","midPrice":2034365,"contractPrice":1188000},
+{"id":"69019397577","seq":21,"name":"ปรับปรุงซ่อมแซมถนนแอสฟัลติกคอนกรีต สาย มค.ถ29-005 บ้านแกดำ-บ้านหนองเจริญ","agency":"อบต.แกดำ","province":"มหาสารคาม","budget":2130000,"bid":1466000,"pct":31.17,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-12"},
+{"id":"69019192946","seq":22,"name":"ก่อสร้างถนนผิวจราจรแอสฟัลต์คอนกรีต สายหลังโรงเรียนบ้านโนนสำราญ หมู่ที่ 5","agency":"เทศบาลตำบลนาจาน","province":"ขอนแก่น","budget":1687000,"bid":829668,"pct":50.82,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-12","midPrice":1597481,"contractPrice":829668},
+{"id":"69019211222","seq":23,"name":"ก่อสร้างถนนผิวจราจรแอสฟัลคอนกรีต สายบ้านท่าช้าง-บ้านโนนว่านไฟ หมู่ที่ 3","agency":"เทศบาลตำบลนาจาน","province":"ขอนแก่น","budget":1703000,"bid":886755,"pct":47.93,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-12","midPrice":1683721,"contractPrice":886755},
+{"id":"69019222862","seq":24,"name":"บูรณะทางผิวแอสฟัลต์ ทางหลวง 213 ตอน หนองขอน-ห้วยปลาหลด มหาสารคาม","agency":"แขวงทางหลวงมหาสารคาม","province":"มหาสารคาม","budget":20000000,"bid":17768000,"pct":11.16,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-13","midPrice":19970483,"contractPrice":17768000},
+{"id":"69019223098","seq":25,"name":"บูรณะทางผิวแอสฟัลต์ ทางหลวง 291 ตอน ทางเลี่ยงเมืองมหาสารคาม","agency":"แขวงทางหลวงมหาสารคาม","province":"มหาสารคาม","budget":15000000,"bid":13338000,"pct":11.08,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-14","midPrice":14994459,"contractPrice":13338000},
+{"id":"68129460824","seq":26,"name":"ปรับปรุงถนนคอนกรีตเสริมเหล็ก รหัส กส.ถ.134-15 บ้านหนองกุงเหนือ-บ้านหนองกุงใต้","agency":"อบต.หนองกุง","province":"กาฬสินธุ์","budget":3498000,"bid":1688000,"pct":51.74,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-18","midPrice":3305429,"contractPrice":1688000},
+{"id":"69019325361","seq":27,"name":"ปรับปรุงถนนลาดยาง Pavement In Place Recycling สาย ขก.ถ.1-0008 บ้านยางคำ-บ้านเม็ง","agency":"อบจ.ขอนแก่น","province":"ขอนแก่น","budget":8937000,"bid":7386000,"pct":17.35,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-02-18"},
+{"id":"69019131293","seq":28,"name":"ก่อสร้างถนนลาดยางแอสฟัลติกคอนกรีต รหัส ขก.ถ.54-043 ถนนเทศบาล 13 ตำบลแวงน้อย","agency":"เทศบาลตำบลแวงน้อย","province":"ขอนแก่น","budget":1549000,"bid":777000,"pct":49.84,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-19"},
+{"id":"69019321881","seq":29,"name":"เสริมผิวแอสฟัลท์ติกคอนกรีต รหัส มค.ถ.104-03 สายบ้านโนนสูง-บ้านโนนทอง","agency":"อบต.สันป่าตอง","province":"มหาสารคาม","budget":4273000,"bid":2098000,"pct":50.9,"entity":"ห้างหุ้นส่วน RMN","status":"จัดทำสัญญาแล้ว","date":"2569-02-11","midPrice":4048171,"contractPrice":2098000},
+{"id":"68109449059","seq":30,"name":"ปรับปรุงผิวทางแอสฟัลติกคอนกรีต สายบ้านโนนยิ่งสันต์ หมู่ที่ 1 ตำบลหนองบัว","agency":"อบต.หนองบัว","province":"กาฬสินธุ์","budget":1519000,"bid":948000,"pct":37.59,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-23","midPrice":1519443,"contractPrice":948000},
+{"id":"68129167084","seq":31,"name":"ปรับปรุงถนนลาดยาง Pavement In Place Recycling สาย ขก.ถ.1-0010 บ้านหว้าโง๊ะ-บ้านดงน้อย","agency":"อบจ.ขอนแก่น","province":"ขอนแก่น","budget":21000000,"bid":19895000,"pct":5.26,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-23"},
+{"id":"68129484635","seq":32,"name":"ปรับปรุงถนนแอสฟัลท์ติกคอนกรีต ถนนราษฎร์ประชาสันติ์ บ้านหัวขัว ตำบลเปือยน้อย","agency":"เทศบาลตำบลเปือยน้อย","province":"ขอนแก่น","budget":1432500,"bid":828000,"pct":42.2,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-02-23"},
+{"id":"68119530110","seq":33,"name":"ซ่อมสร้างและเสริมผิวจราจร OVERLAY สาย สน.ถ1-0026 บ้านสี่แยก-บ้านเม่นน้อย","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":4345000,"bid":2338000,"pct":46.19,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-02-26"},
+{"id":"69019542481","seq":34,"name":"เสริมผิวจราจรแอสฟัลท์ติกคอนกรีต บ้านโคกสี หมู่ที่ 5 ตำบลโคกสีทองหลาง","agency":"อบต.โคกสีทองหลาง","province":"มหาสารคาม","budget":1067300,"bid":598000,"pct":43.97,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-03-02"},
+{"id":"68119530496","seq":35,"name":"ซ่อมสร้างและเสริมผิวจราจร OVERLAY สาย สน.4073 บ้านคอนสวรรค์-บ้านโนนสว่าง","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":4489000,"bid":2788000,"pct":37.89,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-03-03"},
+{"id":"68109272892","seq":36,"name":"เสริมผิวจราจรแอสฟัลท์ติกคอนกรีต ซอยนิลจินดา 4 ชุมชนรุ่งพัฒนา 1 สกลนคร","agency":"เทศบาลนครสกลนคร","province":"สกลนคร","budget":588000,"bid":368000,"pct":37.41,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-03-17"},
+{"id":"69019314987","seq":37,"name":"ซ่อมสร้างและเสริมผิวจราจร สายบ้านบะทอง ตำบลพรรณา-บ้านนาตากลาง ตำบลบะฮี","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":2118000,"bid":1238000,"pct":41.55,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-18"},
+{"id":"69019313209","seq":38,"name":"ซ่อมสร้างและเสริมผิวจราจร สาย สน.3039 บ้านบง-บ้านดงสาร อ.อากาศอำนวย","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":2605000,"bid":1468000,"pct":43.65,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-18"},
+{"id":"69039116404","seq":39,"name":"เสริมผิว Asphaltic Concrete ถนนสายหนองกุดหลวง หมู่ที่ 6 บ้านขามป้อม ร้อยเอ็ด","agency":"อบต.ขี้เหล็ก","province":"ร้อยเอ็ด","budget":7720000,"bid":4238000,"pct":45.1,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-03-19"},
+{"id":"69029009464","seq":40,"name":"เสริมผิวจราจรแอสฟัลท์ติกคอนกรีต สายโพธิ์ชัยพัฒนา หมู่ที่ 4 ตำบลนาคู","agency":"อบต.นาคู","province":"กาฬสินธุ์","budget":758000,"bid":528000,"pct":30.34,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-19"},
+{"id":"68119526224","seq":41,"name":"ซ่อมสร้างและเสริมผิวจราจร OVERLAY สาย สน.2062 บ้านโพนสมุทรชัย-บ้านนาดูน","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":3195000,"bid":1978000,"pct":38.09,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-24"},
+{"id":"69039135345","seq":42,"name":"ปรับปรุงถนนคอนกรีตโดยการปูผิวแอสฟัลส์คอนกรีต รหัส ขก.ถ.19-003","agency":"เทศบาลตำบลนาคำ","province":"ขอนแก่น","budget":4126000,"bid":2538000,"pct":38.49,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-24"},
+{"id":"68119525313","seq":43,"name":"ซ่อมสร้างและเสริมผิวจราจร PAVEMENT IN-PLACE RECYCLING สาย สน.4028","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":3023000,"bid":1998000,"pct":33.91,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-25"},
+{"id":"69029266464","seq":44,"name":"ปรับปรุงผิวจราจรคอนกรีตเป็นแอสฟัลท์ติกคอนกรีต ถนนชุมชนซอย 1,2 บ้านวังเพิ่ม","agency":"เทศบาลตำบลสีชมพู","province":"ขอนแก่น","budget":1056000,"bid":698000,"pct":33.9,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-25"},
+{"id":"69039403518","seq":45,"name":"เสริมผิวทางลาดยางแอสฟัลท์คอนกรีต ซอยร่วมใจ บ้านนากลาง หมู่ 1 เทศบาลตำบลนาเหล่า","agency":"เทศบาลตำบลนาเหล่า","province":"หนองบัวลำภู","budget":572000,"bid":418000,"pct":26.92,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-03-27"},
+{"id":"69019440812","seq":46,"name":"ปรับปรุงผิวจราจร ซอยเทศบาล 21 รหัส ขก.ถ.45-039 หมู่ที่ 1 บ้านภูผาม่าน","agency":"เทศบาลตำบลภูผาม่าน","province":"ขอนแก่น","budget":634900,"bid":418000,"pct":34.16,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-02"},
+{"id":"69039364737","seq":47,"name":"เสริมผิวถนนลาดยางแอสฟัสท์ติก บ้านดู่ หมู่ที่ 3,11 จำนวน 2 ช่วง อบต.ธวัชบุรี","agency":"อบต.ธวัชบุรี","province":"ร้อยเอ็ด","budget":1190000,"bid":698000,"pct":41.34,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-03"},
+{"id":"69019146499","seq":48,"name":"ก่อสร้างเสริมผิวลาดยาง Overlay หมู่ที่ 19 บ้านกังวาน ซอยมีสุข กังวาน 5","agency":"เทศบาลเมืองบ้านเป็ด","province":"ขอนแก่น","budget":1407100,"bid":998000,"pct":29.07,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-03"},
+{"id":"69039288643","seq":49,"name":"เสริมผิวทางแอสฟัลต์คอนกรีต บ้านหนองสระ หมู่ที่ 6 ไปทางบ้านน้ำเกลี้ยง","agency":"อบต.ประชาพัฒนา","province":"มหาสารคาม","budget":1260000,"bid":837000,"pct":33.57,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-07"},
+{"id":"69039286713","seq":50,"name":"เสริมผิวทางแอสฟัลต์คอนกรีต บ้านประแหย่ง หมู่ที่ 2 ไปทางบ้านหนองสระ","agency":"อบต.ประชาพัฒนา","province":"มหาสารคาม","budget":1445000,"bid":922000,"pct":36.19,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-07"},
+{"id":"69029495546","seq":51,"name":"เสริมผิวถนนแอสฟัลท์ติกคอนกรีต สายบ้านทับบา-บ้านหันใหญ่ หมู่ที่ 3 ตำบลเมืองพล","agency":"อบต.เมืองพล","province":"ขอนแก่น","budget":1164000,"bid":846000,"pct":27.32,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-07"},
+{"id":"69019524385","seq":52,"name":"ก่อสร้างถนนแอสฟัลต์คอนกรีต สายทางบ้านน้ำผึ้งไปบ้านงิ้วถึงบ้านม่วง อบต.หนองม่วง","agency":"อบต.หนองม่วง","province":"มหาสารคาม","budget":4879000,"bid":3758000,"pct":22.98,"entity":"ห้างหุ้นส่วน RMN","status":"อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ","date":"2569-04-07"},
+{"id":"69039471770","seq":53,"name":"","agency":"ทต.โนนสูงเปลือย","province":"ขอนแก่น","budget":0,"bid":645000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-04-09"},
+{"id":"69029492829","seq":54,"name":"","agency":"ทม.เมืองพล","province":"ขอนแก่น","budget":0,"bid":1998000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-09"},
+{"id":"69039581349","seq":55,"name":"","agency":"อบต.ดอนสมบูรณ์","province":"กาฬสินธุ์","budget":0,"bid":698000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-16"},
+{"id":"69039499084","seq":56,"name":"","agency":"ทม.กระนวน ม.1","province":"ขอนแก่น","budget":0,"bid":478000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-17"},
+{"id":"69039490313","seq":57,"name":"","agency":"ทม.กระนวน ม.11","province":"ขอนแก่น","budget":0,"bid":338000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-04-17"},
+{"id":"69049041321","seq":58,"name":"","agency":"ทม.กระนวน","province":"ขอนแก่น","budget":0,"bid":768000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-04-21"},
+{"id":"69049041910","seq":59,"name":"","agency":"ทม.กระนวน","province":"ขอนแก่น","budget":0,"bid":858000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-21"},
+{"id":"69039202749","seq":60,"name":"","agency":"อบต.หนองกุง","province":"ขอนแก่น","budget":0,"bid":2456000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-22"},
+{"id":"69039554177","seq":61,"name":"","agency":"อบต.สนามฝ้าย","province":"ขอนแก่น","budget":0,"bid":1232000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-22"},
+{"id":"69039476187","seq":62,"name":"","agency":"ทต.โนนสูงเปลือย","province":"ขอนแก่น","budget":0,"bid":1338000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-04-22"},
+{"id":"69039516906","seq":63,"name":"","agency":"ทต.โพนทอง","province":"ขอนแก่น","budget":0,"bid":428000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-04-23"},
+{"id":"69039388743","seq":64,"name":"","agency":"อบต.หนองน้ำใส","province":"ขอนแก่น","budget":0,"bid":1278000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-24"},
+{"id":"69039297945","seq":65,"name":"","agency":"แขวงทางหลวงชนบทหนองบัวลำภู","province":"หนองบัวลำภู","budget":0,"bid":3658000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-24"},
+{"id":"69029257396","seq":66,"name":"","agency":"อบต.ราษฎร์เจริญ","province":"ขอนแก่น","budget":0,"bid":1537000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-27"},
+{"id":"69029257026","seq":67,"name":"","agency":"อบต.ราษฎร์เจริญ","province":"ขอนแก่น","budget":0,"bid":1298000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-27"},
+{"id":"69039263424","seq":68,"name":"","agency":"ทม.ศิลา","province":"ขอนแก่น","budget":0,"bid":498000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-28"},
+{"id":"69049234880","seq":69,"name":"","agency":"ทม.กระนวน","province":"ขอนแก่น","budget":0,"bid":398000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-29"},
+{"id":"69049338399","seq":70,"name":"","agency":"อบต.ดอนแร้ง","province":"ขอนแก่น","budget":0,"bid":855000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-29"},
+{"id":"68119362613","seq":71,"name":"","agency":"อบต.หนองอีเฒ่า","province":"ขอนแก่น","budget":0,"bid":369000,"pct":0,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-04-29"},
+{"id":"69049350588","seq":72,"name":"","agency":"อบต.โนนหัน","province":"ขอนแก่น","budget":1180000,"bid":665000,"pct":43.64,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-08","lowest":665000},
+{"id":"69039242695","seq":73,"name":"","agency":"ทม.ศิลา","province":"ขอนแก่น","budget":2211087,"bid":1298000,"pct":41.3,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-08","lowest":1865000},
+{"id":"69039265848","seq":74,"name":"","agency":"ทม.ศิลา","province":"ขอนแก่น","budget":1185446,"bid":698000,"pct":41.12,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-08","lowest":698000},
+{"id":"69039259355","seq":75,"name":"","agency":"ทม.ศิลา","province":"ขอนแก่น","budget":3756334,"bid":2178000,"pct":42.02,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาไม่ต่ำสุด","date":"2569-05-08","lowest":2093000},
+{"id":"69039260672","seq":76,"name":"","agency":"ทม.ศิลา","province":"ขอนแก่น","budget":1528478,"bid":886000,"pct":42.03,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาไม่ต่ำสุด","date":"2569-05-08","lowest":662000},
+{"id":"69039264764","seq":77,"name":"","agency":"ทม.ศิลา","province":"ขอนแก่น","budget":3904473,"bid":2264000,"pct":42.02,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-08","lowest":2265000},
+{"id":"69049223359","seq":78,"name":"","agency":"แขวงทางหลวงมหาสารคาม","province":"มหาสารคาม","budget":8488542,"bid":4998000,"pct":41.12,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-08","lowest":4998000},
+{"id":"68119122408","seq":79,"name":"","agency":"อบจ.สกลนคร","province":"สกลนคร","budget":5244964,"bid":3358000,"pct":35.98,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-08","lowest":3358000},
+{"id":"69059046112","seq":80,"name":"","agency":"ทต.หนองพอก","province":"ร้อยเอ็ด","budget":2206000,"bid":1318000,"pct":40.25,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-11","lowest":1318000},
+{"id":"69049395087","seq":81,"name":"","agency":"อบต.โนนอุดม","province":"ขอนแก่น","budget":826000,"bid":598000,"pct":27.6,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-11","lowest":598000},
+{"id":"69049240922","seq":82,"name":"","agency":"ทต.ซำสูง","province":"ขอนแก่น","budget":1223000,"bid":728000,"pct":40.47,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาไม่ต่ำสุด","date":"2569-05-11","lowest":627000},
+{"id":"69049434789","seq":83,"name":"","agency":"แขวงฯ ร้อยเอ็ด","province":"ร้อยเอ็ด","budget":3901280,"bid":2548000,"pct":34.69,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-11","lowest":2548000},
+{"id":"69049160627","seq":84,"name":"","agency":"ทม.บ้านทุ่ม","province":"ขอนแก่น","budget":4625455,"bid":2998000,"pct":35.18,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-12","lowest":2998000}
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   API LAYER  — single responsibility: fetch + CORS fallback
+═══════════════════════════════════════════════════════════════ */
+const GovAPI = (() => {
+  /** Parse money values — new API returns numeric directly, old returned comma strings. Handle both. */
+  const parseMoney = val => typeof val === 'number' ? val : Number(String(val ?? '').replace(/,/g, '')) || 0;
+
+  /**
+   * Fetch a govspending endpoint.
+   * Strategy: try direct first (works on local http server),
+   * fall back to corsproxy.io which adds CORS headers server-side.
+   */
+  /**
+   * Create a manually-driven AbortSignal via AbortController + setTimeout.
+   *
+   * ROOT CAUSE FIX: AbortSignal.timeout() produces a non-cloneable signal.
+   * When the browser tries to transfer fetch internals across contexts (e.g.
+   * Service Worker, corsproxy redirect), it calls postMessage/structuredClone
+   * on the signal and throws:
+   *   "Failed to execute 'postMessage' on 'Window':
+   *    AbortSignal object could not be cloned."
+   * AbortController's .signal IS structured-cloneable. Using it instead
+   * eliminates the error while preserving identical timeout behaviour.
+   */
+  function _makeSignal(ms) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(new DOMException('Timeout', 'TimeoutError')), ms);
+    // Clean up the timer if the signal is used before timeout fires
+    ctrl.signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
+    return ctrl.signal;
+  }
+
+  async function get(endpoint, params) {
+    const url      = `${CONFIG.EGP_BASE}/${endpoint}?api-key=${CONFIG.EGP_KEY}&${params}`;
+    const proxyUrl = `${CONFIG.CORS_PROXY}${encodeURIComponent(url)}`;
+
+    try {
+      // No custom headers — api-key is in the URL query string already.
+      // Custom headers trigger a CORS preflight (OPTIONS) which opend.data.go.th
+      // does not support. Without custom headers this becomes a "simple request"
+      // that bypasses the preflight check entirely.
+      const res = await fetch(url, {
+        signal: _makeSignal(CONFIG.TIMEOUT_DIRECT),
+      });
+      if (res.ok) return await res.json();
+      if (res.status >= 400) throw new Error(`API error ${res.status}`);
+    } catch (err) {
+      // DOMException 'TimeoutError' or TypeError (CORS/network) → fall through to proxy
+      const isNetworkOrTimeout = err instanceof TypeError
+        || (err instanceof DOMException && err.name === 'TimeoutError');
+      if (!isNetworkOrTimeout) throw err;
+    }
+
+    // Primary proxy — Netlify function (works when deployed)
+    if (location.hostname !== 'localhost' && location.protocol !== 'file:') try {
+      const netlifyUrl = `/.netlify/functions/proxy?url=${encodeURIComponent(url)}`;
+      const res2 = await fetch(netlifyUrl, { signal: _makeSignal(8_000) });
+      if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+      return await res2.json();
+    } catch (_) { /* fall through */ }
+
+    // Local proxy — server.py (localhost dev)
+    if (location.hostname === 'localhost') try {
+      const localUrl = `/proxy?url=${encodeURIComponent(url)}`;
+      const res2b = await fetch(localUrl, { signal: _makeSignal(3_000) });
+      if (!res2b.ok) throw new Error(`HTTP ${res2b.status}`);
+      return await res2b.json();
+    } catch (_) { /* local proxy not running, fall through */ }
+
+    // Backup proxy — allorigins /get
+    try {
+      const alloriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const res3 = await fetch(alloriginsUrl, { signal: _makeSignal(CONFIG.TIMEOUT_PROXY) });
+      if (!res3.ok) throw new Error(`HTTP ${res3.status}`);
+      const wrapper = await res3.json();
+      const text = wrapper.contents ?? '';
+      if (!text || text.trimStart().startsWith('<')) throw new Error('HTML response');
+      return JSON.parse(text);
+    } catch (_) { /* fall through */ }
+
+    // Last resort — corsproxy.io
+    try {
+      const res4 = await fetch(proxyUrl, { signal: _makeSignal(CONFIG.TIMEOUT_PROXY) });
+      if (!res4.ok) throw new Error(`HTTP ${res4.status}`);
+      const text = await res4.text();
+      if (text.trimStart().startsWith('<')) throw new Error('HTML response');
+      return JSON.parse(text);
+    } catch (err) {
+      throw new Error(`API unreachable — proxy ทั้งหมดล้มเหลว (${err.message})`);
+    }
+  }
+
+  /**
+   * Derive Thai fiscal year (e.g. 2568) from project ID prefix.
+   * All IDs start with 2-digit year: "68..." = 2568, "69..." = 2569.
+   */
+  function _yearFromId(projectId) {
+    const prefix = String(projectId ?? '').substring(0, 2);
+    if (!prefix) return 2569;
+    const d = new Date(), be = d.getFullYear() + 543;
+    const currentFY = d.getMonth() >= 9 ? be + 1 : be; // Oct-Dec → next FY
+    return Math.min(Number('25' + prefix) + 1, currentFY);
+  }
+
+  /**
+   * Get winner_tin for a bid's entity name.
+   * Falls back to searching all TINs if entity not in map.
+   */
+  function _tinForEntity(entityName) {
+    return CONFIG.ENTITY_TIN[entityName ?? ''] ?? null;
+  }
+
+  /**
+   * Fetch contract status for a specific bid.
+   * Strategy: query winner_tin (exact company match) + year,
+   * then find the project_id in returned results.
+   * This is the only reliable method — keyword search does NOT
+   * support project ID lookup and returns empty results.
+   */
+  async function fetchContract(projectId, entityName) {
+    const year = _yearFromId(projectId);
+    const tin  = _tinForEntity(entityName);
+
+    // Build param string — use winner_tin if we have it, else fall back to keyword
+    const params = tin
+      ? `year=${year}&winner_tin=${tin}&offset=0&limit=100`
+      : `year=${year}&keyword=${encodeURIComponent(entityName ?? '')}&offset=0&limit=20`;
+
+    const data    = await get('service/egp-contract', params);
+    const results = data.data ?? data.result ?? [];
+
+    // Find exact project_id match in the returned batch
+    const match = results.find(r => String(r.project_id) === String(projectId)) ?? null;
+    const amount = parseMoney(match?.sum_price_agree);
+    const apiStatus = match?.project_status ?? null;
+
+    return {
+      hasContract: match !== null,
+      amount,
+      raw:         results,
+      projectName: match?.project_name ?? '',
+      agency:      match?.dept_name    ?? '',
+      province:    match?.province     ?? '',
+      budget:      parseMoney(match?.project_money),
+      apiStatus,
+    };
+  }
+
+  /** Fetch winner record for a project ID. Returns { hasWinner, raw } */
+  async function fetchWinner(projectId) {
+    const data = await get('service/egp-winner', `project_id=${projectId}&offset=0&limit=3`);
+    const results = data.data ?? data.result ?? []; // new API uses data.data
+    return { hasWinner: results.length > 0, raw: results };
+  }
+
+  /** Fetch winner records by company keyword. Returns { results, total } */
+  async function searchWinner(keyword) {
+    const data = await get('service/egp-winner', `winner=${encodeURIComponent(keyword)}&offset=0&limit=20`);
+    const results = data.data ?? data.result ?? []; // new API uses data.data
+    return { results, total: data.total ?? data.summary?.total ?? results.length };
+  }
+
+  /**
+   * Resolve the latest status for a bid.
+   * Returns a STATUS constant if an upgrade is available, or null if no change.
+   *
+   * BUG 3 FIX: wrapped in try/catch so a thrown error from fetchContract/fetchWinner
+   * (e.g. network timeout on one record) returns null instead of propagating up and
+   * being silently swallowed by the bulk-refresh loop — which previously masked all
+   * real errors as "no update found."
+   */
+  /**
+   * Map Thai API project_status string → our internal STATUS constant.
+   * "ระหว่างดำเนินการ" = contract signed, work in progress → CONTRACT
+   * "สิ้นสุดสัญญา"     = contract complete                  → CONTRACT
+   * "รอทำสัญญา"        = winner announced, awaiting signing → WINNER
+   * null / unknown     = still pending                      → null
+   */
+  function _mapApiStatus(apiStatus) {
+    const { STATUS } = CONFIG;
+    if (!apiStatus) return null;
+    if (apiStatus.includes('ดำเนินการ') || apiStatus.includes('สิ้นสุด')) return STATUS.CONTRACT;
+    if (apiStatus.includes('รอทำสัญญา') || apiStatus.includes('อนุมัติ'))  return STATUS.WINNER;
+    return null;
+  }
+
+  async function resolveStatus(bid) {
+    const { STATUS } = CONFIG;
+    try {
+      // Pass entity name so fetchContract can use the correct winner_tin
+      const contract = await fetchContract(bid.id, bid.entity);
+      if (contract.hasContract) {
+        return _mapApiStatus(contract.apiStatus) ?? STATUS.CONTRACT;
+      }
+      const winner = await fetchWinner(bid.id);
+      if (winner.hasWinner) return STATUS.WINNER;
+      return null;
+    } catch (err) {
+      throw new Error(`resolveStatus(${bid.id}): ${err.message}`);
+    }
+  }
+
+  /** Fetch ALL contracts for a given TIN + year. Returns raw results array. */
+  async function fetchContractBatch(tin, year, entityFallback) {
+    const params = tin
+      ? `year=${year}&winner_tin=${tin}&offset=0&limit=100`
+      : `year=${year}&keyword=${encodeURIComponent(entityFallback ?? '')}&offset=0&limit=100`;
+    const data = await get('service/egp-contract', params);
+    return data.data ?? data.result ?? [];
+  }
+
+  /** Fetch winner records by TIN (preferred) or keyword + year. Returns raw results array. */
+  async function fetchWinnerBatch(keyword, year, tin) {
+    const params = tin
+      ? `winner_tin=${tin}&year=${year}&offset=0&limit=100`
+      : `winner=${encodeURIComponent(keyword)}&year=${year}&offset=0&limit=100`;
+    const data = await get('service/egp-winner', params);
+    return data.data ?? data.result ?? [];
+  }
+
+  return { get, fetchContract, fetchContractBatch, fetchWinner, fetchWinnerBatch, searchWinner, resolveStatus, yearFromId: _yearFromId, mapApiStatus: _mapApiStatus };
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENCY NAME HELPER — expand Thai gov abbreviations to full names
+═══════════════════════════════════════════════════════════════ */
+function expandAgency(s) {
+  if (!s) return s;
+  return s
+    .replace(/^ทต\./, 'เทศบาลตำบล')
+    .replace(/^ทม\./, 'เทศบาลเมือง')
+    .replace(/^ทน\./, 'เทศบาลนคร')
+    .replace(/^อบต\./, 'องค์การบริหารส่วนตำบล')
+    .replace(/^อบจ\./, 'องค์การบริหารส่วนจังหวัด')
+    .replace(/^แขวงฯ\s*/, 'แขวงทางหลวงชนบท')
+    .replace(/\s+ม\.(\d+)$/, ' หมู่ที่ $1');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STORE  — single source of truth, persisted to localStorage
+═══════════════════════════════════════════════════════════════ */
+const Store = (() => {
+  // FIX 9: Corrupt localStorage JSON must not crash app on load
+  let _bids = (() => {
+    try {
+      const raw = localStorage.getItem(CONFIG.STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      // Normalize abbreviated agency names on every load
+      parsed.forEach(b => { if (b.agency) b.agency = expandAgency(b.agency); });
+      return parsed;
+    } catch (_) { return null; }
+  })() ?? SEED_BIDS.map((b, i) => ({ ...b, _id: `x${i}`, agency: expandAgency(b.agency) }));
+
+  const persist = () => { try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(_bids)); } catch (_) {} };
+
+  return {
+    getAll:   ()     => [..._bids], // FIX 5: shallow copy — callers must not mutate internal state
+    findById: (id)   => _bids.find(b => b._id === id) ?? null,
+
+    upsert(bid) {
+      if (bid.agency) bid.agency = expandAgency(bid.agency);  // normalize on save
+      const idx = _bids.findIndex(b => b._id === bid._id);
+      if (idx > -1) _bids[idx] = bid;
+      else          _bids.unshift(bid);
+      persist();
+    },
+
+    remove(id) {
+      _bids = _bids.filter(b => b._id !== id);
+      persist();
+    },
+
+    updateStatus(id, status) {
+      const bid = this.findById(id);
+      if (bid) { bid.status = status; persist(); }
+    },
+
+    updateApiData(id, { status, midPrice, contractPrice, name }) {
+      const bid = this.findById(id);
+      if (!bid) return;
+      if (status)                    bid.status        = status;
+      if (midPrice)                  bid.midPrice      = midPrice;
+      if (contractPrice)             bid.contractPrice = contractPrice;
+      if (name && !bid.name)         bid.name          = name;   // fill empty names from API
+      persist();
+    },
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════════════════════════════ */
+const UI = (() => {
+  let _toastTimer = null;
+
+  /** Show a transient toast message */
+  function toast(msg, duration = 2500) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  /** Temporarily disable a button and show a spinner label, returns restore fn.
+   *  FIX 3: Use explicit closure over `original` instead of default-param assignment.
+   *  Call restore() with no args to reset, or restore('new label') to override.
+   */
+  function setLoading(btnId, label = '') {
+    const btn      = document.getElementById(btnId);
+    const original = btn.innerHTML;
+    btn.disabled   = true;
+    btn.innerHTML  = `<span class="spinner"></span>${label}`;
+    return (restoreLabel) => {
+      btn.disabled  = false;
+      btn.innerHTML = restoreLabel !== undefined ? restoreLabel : original;
+    };
+  }
+
+  /** Escape untrusted strings before inserting into HTML.
+   *  FIX 1: prevents XSS from API data or user input rendered via innerHTML.
+   */
+  const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+  /** Write inner HTML to an element by id */
+  const setHTML = (id, html) => { document.getElementById(id).innerHTML = html; };
+
+  /** Thai locale number format */
+  const fmt = n => Number(n ?? 0).toLocaleString('th-TH');
+
+  /** Format stored date "YYYY-MM-DD" → "D/M/YYYY" */
+  const fmtDate = d => {
+    if (!d) return '-';
+    const [y, m, day] = d.split('-');
+    return `${Number(day)}/${Number(m)}/${y}`;
+  };
+
+  /** Badge CSS class from status string */
+  const badgeClass = s => ({
+    [CONFIG.STATUS.CONTRACT]:   'b-contract',
+    [CONFIG.STATUS.WINNER]:     'b-winner',
+    [CONFIG.STATUS.PENDING]:    'b-pending',
+    [CONFIG.STATUS.WIN_PRICE]:  'b-win-price',
+    [CONFIG.STATUS.LOSE_PRICE]: 'b-lose-price',
+    [CONFIG.STATUS.LOSE]:       'b-lose',
+  }[s] ?? 'b-new');
+
+  /** Display label for stored status values */
+  const statusDisplay = s =>
+    s === CONFIG.STATUS.WIN_PRICE  ? 'เป็นผู้เสนอต่ำสุด' :
+    s === CONFIG.STATUS.LOSE_PRICE ? 'ไม่ได้เป็นผู้เสนอต่ำสุด' : s;
+
+  /** Render a horizontal bar (0–100 pct) */
+  const bar = pct => `<div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>`;
+
+  /** Render API result rows as a table */
+  function contractTable(results) {
+    const rows = results.map(r => `
+      <tr>
+        <td style="font-family:monospace;font-size:10px">${esc(r.project_id)   || '-'}</td>
+        <td class="proj-name">${esc(r.project_name) || '-'}</td>
+        <td style="font-size:11px">${esc(r.dept_name)     || '-'}</td>
+        <td style="font-size:11px;white-space:nowrap">${esc(r.province)      || '-'}</td>
+        <td style="text-align:right;white-space:nowrap">฿${UI.fmt(r.project_money)}</td>
+        <td style="text-align:right;white-space:nowrap;color:#155724;font-weight:600">฿${UI.fmt(r.sum_price_agree)}</td>
+        <td style="white-space:nowrap;font-size:11px">${esc(r.announce_date)  || '-'}</td>
+        <td style="font-size:11px">${esc(r.project_status) || '-'}</td>
+      </tr>`).join('');
+    return `<div class="table-wrap"><table>
+      <thead><tr>
+        <th>Project ID</th><th>ชื่อโครงการ</th><th>หน่วยงาน</th>
+        <th>จังหวัด</th><th>งบฯ</th><th>ราคาสัญญา</th><th>วันประกาศ</th><th>สถานะ</th>
+      </tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  return { toast, setLoading, setHTML, esc, fmt, fmtDate, badgeClass, statusDisplay, bar, contractTable };
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   APP  — view logic, event handlers, navigation
+═══════════════════════════════════════════════════════════════ */
+const App = (() => {
+  const TABS = ['dashboard', 'report', 'records', 'add', 'lookup'];
+  let _editId    = null;       // null = new record, string = editing existing
+  let _activeTab = 'dashboard'; // FIX 8: track current tab
+
+  /* ── Navigation ──────────────────────────────────────────── */
+  function navigate(name, force = false) {
+    if (name === _activeTab && !force) return; // FIX 8: skip re-render if same tab
+    _activeTab = name;
+    TABS.forEach((t, i) => {
+      document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
+      document.querySelectorAll('.tab')[i].classList.toggle('active', t === name);
+    });
+    if (name === 'dashboard') renderDash();
+    if (name === 'report')    renderReport();
+    if (name === 'records')   renderTable();
+  }
+
+  /* ── Report (G-Lead BI dashboard for RMN) ───────────────── */
+  let _reportFilter = 'all';
+
+  const _byDateDesc = (a,b) => (b.date??'').localeCompare(a.date??'') || (b.seq??0)-(a.seq??0);
+
+  function renderReport() {
+    const bids    = Store.getAll().sort(_byDateDesc);
+    const { STATUS } = CONFIG;
+    const total      = bids.length;
+    const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
+    const winPrice   = bids.filter(b => b.status === STATUS.WIN_PRICE);
+    const losePrice  = bids.filter(b => b.status === STATUS.LOSE_PRICE);
+    const pending    = bids.filter(b => b.status === STATUS.PENDING);
+    const lose       = bids.filter(b => b.status === STATUS.LOSE);
+    const totalValue = won.reduce((s,b)=>s+b.bid, 0);
+    const decided    = won.length + lose.length;
+    const winRate    = decided ? Math.round(won.length / decided * 100) : 0;
+    const avgDrop    = total ? Math.round(bids.reduce((s,b)=>s+(b.midPrice?(b.bid/b.midPrice*100):(100-b.pct)),0)/total) : 0;
+
+    // Updated timestamp
+    const now = new Date();
+    const dStr = now.toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const tStr = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+    UI.setHTML('report-updated',
+      `🔄 อัพเดทล่าสุด<strong>${dStr} เวลา ${tStr} น.</strong>`);
+
+    // KPI cards (matches screenshot blue gradient with stripes)
+    UI.setHTML('kpi-grid', `
+      <div class="kpi-card blue"><div class="kpi-card-inner">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-label">จำนวนโครงการทั้งหมด</div>
+        <div class="kpi-value">${UI.fmt(total)}</div>
+        <div class="kpi-unit">โครงการ ปี 2569</div>
+      </div></div>
+      <div class="kpi-card green"><div class="kpi-card-inner">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">มูลค่าที่ชนะแล้ว</div>
+        <div class="kpi-value">${UI.fmt(totalValue)}</div>
+        <div class="kpi-unit">บาท · ${won.length} โครงการ</div>
+      </div></div>
+      <div class="kpi-card purple"><div class="kpi-card-inner">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-label">อัตราการชนะ</div>
+        <div class="kpi-value">${winRate}%</div>
+        <div class="kpi-unit">${won.length}/${decided} โครงการที่รู้ผล</div>
+      </div></div>
+      <div class="kpi-card orange"><div class="kpi-card-inner">
+        <div class="kpi-icon">📉</div>
+        <div class="kpi-label">% ของราคากลาง เฉลี่ย</div>
+        <div class="kpi-value">${avgDrop}%</div>
+        <div class="kpi-unit">เฉลี่ยทุกโครงการ</div>
+      </div></div>`);
+
+    // Update pill counts
+    const contract = bids.filter(b => b.status === STATUS.CONTRACT);
+    document.querySelector('[data-filter="all"]').textContent        = `ทั้งหมด (${total})`;
+    document.querySelector('[data-filter="contract"]').textContent   = `มีสัญญา (${contract.length})`;
+    document.querySelector('[data-filter="winner"]').textContent     = `ประกาศผู้ชนะ (${won.filter(b=>b.status===STATUS.WINNER).length})`;
+    document.querySelector('[data-filter="win-price"]').textContent  = `เป็นผู้เสนอต่ำสุด (${winPrice.length})`;
+    document.querySelector('[data-filter="lose-price"]').textContent = `ไม่ได้เป็นผู้เสนอต่ำสุด (${losePrice.length})`;
+    document.querySelector('[data-filter="pending"]').textContent    = `รอผล (${pending.length})`;
+    document.querySelector('[data-filter="lose"]').textContent       = `แพ้สิ้นสุด (${lose.length})`;
+
+    renderPipelineFiltered(bids);
+    renderWinsTimeline(won);
+    renderLoseTimeline(lose);
+  }
+
+  /** Re-render pipeline section only (called by pill clicks) */
+  function renderPipelineFiltered(allBids) {
+    const { STATUS } = CONFIG;
+    const filterMap = {
+      all:        allBids,
+      pending:    allBids.filter(b => b.status === STATUS.PENDING),
+      'win-price':  allBids.filter(b => b.status === STATUS.WIN_PRICE),
+      'lose-price': allBids.filter(b => b.status === STATUS.LOSE_PRICE),
+      winner:     allBids.filter(b => b.status === STATUS.WINNER),
+      contract:   allBids.filter(b => b.status === STATUS.CONTRACT),
+      lose:       allBids.filter(b => b.status === STATUS.LOSE),
+    };
+    const filtered = filterMap[_reportFilter] ?? allBids;
+    if (!filtered.length) {
+      UI.setHTML('pipeline-list', '<div class="empty">ไม่มีโครงการในหมวดนี้</div>');
+      return;
+    }
+    const sorted = [...filtered].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? ''));
+    UI.setHTML('pipeline-list', sorted.map(b => projectCard(b,
+      b.status === STATUS.PENDING    ? 'pending'    :
+      b.status === STATUS.WIN_PRICE  ? 'win-price'  :
+      b.status === STATUS.LOSE_PRICE ? 'lose-price' :
+      b.status === STATUS.WINNER     ? 'winner'     :
+      b.status === STATUS.LOSE       ? 'lose'       : 'contract'
+    )).join(''));
+  }
+
+  /** Recent wins as vertical timeline */
+  function renderWinsTimeline(won) {
+    if (!won.length) {
+      UI.setHTML('wins-timeline', '<div class="empty">ยังไม่มีรายการชนะ</div>');
+      return;
+    }
+    const recent = [...won].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? '')).slice(0, 15);
+    UI.setHTML('wins-timeline', `<div class="card" style="padding:1.2rem 1.4rem">${
+      recent.map(b => {
+        const d = b.date ? b.date.split('-') : ['','',''];
+        const day   = d[2] ?? '-';
+        const month = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][Number(d[1]) || 0];
+        return `
+          <div class="win-tl-item">
+            <div class="win-tl-date">
+              <span class="win-tl-date-day">${day}</span>
+              ${UI.esc(month)} ${UI.esc(d[0])}
+            </div>
+            <div class="win-tl-bullet"></div>
+            <div class="win-tl-content">
+              <div class="win-tl-name">${UI.esc(b.name || b.agency)}</div>
+              <div class="win-tl-meta">
+                <span>📍 ${UI.esc(b.agency)}, ${UI.esc((b.province ?? '').trim())}</span>
+                <span><strong>฿${UI.fmt(b.bid)}</strong></span>
+                <span>${(b.midPrice?(b.bid/b.midPrice*100):(100-b.pct)).toFixed(1)}% ของราคากลาง</span>
+              </div>
+            </div>
+          </div>`;
+      }).join('')
+    }</div>`);
+  }
+
+  /** Lose bids as compact list */
+  function renderLoseTimeline(lose) {
+    const title = document.getElementById('lose-section-title');
+    if (!lose.length) {
+      title.textContent = '';
+      UI.setHTML('lose-timeline', '');
+      return;
+    }
+    title.innerHTML = `❌ แพ้การประมูล (${lose.length} โครงการ)`;
+    const sorted = [...lose].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? '')).slice(0, 15);
+    UI.setHTML('lose-timeline', `<div class="card" style="padding:1.2rem 1.4rem">${
+      sorted.map(b => {
+        const d = b.date ? b.date.split('-') : ['','',''];
+        const day   = d[2] ?? '-';
+        const month = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][Number(d[1]) || 0];
+        const lowestNote = b.lowest ? `<span style="color:#dc2626">ราคาต่ำสุด: <strong>฿${UI.fmt(b.lowest)}</strong> (เรายื่น ฿${UI.fmt(b.bid)})</span>` : `<span>ราคายื่น ฿${UI.fmt(b.bid)}</span>`;
+        return `
+          <div class="win-tl-item">
+            <div class="win-tl-date">
+              <span class="win-tl-date-day" style="color:#dc2626">${day}</span>
+              ${UI.esc(month)} ${UI.esc(d[0])}
+            </div>
+            <div class="win-tl-bullet" style="background:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.15)"></div>
+            <div class="win-tl-content">
+              <div class="win-tl-name">${UI.esc(b.name || b.agency)}</div>
+              <div class="win-tl-meta">
+                <span>📍 ${UI.esc(b.agency)}, ${UI.esc((b.province ?? '').trim())}</span>
+                ${lowestNote}
+              </div>
+            </div>
+          </div>`;
+      }).join('')
+    }</div>`);
+  }
+
+  /** Single project card matching G-Lead screenshot layout */
+  function projectCard(b, type = 'pending') {
+    const tagText = (type === 'pending' || type === 'win-price' || type === 'lose-price') ? 'รอผลพิจารณา'
+      : type === 'winner'     ? 'ชนะ'
+      : type === 'lose'       ? 'แพ้'
+      : 'มีสัญญา';
+    const tagClass = (type === 'win-price' || type === 'lose-price') ? 'pending' : type;
+    const subLabel = type === 'win-price'  ? '<span style="display:block;font-size:11px;font-weight:600;color:var(--blue);margin-top:2px">› เป็นผู้เสนอต่ำสุด</span>'
+      : type === 'lose-price' ? '<span style="display:block;font-size:11px;font-weight:600;color:#e3a000;margin-top:2px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
+      : '';
+    // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา
+    const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', 'เซ็นสัญญา'];
+    const doneCount = type === 'contract'   ? 5
+      : type === 'winner'                   ? 4
+      : (type === 'win-price' || type === 'lose-price') ? 2
+      : 1;
+    const activeIdx = (type === 'contract' || type === 'winner' || type === 'lose') ? -1
+      : (type === 'win-price' || type === 'lose-price') ? 2
+      : 1;
+    const tl = steps.map((s, i) => `
+      <div class="tl-step ${i < doneCount ? 'done' : i === activeIdx ? 'active' : ''}">
+        <div class="tl-dot">✓</div>
+        <div class="tl-step-label">${s}</div>
+      </div>${i < steps.length - 1 ? `<div class="tl-line ${i < doneCount ? 'done' : ''}"></div>` : ''}`).join('');
+
+    return `
+      <div class="proj-card">
+        <div class="proj-card-header">
+          <span class="proj-status-tag ${tagClass}">${tagText}</span>
+          <span class="proj-id-label">เลขที่โครงการ</span>
+          <span class="proj-id-value">${UI.esc(b.id)}</span>
+          <span class="proj-status-label">สถานะ</span>
+          <span class="proj-status-value">${
+            type === 'pending' ? 'รอผลพิจารณา' :
+            type === 'win-price'  ? 'รอผลพิจารณา' + subLabel :
+            type === 'lose-price' ? 'รอผลพิจารณา' + subLabel :
+            UI.esc(b.status)
+          }</span>
+        </div>
+        <div class="proj-card-body">
+          <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
+          <div class="proj-meta-grid">
+            <div class="proj-meta-item">
+              <span class="proj-meta-item-icon">🏢</span>
+              <div><span class="proj-meta-item-label">หน่วยงาน</span>
+              <span class="proj-meta-item-val">${UI.esc(b.agency)}</span></div>
+            </div>
+            <div class="proj-meta-item">
+              <span class="proj-meta-item-icon">📍</span>
+              <div><span class="proj-meta-item-label">พื้นที่โครงการ</span>
+              <span class="proj-meta-item-val">${UI.esc((b.province ?? '').trim())}</span></div>
+            </div>
+            <div class="proj-meta-item">
+              <span class="proj-meta-item-icon">📅</span>
+              <div><span class="proj-meta-item-label">วันที่ประมูล</span>
+              <span class="proj-meta-item-val">${UI.fmtDate(b.date)}</span></div>
+            </div>
+            <div class="proj-meta-item">
+              <span class="proj-meta-item-icon">🏛️</span>
+              <div><span class="proj-meta-item-label">ห้างที่ใช้เสนอ</span>
+              <span class="proj-meta-item-val">${UI.esc(b.entity)}</span></div>
+            </div>
+          </div>
+          <div class="proj-timeline">${tl}</div>
+          <div class="proj-fin-grid">
+            <div class="proj-fin-item">
+              <div class="proj-fin-label">งบประมาณ</div>
+              <div class="proj-fin-value budget">${UI.fmt(b.budget)}</div>
+            </div>
+            <div class="proj-fin-item">
+              <div class="proj-fin-label">ราคากลาง</div>
+              <div class="proj-fin-value">${b.midPrice ? UI.fmt(b.midPrice) : '—'}</div>
+            </div>
+            <div class="proj-fin-item">
+              <div class="proj-fin-label">ราคายื่น (เรา)</div>
+              <div class="proj-fin-value">${UI.fmt(b.bid)}</div>
+            </div>
+            <div class="proj-fin-item">
+              <div class="proj-fin-label">ราคาที่ตกลงจ้าง</div>
+              <div class="proj-fin-value" style="${b.lowest ? (b.lowest<=b.bid ? 'color:#0f9d58' : 'color:#dc2626') : ''}">${b.lowest ? UI.fmt(b.lowest) : '—'}</div>
+            </div>
+            <div class="proj-fin-item">
+              <div class="proj-fin-label">${type === 'contract' || type === 'winner' ? 'ราคาที่ตกลงจ้าง' : '% ของราคากลาง'}</div>
+              <div class="proj-fin-value ${(type === 'contract' || type === 'winner') ? 'win' : ''}">${
+                (type === 'contract' || type === 'winner') ? UI.fmt(b.contractPrice || b.bid)
+                : b.midPrice ? (b.bid/b.midPrice*100).toFixed(1)+'%' : b.pct ? (100-b.pct).toFixed(1)+'%' : '—'
+              }</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ── Dashboard ───────────────────────────────────────────── */
+  function renderDash() {
+    const bids = Store.getAll().sort(_byDateDesc);
+    const { STATUS } = CONFIG;
+
+    if (!bids.length) {
+      UI.setHTML('metrics', '<div class="metric"><div class="metric-label">โครงการทั้งหมด</div><div class="metric-value">0</div></div>');
+      UI.setHTML('entity-bars', '<div class="empty" style="padding:1rem">ยังไม่มีข้อมูล</div>');
+      UI.setHTML('province-bars', '');
+      return;
+    }
+
+    const total    = bids.length;
+    const contract = bids.filter(b => b.status === STATUS.CONTRACT).length;
+    const winner   = bids.filter(b => b.status === STATUS.WINNER).length;
+    const winPrice = bids.filter(b => b.status === STATUS.WIN_PRICE).length;
+    const losePrice= bids.filter(b => b.status === STATUS.LOSE_PRICE).length;
+    const pending  = bids.filter(b => b.status === STATUS.PENDING).length;
+    const lose     = bids.filter(b => b.status === STATUS.LOSE).length;
+    const income   = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
+    const budget   = bids.reduce((s, b) => s + b.budget, 0);
+    const avgDrop  = Math.round(bids.reduce((s,b)=>s+(b.midPrice?(b.bid/b.midPrice*100):(100-b.pct)),0)/total);
+
+    UI.setHTML('metrics', [
+      metric('โครงการทั้งหมด', total,                                      'ปี 2569'),
+      metric('จัดทำสัญญาแล้ว', contract,                                   '', '#155724'),
+      metric('อนุมัติสั่งจ้าง',  winner,                                   '', '#0c5460'),
+      metric('เสนอต่ำสุด',        winPrice,                                  '', '#075985'),
+      metric('ไม่ต่ำสุด',         losePrice,                                 '', '#92400e'),
+      metric('รอพิจารณา',         pending,                                  '', '#856404'),
+      metric('แพ้การประมูล',       lose,                                    '', '#9b1c1c'),
+      metric('มูลค่าที่ได้รับ',   `฿${UI.fmt(income)}`,                    '', '#155724', '15px'),
+      metric('งบฯรวม',             `฿${UI.fmt(budget)}`,                   '', '',        '15px'),
+      metric('% ของราคากลาง เฉลี่ย', `${avgDrop}%`,                        ''),
+    ].join(''));
+
+    // Entity bars
+    const entMap = {};
+    bids.forEach(b => {
+      const key = b.entity || '?';
+      entMap[key] ??= { c: 0, b: 0 };
+      entMap[key].c++;
+      entMap[key].b += b.bid;
+    });
+    const maxEnt = Math.max(...Object.values(entMap).map(v => v.c), 1);
+    UI.setHTML('entity-bars', Object.entries(entMap)
+      .sort(([, a], [, b]) => b.c - a.c)
+      .map(([name, v]) => `
+        <div style="margin-bottom:.8rem">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
+            <span style="font-weight:600">${name}</span>
+            <span style="color:#888">${v.c} · ฿${UI.fmt(v.b)}</span>
+          </div>
+          ${UI.bar(Math.round(v.c / maxEnt * 100))}
+        </div>`).join(''));
+
+    // Province bars
+    const provMap = {};
+    bids.forEach(b => { const p = (b.province || '?').trim(); provMap[p] = (provMap[p] ?? 0) + 1; });
+    const maxProv = Math.max(...Object.values(provMap), 1);
+    UI.setHTML('province-bars', Object.entries(provMap)
+      .sort(([, a], [, b]) => b - a)
+      .map(([p, c]) => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px">
+          <span style="width:90px;color:#888">${p}</span>
+          <div class="bar" style="flex:1"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%"></div></div>
+          <span style="font-weight:600;width:20px">${c}</span>
+        </div>`).join(''));
+  }
+
+  function metric(label, value, sub = '', color = '', fontSize = '24px') {
+    return `<div class="metric">
+      <div class="metric-label">${label}</div>
+      <div class="metric-value" style="font-size:${fontSize};${color ? `color:${color}` : ''}">${value}</div>
+      ${sub ? `<div class="metric-sub">${sub}</div>` : ''}
+    </div>`;
+  }
+
+  /* ── Records table ───────────────────────────────────────── */
+  function renderTable() {
+    _syncEntityFilter();
+
+    const bids    = Store.getAll().sort(_byDateDesc);
+    const q       = document.getElementById('fsearch').value.toLowerCase();
+    const fStatus = document.getElementById('fstatus').value;
+    const fEntity = document.getElementById('fentity').value;
+    const pending = bids.filter(b => b.status === CONFIG.STATUS.PENDING).length;
+
+    UI.setHTML('pending-banner', pending
+      ? `<div class="refresh-banner">⏳ มี <strong>${pending} โครงการ</strong>รอพิจารณาผล
+           <button class="btn btn-green btn-sm" onclick="App.bulkRefresh()">🔄 Refresh ทั้งหมด</button>
+         </div>` : '');
+
+    const filtered = bids.filter(b => {
+      if (q && !b.name?.toLowerCase().includes(q)
+            && !b.id?.includes(q)
+            && !b.agency?.toLowerCase().includes(q)) return false;
+      if (fStatus && b.status !== fStatus) return false;
+      if (fEntity && b.entity !== fEntity) return false;
+      return true;
+    });
+
+    if (!filtered.length) {
+      UI.setHTML('records-list', '<div class="empty">ไม่พบข้อมูล</div>');
+      return;
+    }
+
+    const { STATUS } = CONFIG;
+    UI.setHTML('records-list', filtered.map(b => {
+      const type = b.status === STATUS.PENDING    ? 'pending'
+        : b.status === STATUS.WIN_PRICE  ? 'win-price'
+        : b.status === STATUS.LOSE_PRICE ? 'lose-price'
+        : b.status === STATUS.WINNER     ? 'winner'
+        : b.status === STATUS.LOSE       ? 'lose'
+        : 'contract';
+      const base = projectCard(b, type);
+      const actions = `
+        <div style="display:flex;gap:6px;justify-content:flex-end;padding:.6rem 1.1rem;border-top:1px solid var(--card-border)">
+          <button class="btn btn-sm btn-api" data-action="check" data-id="${UI.esc(b._id)}">🔍 ตรวจสอบ</button>
+          <button class="btn btn-sm" data-action="edit" data-id="${UI.esc(b._id)}">✏️ แก้ไข</button>
+          <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${UI.esc(b._id)}">✕ ลบ</button>
+        </div>`;
+      return base.replace(/<\/div>\s*$/, actions + '</div>');
+    }).join(''));
+  }
+
+  /** Keep entity filter in sync with actual data without losing selection */
+  function _syncEntityFilter() {
+    const sel     = document.getElementById('fentity');
+    const current = sel.value;
+    const entities = [...new Set(Store.getAll().map(b => b.entity ?? '').filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">ทุกห้าง</option>'
+      + entities.map(e => `<option${e === current ? ' selected' : ''}>${e}</option>`).join('');
+  }
+
+  /* ── Single record status check ─────────────────────────── */
+  async function checkOne(id) {
+    const bid = Store.findById(id);
+    if (!bid?.id) return;
+    UI.toast('⏳ กำลังตรวจสอบ...', 6000);
+    try {
+      const newStatus = await GovAPI.resolveStatus(bid);
+      if (newStatus && newStatus !== bid.status) {
+        Store.updateStatus(id, newStatus);
+        UI.toast(`✅ อัปเดตเป็น: ${newStatus}`);
+        renderTable();
+      } else {
+        UI.toast(`ℹ️ สถานะเดิม: ${bid.status}`);
+      }
+    } catch (e) {
+      UI.toast(`❌ ${e.message}`, 4000);
+    }
+  }
+
+  /* ── Bulk refresh all pending ────────────────────────────── */
+  async function bulkRefresh() {
+    // Include pending, win-price, lose-price bids (not yet finalized)
+    // Also include any record missing price data. Exclude only LOSE and CONTRACT.
+    const pending = Store.getAll().filter(b => b.id
+      && b.status !== CONFIG.STATUS.LOSE
+      && b.status !== CONFIG.STATUS.CONTRACT
+      && (b.status === CONFIG.STATUS.PENDING
+        || b.status === CONFIG.STATUS.WIN_PRICE
+        || b.status === CONFIG.STATUS.LOSE_PRICE
+        || !b.midPrice || !b.contractPrice)
+    );
+    if (!pending.length) { UI.toast('ข้อมูลครบแล้ว ไม่มีอะไรต้อง Refresh'); return; }
+
+    const pw    = document.getElementById('progress-wrap');
+    const label = document.getElementById('progress-label');
+    const fill  = document.getElementById('progress-fill');
+    pw.style.display = 'none';
+    fill.style.width = '0%';
+    label.textContent = '';
+
+    const restore = UI.setLoading('btn-bulk', ' กำลัง Refresh...');
+    pw.style.display = 'block';
+    let updated = 0;
+    try {
+
+    // Group pending bids by (tin, year) → 1 API call per group instead of 1 per bid
+    const groups = new Map();
+    for (const b of pending) {
+      const tin  = CONFIG.ENTITY_TIN[b.entity] ?? null;
+      const year = GovAPI.yearFromId(b.id);
+      const key  = `${tin ?? b.entity}|${year}`;
+      if (!groups.has(key)) groups.set(key, { tin, year, entity: b.entity, bids: [] });
+      groups.get(key).bids.push(b);
+    }
+
+    const groupList = [...groups.values()];
+    label.textContent = `กำลังโหลด ${groupList.length} กลุ่ม (${pending.length} โครงการ)...`;
+    fill.style.width = '10%';
+
+    // Fetch groups in batches of 3 to avoid rate limiting
+    const settled = [];
+    for (let i = 0; i < groupList.length; i += 3) {
+      const batch = groupList.slice(i, i + 3);
+      const results = await Promise.allSettled(
+        batch.map(g => GovAPI.fetchContractBatch(g.tin, g.year, g.entity))
+      );
+      settled.push(...results);
+      fill.style.width = `${10 + Math.round(60 * (i + batch.length) / groupList.length)}%`;
+    }
+
+    fill.style.width = '70%';
+    label.textContent = 'กำลังจับคู่ผลลัพธ์...';
+
+    for (let gi = 0; gi < groupList.length; gi++) {
+      const group = groupList[gi];
+      if (settled[gi].status === 'rejected') {
+        console.warn(`[bulkRefresh] group ${group.entity}/${group.year}: ${settled[gi].reason?.message}`);
+        continue;
+      }
+      const contractMap = new Map(
+        settled[gi].value.map(r => [String(r.project_id), r])
+      );
+      for (const b of group.bids) {
+        const match = contractMap.get(String(b.id));
+        if (!match) continue;
+        const newStatus = GovAPI.mapApiStatus(match.project_status) ?? CONFIG.STATUS.CONTRACT;
+        const midPrice      = Number(match.price_build)      || 0;
+        const contractPrice = Number(match.sum_price_agree)  || 0;
+        const apiName       = (match.project_name || '').trim();
+        const changed = newStatus !== b.status || midPrice !== b.midPrice || contractPrice !== b.contractPrice || (apiName && !b.name);
+        if (changed) {
+          Store.updateApiData(b._id, { status: newStatus, midPrice, contractPrice, name: apiName });
+          updated++;
+        }
+      }
+    }
+
+      // ── Pass 2: fetch winner records to populate missing project names ──
+    const missingName = Store.getAll().filter(b => !b.name);
+    if (missingName.length) {
+      fill.style.width = '75%';
+      label.textContent = `ดึงชื่อโครงการสำหรับ ${missingName.length} รายการ...`;
+
+      // Group by (tin, year) for batched winner API calls — mirrors Pass 1 contract batch
+      const wGroups = new Map();
+      for (const b of missingName) {
+        const tin     = CONFIG.ENTITY_TIN[b.entity] ?? null;
+        const keyword = b.entity || '';
+        const year    = GovAPI.yearFromId(b.id);
+        const key     = `${tin ?? keyword}|${year}`;
+        if (!wGroups.has(key)) wGroups.set(key, { tin, keyword, year, bids: [] });
+        wGroups.get(key).bids.push(b);
+      }
+      const wGroupList = [...wGroups.values()];
+      const wSettled = [];
+      for (let i = 0; i < wGroupList.length; i += 3) {
+        const batch = wGroupList.slice(i, i + 3);
+        const results = await Promise.allSettled(
+          batch.map(g => GovAPI.fetchWinnerBatch(g.keyword, g.year, g.tin))
+        );
+        wSettled.push(...results);
+        fill.style.width = `${75 + Math.round(20 * (i + batch.length) / wGroupList.length)}%`;
+      }
+      for (let gi = 0; gi < wGroupList.length; gi++) {
+        if (wSettled[gi].status === 'rejected') continue;
+        const winnerMap = new Map(wSettled[gi].value.map(r => [String(r.project_id), r]));
+        for (const b of wGroupList[gi].bids) {
+          const w = winnerMap.get(String(b.id));
+          if (!w) continue;
+          const wName = (w.project_name || w.name_th || '').trim();
+          if (wName) { Store.updateApiData(b._id, { name: wName }); updated++; }
+        }
+      }
+    }
+
+      fill.style.width = '100%';
+      label.textContent = `✅ เสร็จแล้ว! อัปเดต ${updated} โครงการ`;
+      setTimeout(() => { pw.style.display = 'none'; }, 4000);
+      restore('🔄 Refresh Pending');
+      UI.toast(`✅ อัปเดต ${updated}/${pending.length} โครงการ`);
+      renderTable();
+      renderDash();
+    } catch (err) {
+      pw.style.display = 'none';
+      restore('🔄 Refresh Pending');
+      UI.toast(`❌ Refresh ล้มเหลว: ${err.message}`);
+      console.error('[bulkRefresh]', err);
+    }
+  }
+
+  /* ── Lookup tab ──────────────────────────────────────────── */
+  async function doLookup() {
+    const id = document.getElementById('lookup-id').value.trim();
+    if (!id) { UI.toast('กรุณาใส่เลขโครงการ'); return; }
+
+    const restore = UI.setLoading('btn-lookup', 'กำลังโหลด...');
+    UI.setHTML('lookup-result', '<div class="empty"><span class="spinner"></span> กำลังดึงข้อมูล...</div>');
+    try {
+      const { raw } = await GovAPI.fetchContract(id);
+      UI.setHTML('lookup-result', raw.length ? UI.contractTable(raw) : '<div class="empty">ไม่พบข้อมูลโครงการนี้</div>');
+    } catch (e) {
+      UI.setHTML('lookup-result', `<div class="empty" style="color:var(--red)">❌ ${e.message}</div>`);
+    }
+    restore('🔍 ค้นหา');
+  }
+
+  async function doWinnerLookup() {
+    const kw = document.getElementById('winner-kw').value.trim();
+    if (!kw) { UI.toast('กรุณาใส่คำค้นหา'); return; }
+
+    const restore = UI.setLoading('btn-winner', '');
+    UI.setHTML('winner-result', '<div class="empty"><span class="spinner"></span></div>');
+    try {
+      const { results, total } = await GovAPI.searchWinner(kw);
+      UI.setHTML('winner-result', results.length
+        ? `<div style="font-size:12px;padding:.5rem;color:#888">พบ ${total} รายการ</div>`
+          + results.map(r => `<div style="padding:.6rem;border-bottom:1px solid #f0f0f0;font-size:12px">
+              <strong>${r.winner ?? '-'}</strong> — TIN: ${r.winner_tin ?? '-'}
+             </div>`).join('')
+        : '<div class="empty">ไม่พบข้อมูล</div>');
+    } catch (e) {
+      UI.setHTML('winner-result', `<div class="empty" style="color:var(--red)">❌ ${e.message}</div>`);
+    }
+    restore('🔍 ค้นหา');
+  }
+
+  /* ── Add / Edit form ─────────────────────────────────────── */
+  async function autofillFromAPI() {
+    const id = document.getElementById('f-id').value.trim();
+    if (!id) { UI.toast('กรุณาใส่เลขโครงการก่อน'); return; }
+
+    const restore = UI.setLoading('btn-autofill', 'กำลังดึง...');
+    try {
+      const c = await GovAPI.fetchContract(id, document.getElementById('f-entity').value);
+      if (c.projectName) {
+        _setField('f-name',     c.projectName);
+        _setField('f-agency',   c.agency);
+        _setField('f-province', c.province);
+        _setField('f-budget',   c.budget || 0);
+        _setField('f-bid',      c.amount || 0);
+        UI.setHTML('autofill-result',
+          `<div style="background:#e8f4fd;border:1px solid #bee3f8;border-radius:7px;padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-top:.8rem">
+            ✅ ดึงข้อมูลสำเร็จ: <strong>${c.projectName.substring(0, 80)}</strong>
+           </div>`);
+        UI.toast('✅ กรอกข้อมูลแล้ว');
+      } else {
+        UI.toast('⚠️ ไม่พบโครงการนี้ใน API');
+      }
+    } catch (e) { UI.toast(`❌ ${e.message}`, 4000); }
+    restore('⚡ ดึงจาก API');
+  }
+
+  function saveBid() {
+    const name = document.getElementById('f-name').value.trim();
+    if (!name) { UI.toast('กรุณาใส่ชื่อโครงการ'); return; }
+
+    const budget   = Number(document.getElementById('f-budget').value)   || 0;
+    const midPrice = Number(document.getElementById('f-midprice').value) || 0;
+    const bid      = Number(document.getElementById('f-bid').value)      || 0;
+    const existing = _editId ? Store.findById(_editId) : null;
+
+    Store.upsert({
+      _id:      _editId ?? `n${Date.now()}`,
+      id:       document.getElementById('f-id').value.trim(),
+      name,
+      date:     document.getElementById('f-date').value,
+      agency:   document.getElementById('f-agency').value.trim(),
+      province: document.getElementById('f-province').value.trim(),
+      budget,
+      midPrice,
+      bid,
+      pct:      budget > 0 ? Math.round((budget - bid) / budget * 10_000) / 100 : 0,
+      entity:   document.getElementById('f-entity').value,
+      status:   document.getElementById('f-status').value,
+      seq:      existing?.seq ?? Store.getAll().length + 1,
+    });
+
+    clearForm();
+    UI.toast('💾 บันทึกแล้ว!');
+    navigate('records');
+  }
+
+  function editBid(id) {
+    const b = Store.findById(id);
+    if (!b) return;
+    _editId = id;
+    document.getElementById('form-title').textContent = `แก้ไข #${b.seq}`;
+    _setField('f-id',       b.id       ?? '');
+    _setField('f-name',     b.name     ?? '');
+    _setField('f-date',     b.date     ?? '');
+    _setField('f-agency',   b.agency   ?? '');
+    _setField('f-province', b.province ?? '');
+    _setField('f-budget',   b.budget   ?? 0);
+    _setField('f-midprice', b.midPrice ?? 0);
+    _setField('f-bid',      b.bid      ?? 0);
+    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.PENDING;
+    navigate('add');
+  }
+
+  function deleteBid(id) {
+    const b = Store.findById(id);
+    if (!confirm(`ลบโครงการ #${b?.seq}: "${(b?.name ?? '').substring(0, 40)}..."?`)) return;
+    Store.remove(id);
+    renderTable();
+    UI.toast('🗑 ลบแล้ว');
+  }
+
+  function clearForm() {
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    UI.setHTML('autofill-result', '');
+    document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
+    document.getElementById('f-status').value = CONFIG.STATUS.PENDING;
+    document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
+    _editId = null;
+  }
+
+  /* ── CSV export ──────────────────────────────────────────── */
+  function exportCSV() {
+    const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
+    const header = 'seq,project_id,date,name,agency,province,budget,bid,pct,entity,status\n';
+    const rows = Store.getAll().map(b => [
+      b.seq, b.id, b.date,
+      esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
+      b.budget, b.bid, b.pct,
+      esc(b.entity), esc(b.status),
+    ].join(',')).join('\n');
+
+    const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a       = Object.assign(document.createElement('a'), {
+      href: blobUrl, download: 'rmn_ebidding_2569.csv',
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // FIX 7: Revoke blob URL immediately to prevent memory leak
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    UI.toast('⬇ Export CSV แล้ว');
+  }
+
+  /* ── Private helpers ─────────────────────────────────────── */
+  const _setField = (id, val) => { document.getElementById(id).value = val; };
+
+  function _setReportFilter(filter) {
+    _reportFilter = filter;
+    renderPipelineFiltered(Store.getAll().sort(_byDateDesc));
+  }
+
+  /* ── Public API ──────────────────────────────────────────── */
+  return {
+    navigate, renderDash, renderReport, renderTable,
+    checkOne, bulkRefresh,
+    doLookup, doWinnerLookup, autofillFromAPI,
+    saveBid, editBid, deleteBid, clearForm, exportCSV,
+    _setReportFilter,
+  };
+})();
+
+/* Boot — pill filter for report tab */
+document.querySelector('.report-pills').addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  document.querySelectorAll('.report-pills .pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  App._setReportFilter(pill.dataset.filter);
+});
+
+/* Boot — delegated listener on records-list for card action buttons */
+document.getElementById('records-list').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const { action, id } = btn.dataset;
+  if (action === 'check')  App.checkOne(id);
+  if (action === 'edit')   App.editBid(id);
+  if (action === 'delete') App.deleteBid(id);
+});
+
+App.renderDash();
+
+// Dark theme — default on, persisted in localStorage
+(function(){
+  const t = localStorage.getItem('rmn_theme') ?? 'dark';
+  if (t === 'dark') document.documentElement.classList.add('dark');
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+})();
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('rmn_theme', isDark ? 'dark' : 'light');
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+</script>
+</body>
+</html>
