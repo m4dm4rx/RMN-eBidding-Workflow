@@ -1,0 +1,255 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-text-primary:#1a1a1a;
+  --color-text-secondary:#666;
+  --color-text-tertiary:#999;
+  --color-text-success:#166534;
+  --color-text-danger:#991b1b;
+  --color-text-warning:#854d0e;
+  --color-background-primary:#fff;
+  --color-background-secondary:#f8f9fa;
+  --color-background-success:#dcfce7;
+  --color-background-danger:#fee2e2;
+  --color-background-warning:#fef9c3;
+  --color-border-secondary:#e5e7eb;
+  --color-border-tertiary:#f0f0f0;
+  --border-radius-md:8px;
+  --border-radius-lg:10px;
+  --font-mono:'Courier New',monospace;
+}
+body{font-family:'Sarabun',sans-serif;background:#fff;padding:1rem}
+*{box-sizing:border-box;margin:0;padding:0}
+.tr{padding:.8rem 0;font-size:13px;color:var(--color-text-primary)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.7rem 1rem;text-align:center}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.kpi-val{font-size:20px;font-weight:500}
+.filter-row{display:flex;gap:6px;margin-bottom:.8rem;flex-wrap:wrap;align-items:center}
+.filter-row input,.filter-row select{font-size:12px;padding:4px 8px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+.filter-row input{flex:1;min-width:140px}
+.pill{padding:3px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);cursor:pointer;font-size:12px}
+.pill.active{background:var(--color-text-primary);color:var(--color-background-primary)}
+.tbl-wrap{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:auto;max-height:500px}
+.low-win{color:var(--color-text-success);font-weight:500}
+.low-lose{color:var(--color-text-danger)}
+table{width:100%;border-collapse:collapse;min-width:1020px}
+th{font-size:11px;font-weight:500;color:var(--color-text-secondary);padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);position:sticky;top:0;background:var(--color-background-secondary);text-align:left;white-space:nowrap}
+td{padding:5px 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+tr:hover td{background:var(--color-background-secondary)}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.win{background:var(--color-background-success);color:var(--color-text-success)}
+.contract{background:#e8f5e9;color:#2e7d32}
+.lose{background:var(--color-background-danger);color:var(--color-text-danger)}
+.pending{background:var(--color-background-warning);color:var(--color-text-warning)}
+.approved{background:#e3f2fd;color:#1565c0}
+.note{font-size:11px;color:var(--color-text-tertiary);margin-top:.4rem}
+</style>
+
+<div class="tr" id="app">กำลังโหลด...</div>
+
+<script>
+const API_LOOKUP={"69019222862":{"budget":19970483,"bid":17768000},"68109186868":{"budget":14220460,"bid":14214000},"69019223098":{"budget":14994459,"bid":13338000},"68109334331":{"budget":7508039,"bid":7496000},"68109060639":{"budget":2951726,"bid":2288000},"69019321881":{"budget":4048171,"bid":2098000},"69019099694":{"budget":3137442,"bid":1948000},"68129460824":{"budget":3305429,"bid":1688000},"69019291469":{"budget":3080529,"bid":1628000},"68129131723":{"budget":2478858,"bid":1312000},"69029031848":{"budget":2034365,"bid":1188000},"69019337346":{"budget":2204808,"bid":1188000},"69019099341":{"budget":1812673,"bid":1128000},"68129195491":{"budget":1998492,"bid":1056000},"68129169489":{"budget":1440372,"bid":998000},"68109449059":{"budget":1519443,"bid":948000},"69019211222":{"budget":1683721,"bid":886755},"69019192946":{"budget":1597481,"bid":829668},"68129510402":{"budget":1116637,"bid":588000},"69019019593":{"budget":973669,"bid":578000},"68129494483":{"budget":893836,"bid":536000},"69019364527":{"budget":555000,"bid":288000}};
+
+const SEED=[
+  {id:'68109441956',date:'2568-12-16',agency:'อบต.หนองบัวแก้ว',province:'มหาสารคาม',budget:2499400,bid:1296000,entity:'กิจการร่วมค้า ตักสิลา',status:'contract'},
+  {id:'68129065918',date:'2568-12-16',agency:'อบต.ก้ามปู',province:'มหาสารคาม',budget:1625000,bid:968000,entity:'กิจการร่วมค้า ตักสิลา',status:'contract'},
+  {id:'68109387622',date:'2568-12-26',agency:'ทต.กมลาไสย',province:'กาฬสินธุ์',budget:7709000,bid:3878000,entity:'กิจการร่วมค้า ตักสิลา',status:'contract'},
+  {id:'68129308304',date:'2568-12-30',agency:'แขวงทางหลวงชนบทชัยภูมิ',province:'ชัยภูมิ',budget:5000000,bid:4994000,entity:'กิจการร่วมค้า ตักสิลา',status:'contract'},
+  {id:'68129494483',date:'2569-01-05',agency:'อบต.ดอนงัว',province:'มหาสารคาม',budget:893836,bid:536000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68129174612',date:'2569-01-06',agency:'อบต.ดงมะไฟ',province:'สกลนคร',budget:7624000,bid:4268000,entity:'กิจการร่วมค้า RMN',status:'contract'},
+  {id:'68129510402',date:'2569-01-06',agency:'อบต.ดอนสมบูรณ์',province:'กาฬสินธุ์',budget:1116637,bid:588000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68109060639',date:'2569-01-07',agency:'ทน.สกลนคร',province:'สกลนคร',budget:2951726,bid:2288000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68129169489',date:'2569-01-16',agency:'ทต.นาซอ',province:'สกลนคร',budget:1440372,bid:998000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68119464503',date:'2569-01-20',agency:'อบต.โนนราษี',province:'มหาสารคาม',budget:7661000,bid:4988000,entity:'กิจการร่วมค้า RMN',status:'contract'},
+  {id:'69019337346',date:'2569-01-28',agency:'ทต.ธัญญา',province:'กาฬสินธุ์',budget:2204808,bid:1188000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019291469',date:'2569-01-30',agency:'ทต.หนองนาคำ',province:'ขอนแก่น',budget:3080529,bid:1628000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019364527',date:'2569-02-02',agency:'อบต.หนองกุงธนสาร',province:'ขอนแก่น',budget:555000,bid:288000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019099341',date:'2569-02-03',agency:'ทต.คำตากล้า',province:'สกลนคร',budget:1812673,bid:1128000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019099694',date:'2569-02-03',agency:'ทต.คำตากล้า',province:'สกลนคร',budget:3137442,bid:1948000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68119343622',date:'2569-02-04',agency:'อบต.ทุ่งโป่ง',province:'ขอนแก่น',budget:793000,bid:448000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'68129195491',date:'2569-02-11',agency:'อบต.หนองไผ่',province:'ร้อยเอ็ด',budget:1998492,bid:1056000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68129131723',date:'2569-02-11',agency:'อบต.หนองไผ่',province:'ร้อยเอ็ด',budget:2478858,bid:1312000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019019593',date:'2569-02-11',agency:'ทต.แกดำ',province:'มหาสารคาม',budget:973669,bid:578000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69029031848',date:'2569-02-12',agency:'อบต.บึงงาม',province:'ร้อยเอ็ด',budget:2034365,bid:1188000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019397577',date:'2569-02-12',agency:'อบต.แกดำ',province:'มหาสารคาม',budget:2130000,bid:1466000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69019192946',date:'2569-02-12',agency:'ทต.นาจาน',province:'ขอนแก่น',budget:1597481,bid:829668,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69019211222',date:'2569-02-12',agency:'ทต.นาจาน',province:'ขอนแก่น',budget:1683721,bid:886755,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69019222862',date:'2569-02-13',agency:'แขวงทางหลวงมหาสารคาม',province:'มหาสารคาม',budget:19970483,bid:17768000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019223098',date:'2569-02-14',agency:'แขวงทางหลวงมหาสารคาม',province:'มหาสารคาม',budget:14994459,bid:13338000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68129460824',date:'2569-02-18',agency:'อบต.หนองกุง',province:'กาฬสินธุ์',budget:3305429,bid:1688000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'69019325361',date:'2569-02-18',agency:'อบจ.ขอนแก่น',province:'ขอนแก่น',budget:8937000,bid:7386000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69019131293',date:'2569-02-19',agency:'ทต.แวงน้อย',province:'ขอนแก่น',budget:1549000,bid:777000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69019321881',date:'2569-02-11',agency:'อบต.สันป่าตอง',province:'มหาสารคาม',budget:4048171,bid:2098000,entity:'ห้างหุ้นส่วน RMN',status:'contract'},
+  {id:'68109449059',date:'2569-02-23',agency:'อบต.หนองบัว',province:'กาฬสินธุ์',budget:1519443,bid:948000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'68129167084',date:'2569-02-23',agency:'อบจ.ขอนแก่น',province:'ขอนแก่น',budget:21000000,bid:19895000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'68129484635',date:'2569-02-23',agency:'ทต.เปือยน้อย',province:'ขอนแก่น',budget:1432500,bid:828000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'68119530110',date:'2569-02-26',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:4345000,bid:2338000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69019542481',date:'2569-03-02',agency:'อบต.โคกสีทองหลาง',province:'มหาสารคาม',budget:1067300,bid:598000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'68119530496',date:'2569-03-03',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:4489000,bid:2788000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'68109272892',date:'2569-03-17',agency:'ทน.สกลนคร',province:'สกลนคร',budget:588000,bid:368000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69019314987',date:'2569-03-18',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:2118000,bid:1238000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69019313209',date:'2569-03-18',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:2605000,bid:1468000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039116404',date:'2569-03-19',agency:'อบต.ขี้เหล็ก',province:'ร้อยเอ็ด',budget:7720000,bid:4238000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  {id:'69029009464',date:'2569-03-19',agency:'อบต.นาคู',province:'กาฬสินธุ์',budget:758000,bid:528000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'68119526224',date:'2569-03-24',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:3195000,bid:1978000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039135345',date:'2569-03-24',agency:'ทต.นาคำ',province:'ขอนแก่น',budget:4126000,bid:2538000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'68119525313',date:'2569-03-25',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:3023000,bid:1998000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69029266464',date:'2569-03-25',agency:'ทต.สีชมพู',province:'ขอนแก่น',budget:1056000,bid:698000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039403518',date:'2569-03-27',agency:'ทต.นาเหล่า',province:'หนองบัวลำภู',budget:572000,bid:418000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69019440812',date:'2569-04-02',agency:'ทต.ภูผาม่าน',province:'ขอนแก่น',budget:634900,bid:418000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039364737',date:'2569-04-03',agency:'อบต.ธวัชบุรี',province:'ร้อยเอ็ด',budget:1190000,bid:698000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69019146499',date:'2569-04-03',agency:'ทม.บ้านเป็ด',province:'ขอนแก่น',budget:1407100,bid:998000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039288643',date:'2569-04-07',agency:'อบต.ประชาพัฒนา',province:'มหาสารคาม',budget:1260000,bid:837000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039286713',date:'2569-04-07',agency:'อบต.ประชาพัฒนา',province:'มหาสารคาม',budget:1445000,bid:922000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69029495546',date:'2569-04-07',agency:'อบต.เมืองพล',province:'ขอนแก่น',budget:1164000,bid:846000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69019524385',date:'2569-04-07',agency:'อบต.หนองม่วง',province:'มหาสารคาม',budget:4879000,bid:3758000,entity:'ห้างหุ้นส่วน RMN',status:'approved'},
+  // เม.ย. 69 — อัปเดตราคายื่นและแก้ไขชื่อหน่วยงาน
+  {id:'69039471770',date:'2569-04-09',agency:'ทต.โนนสูงเปลือย',province:'ขอนแก่น',budget:0,bid:645000,entity:'ห้างหุ้นส่วน RMN',status:'win'},
+  {id:'69029492829',date:'2569-04-09',agency:'ทม.เมืองพล',province:'ขอนแก่น',budget:0,bid:1998000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039581349',date:'2569-04-16',agency:'อบต.ดอนสมบูรณ์',province:'กาฬสินธุ์',budget:0,bid:698000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039499084',date:'2569-04-17',agency:'ทม.กระนวน ม.1',province:'ขอนแก่น',budget:0,bid:478000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039490313',date:'2569-04-17',agency:'ทม.กระนวน ม.11',province:'ขอนแก่น',budget:0,bid:338000,entity:'ห้างหุ้นส่วน RMN',status:'win'},
+  {id:'69049041321',date:'2569-04-21',agency:'ทม.กระนวน',province:'ขอนแก่น',budget:0,bid:768000,entity:'ห้างหุ้นส่วน RMN',status:'win'},
+  {id:'69049041910',date:'2569-04-21',agency:'ทม.กระนวน',province:'ขอนแก่น',budget:0,bid:858000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039202749',date:'2569-04-22',agency:'อบต.หนองกุง',province:'ขอนแก่น',budget:0,bid:2456000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039554177',date:'2569-04-22',agency:'อบต.สนามฝ้าย',province:'ขอนแก่น',budget:0,bid:1232000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039476187',date:'2569-04-22',agency:'ทต.โนนสูงเปลือย',province:'ขอนแก่น',budget:0,bid:1338000,entity:'ห้างหุ้นส่วน RMN',status:'win'},
+  {id:'69039516906',date:'2569-04-23',agency:'ทต.โพนทอง',province:'ขอนแก่น',budget:0,bid:428000,entity:'ห้างหุ้นส่วน RMN',status:'win'},
+  {id:'69039388743',date:'2569-04-24',agency:'อบต.หนองน้ำใส',province:'ขอนแก่น',budget:0,bid:1278000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039297945',date:'2569-04-24',agency:'แขวงทางหลวงชนบทหนองบัวลำภู',province:'หนองบัวลำภู',budget:0,bid:3658000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69029257396',date:'2569-04-27',agency:'อบต.ราษฎร์เจริญ',province:'ขอนแก่น',budget:0,bid:1537000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69029257026',date:'2569-04-27',agency:'อบต.ราษฎร์เจริญ',province:'ขอนแก่น',budget:0,bid:1298000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69039263424',date:'2569-04-28',agency:'ทม.ศิลา',province:'ขอนแก่น',budget:0,bid:498000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69049234880',date:'2569-04-29',agency:'ทม.กระนวน',province:'ขอนแก่น',budget:0,bid:398000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'69049338399',date:'2569-04-29',agency:'อบต.ดอนแร้ง',province:'ขอนแก่น',budget:0,bid:855000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  {id:'68119362613',date:'2569-04-29',agency:'อบต.หนองอีเฒ่า',province:'ขอนแก่น',budget:0,bid:369000,entity:'ห้างหุ้นส่วน RMN',status:'pending'},
+  // พ.ค. 69
+  {id:'69049350588',date:'2569-05-08',agency:'อบต.โนนหัน',province:'ขอนแก่น',budget:1180000,bid:665000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:665000},
+  {id:'69039242695',date:'2569-05-08',agency:'ทม.ศิลา',province:'ขอนแก่น',budget:2211087,bid:1298000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:1865000},
+  {id:'69039265848',date:'2569-05-08',agency:'ทม.ศิลา',province:'ขอนแก่น',budget:1185446,bid:698000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:698000},
+  {id:'69039259355',date:'2569-05-08',agency:'ทม.ศิลา',province:'ขอนแก่น',budget:3756334,bid:2178000,entity:'ห้างหุ้นส่วน RMN',status:'lose',lowest:2093000},
+  {id:'69039260672',date:'2569-05-08',agency:'ทม.ศิลา',province:'ขอนแก่น',budget:1528478,bid:886000,entity:'ห้างหุ้นส่วน RMN',status:'lose',lowest:662000},
+  {id:'69039264764',date:'2569-05-08',agency:'ทม.ศิลา',province:'ขอนแก่น',budget:3904473,bid:2264000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:2265000},
+  {id:'69049223359',date:'2569-05-08',agency:'แขวงทางหลวงมหาสารคาม',province:'มหาสารคาม',budget:8488542,bid:4998000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:4998000},
+  {id:'68119122408',date:'2569-05-08',agency:'อบจ.สกลนคร',province:'สกลนคร',budget:5244964,bid:3358000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:3358000},
+  {id:'69059046112',date:'2569-05-11',agency:'ทต.หนองพอก',province:'ร้อยเอ็ด',budget:2206000,bid:1318000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:1318000},
+  {id:'69049395087',date:'2569-05-11',agency:'อบต.โนนอุดม',province:'ขอนแก่น',budget:826000,bid:598000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:598000},
+  {id:'69049240922',date:'2569-05-11',agency:'ทต.ซำสูง',province:'ขอนแก่น',budget:1223000,bid:728000,entity:'ห้างหุ้นส่วน RMN',status:'lose',lowest:627000},
+  {id:'69049434789',date:'2569-05-11',agency:'แขวงฯ ร้อยเอ็ด',province:'ร้อยเอ็ด',budget:3901280,bid:2548000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:2548000},
+  {id:'69049160627',date:'2569-05-12',agency:'ทม.บ้านทุ่ม',province:'ขอนแก่น',budget:4625455,bid:2998000,entity:'ห้างหุ้นส่วน RMN',status:'win',lowest:2998000},
+];
+
+const bids=SEED.map(b=>{
+  const api=API_LOOKUP[b.id];
+  if(api) return {...b,budget:b.budget||api.budget,bid:b.bid||api.bid};
+  return b;
+});
+
+const STATUS_LABEL={
+  win:'<span class="badge win">ชนะ</span>',
+  lose:'<span class="badge lose">แพ้</span>',
+  contract:'<span class="badge contract">สัญญา</span>',
+  approved:'<span class="badge approved">ประกาศผู้ชนะ</span>',
+  pending:'<span class="badge pending">รอผล</span>',
+};
+
+let filter='all';
+function fmt(n){return n?Math.round(n).toLocaleString('th-TH'):'-';}
+function pct(b,bg){return (b&&bg)?Math.round((1-b/bg)*100)+'%':'-';}
+function dateDisplay(d){
+  if(!d)return'-';
+  const [y,m,day]=d.split('-');
+  const months=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return `${parseInt(day)} ${months[parseInt(m)]}`;
+}
+
+function init(){
+  const app=document.getElementById('app');
+  const win=bids.filter(b=>['win','contract','approved'].includes(b.status));
+  const lose=bids.filter(b=>b.status==='lose');
+  const pending=bids.filter(b=>b.status==='pending');
+  const winVal=win.reduce((s,b)=>s+b.bid,0);
+  const winRate=bids.length?Math.round(win.length/bids.length*100):0;
+
+  app.innerHTML=`
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">โครงการทั้งหมด</div><div class="kpi-val">${bids.length}</div></div>
+  <div class="kpi"><div class="kpi-label">ชนะ/สัญญา</div><div class="kpi-val" style="color:var(--color-text-success)">${win.length} (${winRate}%)</div></div>
+  <div class="kpi"><div class="kpi-label">แพ้ / รอผล</div><div class="kpi-val" style="color:var(--color-text-danger)">${lose.length} / <span style="color:var(--color-text-warning)">${pending.length}</span></div></div>
+  <div class="kpi"><div class="kpi-label">มูลค่าชนะ</div><div class="kpi-val" style="font-size:15px;color:var(--color-text-success)">${(winVal/1e6).toFixed(1)}M</div></div>
+</div>
+<div class="filter-row">
+  <input type="text" id="fsearch" placeholder="ค้นหาเลขที่ / หน่วยงาน / จังหวัด..." oninput="render()">
+  <select id="fmonth" onchange="render()">
+    <option value="">ทุกเดือน</option>
+    <option value="2568-12">ธ.ค. 68</option>
+    <option value="2569-01">ม.ค. 69</option>
+    <option value="2569-02">ก.พ. 69</option>
+    <option value="2569-03">มี.ค. 69</option>
+    <option value="2569-04">เม.ย. 69</option>
+    <option value="2569-05">พ.ค. 69</option>
+  </select>
+  <button class="pill active" id="btn-all" onclick="setF('all')">ทั้งหมด (${bids.length})</button>
+  <button class="pill" id="btn-win" onclick="setF('win')">ชนะ/สัญญา (${win.length})</button>
+  <button class="pill" id="btn-lose" onclick="setF('lose')">แพ้ (${lose.length})</button>
+  <button class="pill" id="btn-pending" onclick="setF('pending')">รอผล (${pending.length})</button>
+</div>
+<div class="tbl-wrap">
+<table>
+<thead><tr>
+  <th>#</th><th>เลขที่โครงการ</th><th>วันที่</th><th>หน่วยงาน</th><th>จังหวัด</th>
+  <th style="text-align:right">ราคากลาง</th><th style="text-align:right">ราคายื่น</th>
+  <th style="text-align:right">ราคาต่ำสุด</th><th style="text-align:right">%ลดจากกลาง</th>
+  <th>ห้าง</th><th>สถานะ</th>
+</tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<div class="note">📦 ${bids.length} โครงการ · ธ.ค. 68 — พ.ค. 69 · อัปเดต 12 พ.ค. 69</div>`;
+  render();
+}
+
+function setF(f){
+  filter=f;
+  ['all','win','lose','pending'].forEach(x=>{
+    const el=document.getElementById('btn-'+x);
+    if(el)el.className='pill'+(x===f?' active':'');
+  });
+  render();
+}
+
+function render(){
+  const q=(document.getElementById('fsearch')||{value:''}).value.toLowerCase();
+  const fm=(document.getElementById('fmonth')||{value:''}).value;
+  const rows=bids.filter(b=>{
+    if(filter==='win'&&!['win','contract','approved'].includes(b.status))return false;
+    if(filter==='lose'&&b.status==='lose'?false:filter==='lose'&&b.status!=='lose')return false;
+    if(filter==='lose'&&b.status!=='lose')return false;
+    if(filter==='pending'&&b.status!=='pending')return false;
+    if(fm&&!b.date.startsWith(fm))return false;
+    if(q&&!b.id.includes(q)&&!b.agency.toLowerCase().includes(q)&&!b.province.toLowerCase().includes(q))return false;
+    return true;
+  });
+  const shortE=e=>e?e.replace('ห้างหุ้นส่วน ','').replace('กิจการร่วมค้า ','ร่วมค้า '):'-';
+  document.getElementById('tbody').innerHTML=rows.map(b=>`
+    <tr>
+      <td style="color:var(--color-text-secondary);font-size:11px">${bids.indexOf(b)+1}</td>
+      <td style="font-family:var(--font-mono);font-size:11px">${b.id}</td>
+      <td style="font-size:11px">${dateDisplay(b.date)}</td>
+      <td>${b.agency}</td>
+      <td>${b.province}</td>
+      <td style="text-align:right;color:var(--color-text-secondary)">${fmt(b.budget)}</td>
+      <td style="text-align:right;font-weight:500">${fmt(b.bid)}</td>
+      <td style="text-align:right">${b.lowest?`<span class="${b.lowest<=b.bid?'low-win':'low-lose'}">${fmt(b.lowest)}</span>`:'-'}</td>
+      <td style="text-align:right">${pct(b.bid,b.budget)}</td>
+      <td style="font-size:11px">${shortE(b.entity)}</td>
+      <td>${STATUS_LABEL[b.status]||b.status}</td>
+    </tr>`).join('');
+}
+
+init();
+</script>

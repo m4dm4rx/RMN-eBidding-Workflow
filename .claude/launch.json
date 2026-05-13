@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "RMN e-Bidding Tracker (HTTP + API Proxy)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["server.py"],
+      "port": 8181
+    }
+  ]
+}

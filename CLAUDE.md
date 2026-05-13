@@ -8,12 +8,6 @@ Web app ติดตามการประมูลโครงการถน
 - Live: https://rmn-ebidding-tracker.netlify.app/rmn_ebidding_tracker_2.html
 - GitHub: https://github.com/dorpnightmare-wq/rmn-ebidding-tracker.git
 
-## OCR workflow (screenshot ผลประมูล)
-Screenshots บันทึกที่: `C:\Users\Advice\Downloads\Screenshots\`
-1. User บอกชื่อไฟล์ → Claude Read ไฟล์ → ส่ง POST `https://rmn-ebidding-tracker.netlify.app/.netlify/functions/ocr`
-2. Typhoon OCR return text → parse เลขโครงการ + ราคาต่ำสุด
-3. เทียบกับ SEED_BIDS → แจ้ง win/lose → ยืนยันก่อน update
-
 ## Data entry workflow
 1. User pastes row(s) from Excel → Claude **แปลงเป็น text** แสดงข้อมูลที่ parse ได้ (id, name, agency, province, budget, bid, date, status)
 2. User ยืนยัน → Claude add to SEED_BIDS in HTML
