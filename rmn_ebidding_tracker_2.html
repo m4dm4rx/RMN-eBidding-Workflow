@@ -433,14 +433,20 @@ textarea{resize:vertical;min-height:60px}
         <option value="">ทุกสถานะ</option>
         <option>จัดทำสัญญาแล้ว</option>
         <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
-        <option value="ราคาต่ำสุด">เป็นผู้เสนอต่ำสุด</option>
-        <option value="ราคาไม่ต่ำสุด">ไม่ได้เป็นผู้เสนอต่ำสุด</option>
-        <option>อยู่ระหว่างพิจารณาผล</option>
+        <option>รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด</option>
+        <option>รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด</option>
         <option>แพ้การประมูล</option>
+        <option>แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</option>
         <option>ยกเลิกโครงการ</option>
         <option>ห้างขอยกเลิกเอง</option>
       </select>
       <select id="fentity" onchange="App.renderTable()"><option value="">ทุกห้าง</option></select>
+      <select id="fsort" onchange="App.renderTable()">
+        <option value="date-desc">วันที่ ล่าสุดก่อน</option>
+        <option value="date-asc">วันที่ เก่าสุดก่อน</option>
+        <option value="bid-desc">ราคายื่น มากก่อน</option>
+        <option value="bid-asc">ราคายื่น น้อยก่อน</option>
+      </select>
     </div>
     <div id="records-list"></div>
   </div>
@@ -1324,10 +1330,9 @@ const App = (() => {
               <div class="proj-fin-value" style="${b.lowest ? (b.lowest<=b.bid ? 'color:#0f9d58' : 'color:#dc2626') : ''}">${b.lowest ? UI.fmt(b.lowest) : '—'}</div>
             </div>
             <div class="proj-fin-item">
-              <div class="proj-fin-label">${type === 'contract' || type === 'winner' ? 'ราคาที่ตกลงจ้าง' : '% ของราคากลาง'}</div>
-              <div class="proj-fin-value ${(type === 'contract' || type === 'winner') ? 'win' : ''}">${
-                (type === 'contract' || type === 'winner') ? UI.fmt(b.contractPrice || b.bid)
-                : b.midPrice ? (b.bid/b.midPrice*100).toFixed(1)+'%' : b.pct ? (100-b.pct).toFixed(1)+'%' : '—'
+              <div class="proj-fin-label">คิดเป็น % ของราคากลาง</div>
+              <div class="proj-fin-value">${
+                b.midPrice ? (b.bid/b.midPrice*100).toFixed(1)+'%' : b.pct ? (100-b.pct).toFixed(1)+'%' : '—'
               }</div>
             </div>
           </div>
@@ -1421,6 +1426,7 @@ const App = (() => {
     const q       = document.getElementById('fsearch').value.toLowerCase();
     const fStatus = document.getElementById('fstatus').value;
     const fEntity = document.getElementById('fentity').value;
+    const fSort   = document.getElementById('fsort')?.value ?? 'date-desc';
     const { STATUS } = CONFIG;
     const pending = bids.filter(b =>
       b.status === STATUS.WIN_PENDING || b.status === STATUS.LOSE_PENDING
@@ -1445,7 +1451,14 @@ const App = (() => {
       return;
     }
 
-    UI.setHTML('records-list', filtered.map(b => {
+    const sortedFiltered = [...filtered].sort((a, b) => {
+      if (fSort === 'date-asc')  return (a.date ?? '').localeCompare(b.date ?? '');
+      if (fSort === 'bid-desc')  return (b.bid ?? 0) - (a.bid ?? 0);
+      if (fSort === 'bid-asc')   return (a.bid ?? 0) - (b.bid ?? 0);
+      return (b.date ?? '').localeCompare(a.date ?? ''); // date-desc default
+    });
+
+    UI.setHTML('records-list', sortedFiltered.map(b => {
       const type = b.status === STATUS.WIN_PENDING   ? 'win-pending'
         : b.status === STATUS.LOSE_PENDING  ? 'lose-pending'
         : b.status === STATUS.DISQUALIFIED  ? 'disqualified'
