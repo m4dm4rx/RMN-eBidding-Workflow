@@ -483,17 +483,7 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
     </div>
     <div class="filter-row">
       <input id="fsearch" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderTable()">
-      <select id="fstatus" onchange="App.renderTable()">
-        <option value="">ทุกสถานะ</option>
-        <option>จัดทำสัญญาแล้ว</option>
-        <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
-        <option>รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด</option>
-        <option>รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด</option>
-        <option>แพ้การประมูล</option>
-        <option>แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</option>
-        <option>ยกเลิกโครงการ</option>
-        <option>ห้างขอยกเลิกเอง</option>
-      </select>
+      <select id="fstatus" onchange="App.renderTable()" style="display:none"><option value=""></option></select>
       <select id="fentity" onchange="App.renderTable()"><option value="">ทุกห้าง</option></select>
       <select id="fsort" onchange="App.renderTable()">
         <option value="date-desc">วันที่ ล่าสุดก่อน</option>
