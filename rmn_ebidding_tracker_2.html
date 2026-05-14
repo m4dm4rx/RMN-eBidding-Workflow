@@ -529,7 +529,8 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
         <div class="form-group"><label>งบประมาณ (บาท)</label><input id="f-budget" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคากลาง (บาท)</label><input id="f-midprice" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคาที่ยื่น (บาท)</label><input id="f-bid" type="number" placeholder="0"></div>
-        <div class="form-group full"><label>คู่แข่งที่ได้งาน (กรณีแพ้)</label><input id="f-competitor" type="text" placeholder="ชื่อบริษัท/ห้างที่ชนะ"></div>
+        <div class="form-group"><label>ราคาต่ำสุด คู่แข่ง (บาท)</label><input id="f-lowest" type="number" placeholder="0"></div>
+        <div class="form-group"><label>คู่แข่งที่ได้งาน (กรณีแพ้)</label><input id="f-competitor" type="text" placeholder="ชื่อบริษัท/ห้างที่ชนะ"></div>
         <div class="form-group"><label>ประเภทงาน</label><input id="f-worktype" type="text" placeholder="เสริมผิว, OVERLAY, Pavement Recycling ฯลฯ"></div>
         <div class="form-group"><label>Plant ที่ใช้ยื่น</label><select id="f-plant">
           <option value="">-- เลือก Plant --</option>
@@ -1951,6 +1952,7 @@ const App = (() => {
       pct:      budget > 0 ? Math.round((budget - bid) / budget * 10_000) / 100 : 0,
       entity:     document.getElementById('f-entity').value,
       status:     document.getElementById('f-status').value,
+      lowest:     Number(document.getElementById('f-lowest').value)     || undefined,
       competitor: document.getElementById('f-competitor').value.trim() || undefined,
       workType:   document.getElementById('f-worktype').value.trim()   || undefined,
       plant:      document.getElementById('f-plant').value.trim()      || undefined,
@@ -1976,6 +1978,7 @@ const App = (() => {
     _setField('f-budget',   b.budget   ?? 0);
     _setField('f-midprice',   b.midPrice   ?? 0);
     _setField('f-bid',        b.bid        ?? 0);
+    _setField('f-lowest',     b.lowest     ?? '');
     _setField('f-competitor', b.competitor ?? '');
     _setField('f-worktype',   b.workType   ?? '');
     _setField('f-plant',      b.plant      ?? '');
@@ -1994,7 +1997,7 @@ const App = (() => {
   }
 
   function clearForm() {
-    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-competitor','f-worktype','f-plant','f-plantdist']
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-competitor','f-worktype','f-plant','f-plantdist']
       .forEach(id => { document.getElementById(id).value = ''; });
     UI.setHTML('autofill-result', '');
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
@@ -2006,12 +2009,14 @@ const App = (() => {
   /* ── CSV export ──────────────────────────────────────────── */
   function exportCSV() {
     const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-    const header = 'seq,project_id,date,name,agency,province,budget,bid,pct,entity,status\n';
-    const rows = Store.getAll().map(b => [
-      b.seq, b.id, b.date,
+    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest\n';
+    const rows = Store.getAll().sort((a,b)=>a.seq-b.seq).map(b => [
+      b.seq, b.id,
       esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
       b.budget, b.bid, b.pct,
-      esc(b.entity), esc(b.status),
+      esc(b.entity), esc(b.status), b.date,
+      b.midPrice ?? '', b.contractPrice ?? '',
+      esc(b.workType ?? ''), esc(b.plant ?? ''), b.plantDist ?? '', b.lowest ?? '',
     ].join(',')).join('\n');
 
     const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });
