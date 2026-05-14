@@ -5,13 +5,13 @@ Web app ติดตามการประมูลโครงการถน
 ## Files
 - `rmn_ebidding_tracker_2.html` — single source of truth (HTML + SEED_BIDS data)
 - `netlify/functions/proxy.js` — CORS proxy for opend.data.go.th API
-- Live: https://rmn-ebidding-tracker.netlify.app/rmn_ebidding_tracker_2.html
+- Live: https://dorpnightmare-wq.github.io/rmn-ebidding-tracker/rmn_ebidding_tracker_2.html
 - GitHub: https://github.com/dorpnightmare-wq/rmn-ebidding-tracker.git
 
 ## Data entry workflow
 1. User pastes row(s) from Excel → Claude **แปลงเป็น text** แสดงข้อมูลที่ parse ได้ (id, name, agency, province, budget, bid, date, status)
 2. User ยืนยัน → Claude add to SEED_BIDS in HTML
-3. User ยืนยัน push → git push → Netlify auto-deploys
+3. User ยืนยัน push → git push → GitHub Pages auto-deploys
 
 **Excel columns (left→right):**
 1. เลขที่โครงการ (id เช่น 69049395087)
