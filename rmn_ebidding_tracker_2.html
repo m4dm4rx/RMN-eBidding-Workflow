@@ -386,6 +386,8 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
   .tl-step{width:auto}
   .tl-step-label{display:none}
 }
+/* View-only mode */
+body.view-mode [data-edit-only] { display: none !important; }
 </style>
 </head>
 <body>
@@ -401,9 +403,8 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">☀️</button>
-      <button class="btn" onclick="App.exportCSV()">⬇ Export CSV</button>
-      <button class="btn btn-green" id="btn-bulk" onclick="App.bulkRefresh()">🔄 Refresh Pending</button>
-      <button class="btn" id="btn-sync" onclick="App.syncSheets()" title="โหลดข้อมูลจาก Google Sheets">☁️ Sync Sheets</button>
+      <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
+      <button class="btn btn-green" id="btn-bulk" onclick="App.bulkRefresh()" data-edit-only>🔄 Refresh Pending</button>
     </div>
   </div>
 
@@ -413,8 +414,8 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
     <button class="tab" onclick="App.navigate('report')">📑 Report</button>
     <button class="tab" onclick="App.navigate('records')">📋 Records</button>
     <button class="tab" onclick="App.navigate('sme')">💼 SME</button>
-    <button class="tab" onclick="App.navigate('add')">➕ Add Bid</button>
-    <button class="tab" onclick="App.navigate('lookup')">🔍 API Lookup</button>
+    <button class="tab" onclick="App.navigate('add')" data-edit-only>➕ Add Bid</button>
+    <button class="tab" onclick="App.navigate('lookup')" data-edit-only>🔍 API Lookup</button>
   </div>
 
   <!-- Dashboard -->
@@ -483,7 +484,17 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
     </div>
     <div class="filter-row">
       <input id="fsearch" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderTable()">
-      <select id="fstatus" onchange="App.renderTable()" style="display:none"><option value=""></option></select>
+      <select id="fstatus" onchange="App.renderTable()">
+        <option value="">ทุกสถานะ</option>
+        <option>จัดทำสัญญาแล้ว</option>
+        <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
+        <option>รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด</option>
+        <option>รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด</option>
+        <option>แพ้การประมูล</option>
+        <option>แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</option>
+        <option>ยกเลิกโครงการ</option>
+        <option>ห้างขอยกเลิกเอง</option>
+      </select>
       <select id="fentity" onchange="App.renderTable()"><option value="">ทุกห้าง</option></select>
       <select id="fsort" onchange="App.renderTable()">
         <option value="date-desc">วันที่ ล่าสุดก่อน</option>
@@ -594,9 +605,11 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
 /* ═══════════════════════════════════════════════════════════════
    CONFIG  — all magic strings in one place
 ═══════════════════════════════════════════════════════════════ */
+const VIEW_MODE = new URLSearchParams(window.location.search).has('view');
+if (VIEW_MODE) document.body.classList.add('view-mode');
+
 const CONFIG = Object.freeze({
-  SHEETS_CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGCMbj7RtlpsoRqxKImQ4q9J895pRLKhz349_jzR6irQjqcWPOlgerk6ec2nnLeJsw-EajYBVsP397/pub?gid=0&single=true&output=csv',
-  EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
+EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
   EGP_BASE:      'https://opend.data.go.th/govspending',
   CORS_PROXY:    'https://corsproxy.io/?url=',
   STORAGE_KEY:   'rmn_v6',
@@ -971,32 +984,6 @@ function expandAgency(s) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SHEETS CSV PARSER
-═══════════════════════════════════════════════════════════════ */
-function parseSheetsCsv(csvText) {
-  const NUM_FIELDS = new Set(['seq','budget','bid','pct','midPrice','contractPrice','plantDist','lowest']);
-  const lines = csvText.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
-  return lines.slice(1).filter(l => l.trim()).map((line, i) => {
-    // simple CSV parse (handles quoted commas)
-    const cols = [];
-    let cur = '', inQ = false;
-    for (let c of line) {
-      if (c === '"') { inQ = !inQ; }
-      else if (c === ',' && !inQ) { cols.push(cur); cur = ''; }
-      else cur += c;
-    }
-    cols.push(cur);
-    const obj = { _id: `s${i}` };
-    headers.forEach((h, idx) => {
-      const v = (cols[idx] ?? '').trim().replace(/^"|"$/g,'');
-      obj[h] = NUM_FIELDS.has(h) ? (v === '' ? 0 : Number(v)) : v;
-    });
-    return obj;
-  }).filter(b => b.id);
-}
-
-/* ═══════════════════════════════════════════════════════════════
    STORE  — single source of truth, persisted to localStorage
 ═══════════════════════════════════════════════════════════════ */
 const Store = (() => {
@@ -1041,21 +1028,6 @@ const Store = (() => {
       if (bid) { bid[key] = value; persist(); }
     },
 
-    replaceAll(bids) {
-      // Merge: Sheet data as base, but keep API-enriched fields from existing entries
-      const API_FIELDS = ['lowest','midPrice','contractPrice','winnerName','winnerTin','competitors'];
-      const existing = Object.fromEntries(_bids.map(b => [b.id, b]));
-      _bids = bids.map((b, i) => {
-        const prev = existing[b.id] ?? {};
-        const merged = { ...b, _id: b._id ?? `s${i}`, agency: expandAgency(b.agency) };
-        // Keep API fields from previous data only if Sheet has no value
-        API_FIELDS.forEach(f => {
-          if (!merged[f] && prev[f]) merged[f] = prev[f];
-        });
-        return merged;
-      });
-      persist();
-    },
 
     updateApiData(id, { status, midPrice, contractPrice, name }) {
       const bid = this.findById(id);
@@ -1681,7 +1653,7 @@ const App = (() => {
         : b.status === STATUS.PENDING       ? 'win-pending'   // legacy
         : 'win-pending'; // safe fallback
       const id = UI.esc(b._id);
-      const actionsHtml = `
+      const actionsHtml = VIEW_MODE ? '' : `
         <button class="btn btn-sm btn-api" data-action="check" data-id="${id}">🔍</button>
         <button class="btn btn-sm" data-action="edit" data-id="${id}">✏️ แก้ไข</button>
         <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${id}">✕</button>
@@ -2030,40 +2002,15 @@ const App = (() => {
     renderPipelineFiltered(Store.getAll().sort(_byDateDesc));
   }
 
-  /* ── Sync from Google Sheets ────────────────────────────── */
-  async function syncSheets(silent = false) {
-    const btn = document.getElementById('btn-sync');
-    const orig = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Syncing…'; }
-    try {
-      const res = await fetch(CONFIG.SHEETS_CSV_URL + '&t=' + Date.now());
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const csv = await res.text();
-      const bids = parseSheetsCsv(csv);
-      if (!bids.length) throw new Error('ไม่พบข้อมูล');
-      Store.replaceAll(bids);
-      renderDash();
-      renderTable();
-      if (!silent) UI.toast(`✅ โหลดข้อมูลจาก Sheets สำเร็จ (${bids.length} โครงการ)`);
-    } catch (err) {
-      if (!silent) UI.toast('❌ Sync ล้มเหลว: ' + err.message);
-    } finally {
-      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
-    }
-  }
-
   /* ── Public API ──────────────────────────────────────────── */
   return {
     navigate, renderDash, renderReport, renderTable, renderSme,
-    checkOne, bulkRefresh, syncSheets,
+    checkOne, bulkRefresh,
     doLookup, doWinnerLookup, autofillFromAPI,
     saveBid, editBid, deleteBid, clearForm, exportCSV,
     _setReportFilter,
   };
 })();
-
-/* Boot — auto sync from Google Sheets on load */
-App.syncSheets(true);
 
 /* Boot — pill filter for report tab */
 document.querySelector('.report-pills').addEventListener('click', e => {
