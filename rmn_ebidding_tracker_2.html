@@ -403,6 +403,7 @@ body.view-mode [data-edit-only] { display: none !important; }
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">☀️</button>
+      <button class="btn" onclick="copyViewLink()" data-edit-only title="คัดลอก Link สำหรับแชร์ (view-only)">🔗 Share Link</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
       <button class="btn btn-green" onclick="App.exportAllForPush()" data-edit-only title="Export ข้อมูลทั้งหมดเป็น JSON สำหรับส่งให้ Claude push">📤 Export สำหรับ Push</button>
       <button class="btn btn-green" id="btn-bulk" onclick="App.bulkRefresh()" data-edit-only>🔄 Refresh Pending</button>
@@ -2090,6 +2091,22 @@ App.renderDash();
   const btn = document.getElementById('theme-btn');
   if (btn) btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
 })();
+function copyViewLink() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('view', '1');
+  navigator.clipboard.writeText(url.toString()).then(() => {
+    App._toast && App._toast('🔗 คัดลอก Link แล้ว!');
+    // fallback toast via UI if App._toast not available
+  }).catch(() => {});
+  // toast fallback
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = '🔗 คัดลอก Share Link แล้ว!';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+}
+
 function toggleTheme() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('rmn_theme', isDark ? 'dark' : 'light');
