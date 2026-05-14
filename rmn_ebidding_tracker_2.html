@@ -1253,7 +1253,7 @@ const App = (() => {
     const totalValue = won.reduce((s,b)=>s+b.bid, 0);
     const decided    = won.length + lose.length + disqualified.length;
     const winRate    = decided ? Math.round(won.length / decided * 100) : 0;
-    const avgDrop    = total ? Math.round(bids.reduce((s,b)=>s+(b.midPrice?((b.midPrice-b.bid)/b.midPrice*100):b.pct),0)/total) : 0;
+    const avgDrop    = total ? Math.round(bids.reduce((s,b)=>{const base=Math.max(b.budget||0,b.midPrice||0);return s+(base>0?(base-b.bid)/base*100:b.pct);},0)/total) : 0;
 
     // Updated timestamp
     const now = new Date();
@@ -1341,7 +1341,7 @@ const App = (() => {
               <div class="win-tl-meta">
                 <span>📍 ${UI.esc(b.agency)}, ${UI.esc((b.province ?? '').trim())}</span>
                 <span><strong>฿${UI.fmt(b.bid)}</strong></span>
-                <span>${(b.midPrice?((b.midPrice-b.bid)/b.midPrice*100):b.pct).toFixed(1)}% ต่ำกว่าราคากลาง</span>
+                <span>${((base=>base>0?(base-b.bid)/base*100:b.pct)(Math.max(b.budget||0,b.midPrice||0))).toFixed(1)}% ต่ำกว่าราคางาน</span>
               </div>
             </div>
           </div>`;
@@ -1471,9 +1471,9 @@ const App = (() => {
               <div class="proj-fin-value">${UI.fmt(b.bid)}</div>
             </div>
             <div class="proj-fin-item">
-              <div class="proj-fin-label">% ต่ำกว่าราคากลาง</div>
+              <div class="proj-fin-label">% ต่ำกว่าราคางาน</div>
               <div class="proj-fin-value">${
-                b.midPrice ? ((b.midPrice-b.bid)/b.midPrice*100).toFixed(2)+'%' : b.pct ? b.pct.toFixed(2)+'%' : '—'
+                (base=>base>0?((base-b.bid)/base*100).toFixed(2)+'%':b.pct?b.pct.toFixed(2)+'%':'—')(Math.max(b.budget||0,b.midPrice||0))
               }</div>
             </div>
             <div class="proj-fin-item">
@@ -1517,7 +1517,7 @@ const App = (() => {
     const won        = contract + winner;
     const winRate    = decided ? Math.round(won / decided * 100) : 0;
     const income     = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
-    const avgDrop    = Math.round(bids.reduce((s,b)=>s+(b.midPrice?((b.midPrice-b.bid)/b.midPrice*100):b.pct),0)/total);
+    const avgDrop    = Math.round(bids.reduce((s,b)=>{const base=Math.max(b.budget||0,b.midPrice||0);return s+(base>0?(base-b.bid)/base*100:b.pct);},0)/total);
 
     // Timestamp
     const now = new Date();
@@ -1914,8 +1914,7 @@ const App = (() => {
       budget,
       midPrice,
       bid,
-      pct:      midPrice > 0 ? Math.round((midPrice - bid) / midPrice * 10_000) / 100
-                             : budget  > 0 ? Math.round((budget  - bid) / budget  * 10_000) / 100 : 0,
+      pct:      (()=>{ const base=Math.max(budget||0,midPrice||0); return base>0?Math.round((base-bid)/base*10_000)/100:0; })(),
       entity:     document.getElementById('f-entity').value,
       status:     document.getElementById('f-status').value,
       lowest:     Number(document.getElementById('f-lowest').value)     || undefined,
