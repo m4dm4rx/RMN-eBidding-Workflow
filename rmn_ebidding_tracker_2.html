@@ -527,6 +527,14 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
         <div class="form-group"><label>ราคากลาง (บาท)</label><input id="f-midprice" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคาที่ยื่น (บาท)</label><input id="f-bid" type="number" placeholder="0"></div>
         <div class="form-group full"><label>คู่แข่งที่ได้งาน (กรณีแพ้)</label><input id="f-competitor" type="text" placeholder="ชื่อบริษัท/ห้างที่ชนะ"></div>
+        <div class="form-group"><label>ประเภทงาน</label><input id="f-worktype" type="text" placeholder="เสริมผิว, OVERLAY, Pavement Recycling ฯลฯ"></div>
+        <div class="form-group"><label>Plant ที่ใช้ยื่น</label><select id="f-plant">
+          <option value="">-- เลือก Plant --</option>
+          <option>มหาสารคาม</option>
+          <option>ศรีบุญเรือง</option>
+          <option>สกลนคร</option>
+        </select></div>
+        <div class="form-group"><label>ระยะทาง Plant (km)</label><input id="f-plantdist" type="number" placeholder="0"></div>
         <div class="form-group">
           <label>ห้างที่ใช้เสนอ</label>
           <select id="f-entity">
@@ -723,7 +731,11 @@ const SEED_BIDS = [
 {"id":"69049395087","seq":81,"name":"","agency":"อบต.โนนอุดม","province":"ขอนแก่น","budget":826000,"bid":598000,"pct":27.6,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-11","lowest":598000},
 {"id":"69049240922","seq":82,"name":"","agency":"ทต.ซำสูง","province":"ขอนแก่น","budget":1223000,"bid":728000,"pct":40.47,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาไม่ต่ำสุด","date":"2569-05-11","lowest":627000},
 {"id":"69049434789","seq":83,"name":"","agency":"แขวงฯ ร้อยเอ็ด","province":"ร้อยเอ็ด","budget":3901280,"bid":2548000,"pct":34.69,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-11","lowest":2548000},
-{"id":"69049160627","seq":84,"name":"","agency":"ทม.บ้านทุ่ม","province":"ขอนแก่น","budget":4625455,"bid":2998000,"pct":35.18,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-12","lowest":2998000}
+{"id":"69049160627","seq":84,"name":"","agency":"ทม.บ้านทุ่ม","province":"ขอนแก่น","budget":4625455,"bid":2998000,"pct":35.18,"entity":"ห้างหุ้นส่วน RMN","status":"ราคาต่ำสุด","date":"2569-05-12","lowest":2998000},
+{"id":"69049434962","seq":85,"name":"","agency":"อบต.โพนงาม","province":"สกลนคร","budget":634000,"bid":436000,"pct":31.23,"midPrice":634000,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-05-14","workType":"เสริมผิว","plant":"สกลนคร","plantDist":18.4},
+{"id":"69049416118","seq":86,"name":"","agency":"ทม.กระนวน","province":"ขอนแก่น","budget":835000,"bid":558000,"pct":33.17,"midPrice":835000,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-05-14","workType":"เสริมผิว","plant":"มหาสารคาม","plantDist":69.3},
+{"id":"69049415787","seq":87,"name":"","agency":"ทม.กระนวน","province":"ขอนแก่น","budget":590000,"bid":368000,"pct":37.63,"midPrice":590000,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-05-14","workType":"เสริมผิว","plant":"มหาสารคาม","plantDist":69.3},
+{"id":"69049250669","seq":88,"name":"","agency":"แขวงทางหลวงร้อยเอ็ด","province":"ร้อยเอ็ด","budget":8394274,"bid":4948000,"pct":41.06,"midPrice":8394274,"entity":"ห้างหุ้นส่วน RMN","status":"อยู่ระหว่างพิจารณาผล","date":"2569-05-14","workType":"Recycling","plant":"มหาสารคาม"}
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1421,6 +1433,16 @@ const App = (() => {
               <div><span class="proj-meta-item-label">ห้างที่ใช้เสนอ</span>
               <span class="proj-meta-item-val">${UI.esc(b.entity)}</span></div>
             </div>
+            ${b.workType ? `<div class="proj-meta-item">
+              <span class="proj-meta-item-icon">🔧</span>
+              <div><span class="proj-meta-item-label">ประเภทงาน</span>
+              <span class="proj-meta-item-val">${UI.esc(b.workType)}</span></div>
+            </div>` : ''}
+            ${b.plant ? `<div class="proj-meta-item">
+              <span class="proj-meta-item-icon">🏭</span>
+              <div><span class="proj-meta-item-label">Plant ที่ใช้ยื่น</span>
+              <span class="proj-meta-item-val">${UI.esc(b.plant)}${b.plantDist ? ` · ${b.plantDist} km` : ''}</span></div>
+            </div>` : ''}
           </div>
           <div class="proj-timeline">${tl}</div>
           <div class="proj-fin-grid">
@@ -1625,7 +1647,17 @@ const App = (() => {
       const actionsHtml = `
         <button class="btn btn-sm btn-api" data-action="check" data-id="${id}">🔍</button>
         <button class="btn btn-sm" data-action="edit" data-id="${id}">✏️ แก้ไข</button>
-        <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${id}">✕</button>`;
+        <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${id}">✕</button>
+        <select class="btn btn-sm" style="font-size:11px;padding:2px 4px;cursor:pointer" data-action="quickstatus" data-id="${id}" title="เปลี่ยนสถานะ">
+          <option value="">⚡ สถานะ</option>
+          <option value="${STATUS.WIN_PENDING}">✅ ราคาต่ำสุด</option>
+          <option value="${STATUS.LOSE_PENDING}">🔸 ไม่ต่ำสุด</option>
+          <option value="${STATUS.WINNER}">🏆 ชนะ</option>
+          <option value="${STATUS.CONTRACT}">📝 มีสัญญา</option>
+          <option value="${STATUS.LOSE}">❌ แพ้</option>
+          <option value="${STATUS.DISQUALIFIED}">🚫 ตัดสิทธิ์</option>
+          <option value="${STATUS.CANCELLED}">⛔ ยกเลิก</option>
+        </select>`;
       return projectCard(b, type, actionsHtml);
     }).join(''));
   }
@@ -1874,6 +1906,9 @@ const App = (() => {
       entity:     document.getElementById('f-entity').value,
       status:     document.getElementById('f-status').value,
       competitor: document.getElementById('f-competitor').value.trim() || undefined,
+      workType:   document.getElementById('f-worktype').value.trim()   || undefined,
+      plant:      document.getElementById('f-plant').value.trim()      || undefined,
+      plantDist:  Number(document.getElementById('f-plantdist').value) || undefined,
       seq:        existing?.seq ?? Store.getAll().length + 1,
     });
 
@@ -1896,6 +1931,9 @@ const App = (() => {
     _setField('f-midprice',   b.midPrice   ?? 0);
     _setField('f-bid',        b.bid        ?? 0);
     _setField('f-competitor', b.competitor ?? '');
+    _setField('f-worktype',   b.workType   ?? '');
+    _setField('f-plant',      b.plant      ?? '');
+    _setField('f-plantdist',  b.plantDist  ?? '');
     document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
@@ -1910,7 +1948,7 @@ const App = (() => {
   }
 
   function clearForm() {
-    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-competitor']
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-competitor','f-worktype','f-plant','f-plantdist']
       .forEach(id => { document.getElementById(id).value = ''; });
     UI.setHTML('autofill-result', '');
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
@@ -1978,6 +2016,14 @@ document.getElementById('records-list').addEventListener('click', e => {
   if (action === 'check')  App.checkOne(id);
   if (action === 'edit')   App.editBid(id);
   if (action === 'delete') App.deleteBid(id);
+});
+
+document.getElementById('records-list').addEventListener('change', e => {
+  const sel = e.target.closest('[data-action="quickstatus"]');
+  if (!sel || !sel.value) return;
+  Store.updateStatus(sel.dataset.id, sel.value);
+  App.renderTable();
+  App.renderDash();
 });
 
 App.renderDash();
