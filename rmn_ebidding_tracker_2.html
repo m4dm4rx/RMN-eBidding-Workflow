@@ -404,6 +404,7 @@ body.view-mode [data-edit-only] { display: none !important; }
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">☀️</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
+      <button class="btn btn-green" onclick="App.exportAllForPush()" data-edit-only title="Export ข้อมูลทั้งหมดเป็น JSON สำหรับส่งให้ Claude push">📤 Export สำหรับ Push</button>
       <button class="btn btn-green" id="btn-bulk" onclick="App.bulkRefresh()" data-edit-only>🔄 Refresh Pending</button>
     </div>
   </div>
@@ -1990,6 +1991,25 @@ const App = (() => {
     UI.toast('💾 บันทึกแล้ว + Export JSON สำหรับ Push');
   }
 
+  function exportAllForPush() {
+    const bids = Store.getAll().sort((a, b) => a.seq - b.seq).map(b => {
+      const clean = { ...b };
+      delete clean._id;
+      return clean;
+    });
+    const json = JSON.stringify(bids, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url, download: `seed_export_${new Date().toISOString().slice(0,10)}.json`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+    UI.toast('📤 Export JSON ทั้งหมดแล้ว — ส่งให้ Claude push ได้เลย');
+  }
+
   /* ── CSV export ──────────────────────────────────────────── */
   function exportCSV() {
     const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
@@ -2029,7 +2049,7 @@ const App = (() => {
     navigate, renderDash, renderReport, renderTable, renderSme,
     checkOne, bulkRefresh,
     doLookup, doWinnerLookup, autofillFromAPI,
-    saveBid, saveBidAndExport, editBid, deleteBid, clearForm, exportCSV,
+    saveBid, saveBidAndExport, exportAllForPush, editBid, deleteBid, clearForm, exportCSV,
     _setReportFilter,
   };
 })();
@@ -2079,4 +2099,3 @@ function toggleTheme() {
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
