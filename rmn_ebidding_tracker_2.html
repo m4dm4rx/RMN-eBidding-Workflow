@@ -1471,9 +1471,11 @@ const App = (() => {
               <div class="proj-fin-value">${UI.fmt(b.bid)}</div>
             </div>
             <div class="proj-fin-item">
-              <div class="proj-fin-label">% ต่ำกว่าราคางาน</div>
+              <div class="proj-fin-label">${isLose ? 'ราคาที่คู่แข่งชนะ' : '% ต่ำกว่าราคางาน'}</div>
               <div class="proj-fin-value">${
-                (base=>base>0?((base-b.bid)/base*100).toFixed(2)+'%':b.pct?b.pct.toFixed(2)+'%':'—')(Math.max(b.budget||0,b.midPrice||0))
+                isLose
+                  ? (b.lowest ? '฿'+UI.fmt(b.lowest) : '—')
+                  : (base=>base>0?((base-b.bid)/base*100).toFixed(2)+'%':b.pct?b.pct.toFixed(2)+'%':'—')(Math.max(b.budget||0,b.midPrice||0))
               }</div>
             </div>
             <div class="proj-fin-item">
