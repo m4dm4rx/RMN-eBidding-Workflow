@@ -1914,7 +1914,8 @@ const App = (() => {
       budget,
       midPrice,
       bid,
-      pct:      budget > 0 ? Math.round((budget - bid) / budget * 10_000) / 100 : 0,
+      pct:      midPrice > 0 ? Math.round((midPrice - bid) / midPrice * 10_000) / 100
+                             : budget  > 0 ? Math.round((budget  - bid) / budget  * 10_000) / 100 : 0,
       entity:     document.getElementById('f-entity').value,
       status:     document.getElementById('f-status').value,
       lowest:     Number(document.getElementById('f-lowest').value)     || undefined,
