@@ -1051,7 +1051,18 @@ const Store = (() => {
     },
 
     replaceAll(bids) {
-      _bids = bids.map((b, i) => ({ ...b, _id: b._id ?? `s${i}`, agency: expandAgency(b.agency) }));
+      // Merge: Sheet data as base, but keep API-enriched fields from existing entries
+      const API_FIELDS = ['lowest','midPrice','contractPrice','winnerName','winnerTin','competitors'];
+      const existing = Object.fromEntries(_bids.map(b => [b.id, b]));
+      _bids = bids.map((b, i) => {
+        const prev = existing[b.id] ?? {};
+        const merged = { ...b, _id: b._id ?? `s${i}`, agency: expandAgency(b.agency) };
+        // Keep API fields from previous data only if Sheet has no value
+        API_FIELDS.forEach(f => {
+          if (!merged[f] && prev[f]) merged[f] = prev[f];
+        });
+        return merged;
+      });
       persist();
     },
 
