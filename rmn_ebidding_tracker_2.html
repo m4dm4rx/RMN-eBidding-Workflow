@@ -443,6 +443,10 @@ body.view-mode [data-edit-only] { display: none !important; }
       <div class="card-title" style="color:#c4b5fd">🥊 คู่แข่งที่ได้งานไปแทน (จำนวนครั้ง)</div>
       <div id="competitor-bars"></div>
     </div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">🏆 Recent Wins Timeline</div>
+      <div id="wins-timeline-dash"></div>
+    </div>
   </div>
 
   <!-- Report (G-Lead style company BI report) -->
@@ -2831,7 +2835,7 @@ const App = (() => {
     document.querySelector('[data-filter="withdrawn"]').textContent    = `ห้างขอยกเลิกสัญญา (${withdrawn.length})`;
 
     renderPipelineFiltered(bids);
-    renderWinsTimeline(won);
+    renderWinsTimeline(won, 'wins-timeline');
     renderLoseTimeline(lose);
   }
 
@@ -2874,13 +2878,13 @@ const App = (() => {
   }
 
   /** Recent wins as vertical timeline */
-  function renderWinsTimeline(won) {
+  function renderWinsTimeline(won, targetId = 'wins-timeline') {
     if (!won.length) {
-      UI.setHTML('wins-timeline', '<div class="empty">ยังไม่มีรายการชนะ</div>');
+      UI.setHTML(targetId, '<div class="empty">ยังไม่มีรายการชนะ</div>');
       return;
     }
     const recent = [...won].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? '')).slice(0, 15);
-    UI.setHTML('wins-timeline', `<div class="card" style="padding:1.2rem 1.4rem">${
+    UI.setHTML(targetId, `<div style="padding:.2rem 0">${
       recent.map(b => {
         const d = b.date ? b.date.split('-') : ['','',''];
         const day   = d[2] ?? '-';
@@ -3147,6 +3151,10 @@ const App = (() => {
           <div class="bar" style="flex:1;background:rgba(255,255,255,.12)"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%;background:#34d399"></div></div>
           <span style="font-weight:700;width:20px;color:#e6edf3">${c}</span>
         </div>`).join(''));
+
+    // Recent Wins Timeline
+    const wonBids = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
+    renderWinsTimeline(wonBids, 'wins-timeline-dash');
 
     // Competitor leaderboard (normalize: collapse spaces, trim)
     const compMap = {};
