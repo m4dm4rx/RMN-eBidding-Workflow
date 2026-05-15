@@ -2524,6 +2524,19 @@ const Store = (() => {
       const parsed = JSON.parse(raw);
       // Normalize abbreviated agency names on every load
       parsed.forEach(b => { if (b.agency) b.agency = expandAgency(b.agency); });
+      // Migrate legacy status names to new names
+      const STATUS_MIGRATE = {
+        'รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด':       'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',
+        'รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด': 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',
+        'อยู่ระหว่างพิจารณาผล':                        'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',
+        'ราคาต่ำสุด':                                   'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',
+        'ราคาไม่ต่ำสุด':                                'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',
+        'แพ้การประมูล':                                 'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',
+        'แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์': 'แพ้ เนื่องจากโดนปรับตก',
+        'ยกเลิกโครงการ':                               'หน่วยงานประกาศยกเลิกโครงการ',
+        'ห้างขอยกเลิกเอง':                             'ห้างขอยกเลิกสัญญา',
+      };
+      parsed.forEach(b => { if (b.status && STATUS_MIGRATE[b.status]) b.status = STATUS_MIGRATE[b.status]; });
       return parsed;
     } catch (_) { return null; }
   })() ?? SEED_BIDS.map((b, i) => ({ ...b, _id: `x${i}`, agency: expandAgency(b.agency) }));
