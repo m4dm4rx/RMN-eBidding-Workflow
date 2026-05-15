@@ -8,6 +8,10 @@ Web app ติดตามการประมูลโครงการถน
 - Live: https://dorpnightmare-wq.github.io/rmn-ebidding-tracker/rmn_ebidding_tracker_2.html
 - GitHub: https://github.com/dorpnightmare-wq/rmn-ebidding-tracker.git
 
+## เวลาผลเบื้องต้นประมูล e-GP
+- รอบเช้า → ผลออก **12:01 น.**
+- รอบบ่าย → ผลออก **16:01 น.**
+
 ## Data entry workflow
 1. User pastes row(s) from Excel → Claude **แปลงเป็น text** แสดงข้อมูลที่ parse ได้ (id, name, agency, province, budget, bid, date, status)
 2. User ยืนยัน → Claude add to SEED_BIDS in HTML
@@ -32,9 +36,19 @@ Web app ติดตามการประมูลโครงการถน
 - `pct`: `Math.round((budget - bid) / budget * 10000) / 100` (0 if no budget)
 
 ## Git push commands
+**กฎสำคัญ**: sandbox push GitHub ไม่ได้ (ไม่มี credentials) — ต้องให้ user รันจาก CMD เสมอ
+**ส่งทีละบรรทัด** ห้ามรวมกัน เพราะ copy-paste แล้วจะติดกันเป็น error "git: 'pushgit' is not a git command"
+
+```
+del "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker\.git\HEAD.lock"
+```
 ```
 git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" add rmn_ebidding_tracker_2.html
+```
+```
 git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" commit -m "Add seq XX: agency date"
+```
+```
 git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" push
 ```
 
@@ -47,6 +61,55 @@ git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" push
 - แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์
 - ยกเลิกโครงการ
 - ห้างขอยกเลิกเอง
+
+## UI / Layout สำคัญ
+- **View mode tabs**: แสดงแค่ 3 tabs → Dashboard, รายงานข้อมูลโครงการ, รายงานแบ่งตามยอด SME (Records tab ซ่อนด้วย `data-edit-only`)
+- **Project cards พับได้**: ค่าเริ่มต้น collapsed แสดง status badge + เลขโครงการ + หน่วยงาน + วันที่ + ยอดยื่น + ปุ่ม "รายละเอียด ▽" กดเพื่อขยาย/ซ่อน
+- **Recent Wins Timeline**: อยู่ใน Dashboard เท่านั้น (ลบออกจาก Report tab แล้ว)
+- **Report tab**: มี filter bar — search + status + entity + agency + sort
+- **Badge status**: ใช้ชื่อเต็มทุกที่ ไม่ตัดย่อ
+- **Dashboard KPI**: มี Competitor Leaderboard (บาร์แสดงคู่แข่งที่ได้งานไปแทน นับจำนวนครั้ง)
+
+## แผนที่ PDF workflow (เอกสารแนบ e-GP)
+1. User ส่ง screenshot Google Maps (route จาก RMN Enterprise Asphalt → โครงการ) เป็น **ไฟล์ upload**
+2. Claude สร้าง `แผนที่_[id].pdf` ด้วย **reportlab + Sarabun font** โดยตรง
+   - **บันทึกที่**: `C:\Users\Advice\Downloads\Log แผนที่\แผนที่_[id].pdf`
+   - **ห้ามใช้ LibreOffice แปลง** — sandbox ไม่มี Thai font → ข้อความเป็นกล่องทั้งหมด
+   - **ห้ามสร้าง docx แล้วแปลง** — ใช้ reportlab ตรงๆ เท่านั้น
+3. โครงสร้างเอกสาร (A4, Sarabun font):
+   - หัวขวา (underline, 14pt): "เอกสารแนบท้ายเอกสารประกวดราคาอิเล็กทรอนิกส์"
+   - หัวกลาง (bold 26pt): "แผนที่แสดงเส้นทางการขนส่ง"
+   - subheading ซ้าย (18pt): "จากโรงงานผสม Asphalt Concrete ของ ห้างหุ้นส่วนจำกัด อาร์เอ็มเอ็น เอ็นเตอร์ไพส์"
+   - กล่องรูปแผนที่ (border 2pt, image เต็มกล่อง)
+   - กล่องข้อความ (border 2pt, bullet 16pt, label bold):
+     - **ชื่อหน่วยงานเจ้าของโครงการ**: [agency]
+     - **ชื่อโครงการ**: [name เต็ม — wrap หลายบรรทัด]
+     - **ระยะทาง**: [XX] กม.
+4. User อัพโหลด PDF ใน e-GP ได้เลย ไม่ต้องแปลงเพิ่ม
+
+**Font setup** (ทำครั้งแรก หรือถ้า /tmp/Sarabun-Regular.ttf หาย):
+```python
+import urllib.request
+BASE = "https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/"
+urllib.request.urlretrieve(BASE + "Sarabun-Regular.ttf", "/tmp/Sarabun-Regular.ttf")
+urllib.request.urlretrieve(BASE + "Sarabun-Bold.ttf", "/tmp/Sarabun-Bold.ttf")
+```
+
+**Script สำเร็จรูป** (ใช้ได้เลย ไม่ต้องเขียนใหม่):
+`C:\Users\Advice\Downloads\Log แผนที่\create_map_pdf.py`
+- import แล้วเรียก `create_map_pdf(project_id, agency, project_name, distance_km, image_path)`
+- ถ้า font หาย จะ download อัตโนมัติ
+
+**reportlab canvas approach** (ไม่ใช้ Platypus/Frame — ใช้ canvas วาดตรงๆ ควบคุม position ได้เต็มที่):
+```python
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm, mm
+pdfmetrics.registerFont(TTFont('Sarabun', '/tmp/Sarabun-Regular.ttf'))
+pdfmetrics.registerFont(TTFont('Sarabun-Bold', '/tmp/Sarabun-Bold.ttf'))
+```
 
 ## Entity options
 - ห้างหุ้นส่วน RMN (default)

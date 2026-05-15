@@ -502,9 +502,6 @@ body.view-mode [data-edit-only] { display: none !important; }
     <div class="report-section-title">⏳ Pipeline งานรอผล</div>
     <div id="pipeline-list"></div>
 
-    <div class="report-section-title" style="margin-top:1.5rem">🏆 ประวัติโครงการที่ชนะ</div>
-    <div id="wins-timeline"></div>
-
     <div class="report-section-title" style="margin-top:1.5rem" id="lose-section-title"></div>
     <div id="lose-timeline"></div>
   </div>
@@ -2835,7 +2832,6 @@ const App = (() => {
     document.querySelector('[data-filter="withdrawn"]').textContent    = `ห้างขอยกเลิกสัญญา (${withdrawn.length})`;
 
     renderPipelineFiltered(bids);
-    renderWinsTimeline(won, 'wins-timeline');
     renderLoseTimeline(lose);
   }
 
@@ -2973,15 +2969,22 @@ const App = (() => {
         <div class="tl-step-label">${s}</div>
       </div>${i < steps.length - 1 ? `<div class="tl-line ${i < doneCount ? 'done' : ''}"></div>` : ''}`).join('');
 
+    const cardId = `card-${b._id || b.id}`;
     return `
       <div class="proj-card">
-        <div class="proj-card-header">
+        <div class="proj-card-header" style="cursor:default">
           <span class="proj-status-tag ${tagClass}">${tagText}${subLabel}</span>
           <span class="proj-id-label">เลขที่โครงการ</span>
           <span class="proj-id-value">${UI.esc(b.id)}</span>
           ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
         </div>
-        <div class="proj-card-body">
+        <div class="proj-card-summary" onclick="(function(el){var body=el.closest('.proj-card').querySelector('.proj-card-body');var btn=el.querySelector('.expand-btn');if(body.style.display==='none'||!body.style.display){body.style.display='block';btn.textContent='▲ ซ่อน';}else{body.style.display='none';btn.textContent='รายละเอียด ▽';}})(this)" style="display:flex;align-items:center;gap:10px;padding:6px 14px 8px;cursor:pointer;flex-wrap:wrap;">
+          <span style="font-size:13px;color:#555;font-weight:600">🏢 ${UI.esc(b.agency)}</span>
+          <span style="font-size:12px;color:#888">📅 ${UI.fmtDate(b.date)}</span>
+          <span style="font-size:12px;color:#999">💰 ยื่น ${UI.fmt(b.bid)}</span>
+          <button class="expand-btn" style="margin-left:auto;background:none;border:1px solid #ccc;border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer;color:#555;white-space:nowrap">รายละเอียด ▽</button>
+        </div>
+        <div class="proj-card-body" style="display:none">
           <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
           <div class="proj-meta-grid">
             <div class="proj-meta-item">
