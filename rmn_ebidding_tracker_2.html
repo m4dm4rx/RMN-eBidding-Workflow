@@ -473,7 +473,25 @@ body.view-mode [data-edit-only] { display: none !important; }
     <!-- Filter bar -->
     <div class="filter-row" style="margin-bottom:1rem">
       <input id="rpt-search" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderReport()">
+      <select id="rpt-status" onchange="App.renderReport()">
+        <option value="">ทุกสถานะ</option>
+        <option>จัดทำสัญญาแล้ว</option>
+        <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
+        <option>รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</option>
+        <option>รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</option>
+        <option>แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด</option>
+        <option>แพ้ เนื่องจากโดนปรับตก</option>
+        <option>หน่วยงานประกาศยกเลิกโครงการ</option>
+        <option>ห้างขอยกเลิกสัญญา</option>
+      </select>
+      <select id="rpt-entity" onchange="App.renderReport()"><option value="">ทุกห้าง</option></select>
       <select id="rpt-agency" onchange="App.renderReport()"><option value="">ทุกหน่วยงาน</option></select>
+      <select id="rpt-sort" onchange="App.renderReport()">
+        <option value="date-desc">วันที่ ล่าสุดก่อน</option>
+        <option value="date-asc">วันที่ เก่าสุดก่อน</option>
+        <option value="bid-desc">ราคายื่น มากก่อน</option>
+        <option value="bid-asc">ราคายื่น น้อยก่อน</option>
+      </select>
     </div>
 
     <!-- Pending pipeline + Recent wins side by side -->
@@ -2751,24 +2769,41 @@ const App = (() => {
     const allBids = Store.getAll().sort(_byDateDesc);
     const { STATUS } = CONFIG;
 
+    // Populate entity dropdown
+    const entitySel = document.getElementById('rpt-entity');
+    if (entitySel) {
+      const entities = [...new Set(allBids.map(b => (b.entity||'').trim()))].filter(Boolean).sort();
+      const prevEnt  = entitySel.value;
+      entitySel.innerHTML = '<option value="">ทุกห้าง</option>' +
+        entities.map(e => `<option value="${UI.esc(e)}" ${e===prevEnt?'selected':''}>${UI.esc(e)}</option>`).join('');
+    }
+
     // Populate agency dropdown
     const agencySel = document.getElementById('rpt-agency');
     if (agencySel) {
-      const q       = document.getElementById('rpt-search')?.value.toLowerCase() ?? '';
       const agencies = [...new Set(allBids.map(b => (b.agency||'').trim()))].filter(Boolean).sort();
-      const prev    = agencySel.value;
+      const prev     = agencySel.value;
       agencySel.innerHTML = '<option value="">ทุกหน่วยงาน</option>' +
         agencies.map(a => `<option value="${UI.esc(a)}" ${a===prev?'selected':''}>${UI.esc(a)}</option>`).join('');
     }
 
-    // Apply search + agency filter
+    // Apply all filters
     const q          = document.getElementById('rpt-search')?.value.toLowerCase() ?? '';
+    const fStatus    = document.getElementById('rpt-status')?.value ?? '';
+    const fEntity    = document.getElementById('rpt-entity')?.value ?? '';
     const fAgency    = document.getElementById('rpt-agency')?.value ?? '';
+    const fSort      = document.getElementById('rpt-sort')?.value ?? 'date-desc';
+    const sortFn     = fSort === 'date-asc'  ? (a,b) => (a.date??'').localeCompare(b.date??'')
+                     : fSort === 'bid-desc'  ? (a,b) => b.bid - a.bid
+                     : fSort === 'bid-asc'   ? (a,b) => a.bid - b.bid
+                     : (a,b) => (b.date??'').localeCompare(a.date??'');
     const bids       = allBids.filter(b => {
+      if (fStatus && b.status !== fStatus) return false;
+      if (fEntity && (b.entity||'').trim() !== fEntity) return false;
       if (fAgency && (b.agency||'').trim() !== fAgency) return false;
       if (q && !((b.name||'')+(b.agency||'')+(b.province||'')).toLowerCase().includes(q)) return false;
       return true;
-    });
+    }).sort(sortFn);
     const total      = bids.length;
     const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
     const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING  || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING);
@@ -3119,11 +3154,11 @@ const App = (() => {
           <span style="font-weight:700;width:20px;color:#e6edf3">${c}</span>
         </div>`).join(''));
 
-    // Competitor leaderboard
+    // Competitor leaderboard (normalize: collapse spaces, trim)
     const compMap = {};
-    bids.forEach(b => {
+    allBids.forEach(b => {
       if (b.competitor && b.competitor.trim()) {
-        const k = b.competitor.trim();
+        const k = b.competitor.trim().replace(/\s+/g, ' ');
         compMap[k] = (compMap[k] ?? 0) + 1;
       }
     });
