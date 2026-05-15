@@ -413,9 +413,9 @@ body.view-mode [data-edit-only] { display: none !important; }
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="App.navigate('dashboard')">📊 Dashboard</button>
-    <button class="tab" onclick="App.navigate('report')">📑 Report</button>
-    <button class="tab" onclick="App.navigate('records')">📋 Records</button>
-    <button class="tab" onclick="App.navigate('sme')">💼 SME</button>
+    <button class="tab" onclick="App.navigate('report')">📑 รายงานข้อมูลโครงการ</button>
+    <button class="tab" data-edit-only onclick="App.navigate('records')">📋 Records</button>
+    <button class="tab" onclick="App.navigate('sme')">💼 รายงานแบ่งตามยอด SME</button>
     <button class="tab" onclick="App.navigate('add')" data-edit-only>➕ Add Bid</button>
     <button class="tab" onclick="App.navigate('lookup')" data-edit-only>🔍 API Lookup</button>
   </div>
@@ -439,6 +439,10 @@ body.view-mode [data-edit-only] { display: none !important; }
       <div class="card dark-card" style="background:linear-gradient(160deg,#064e3b 0%,#065f46 100%);color:#e6edf3">
         <div class="card-title" style="color:#6ee7b7">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
     </div>
+    <div class="card dark-card" style="background:linear-gradient(160deg,#3b1f5e 0%,#2d1a4a 100%);color:#e6edf3;margin-top:14px">
+      <div class="card-title" style="color:#c4b5fd">🥊 คู่แข่งที่ได้งานไปแทน (จำนวนครั้ง)</div>
+      <div id="competitor-bars"></div>
+    </div>
   </div>
 
   <!-- Report (G-Lead style company BI report) -->
@@ -456,14 +460,20 @@ body.view-mode [data-edit-only] { display: none !important; }
     <!-- Filter pills -->
     <div class="report-pills">
       <button class="pill active" data-filter="all">ทั้งหมด</button>
-      <button class="pill" data-filter="contract">มีสัญญา</button>
-      <button class="pill" data-filter="winner">ประกาศผู้ชนะ</button>
-      <button class="pill" data-filter="win-pending">รอผล/เสนอต่ำสุด</button>
-      <button class="pill" data-filter="lose-pending">รอผล/ไม่ต่ำสุด</button>
-      <button class="pill" data-filter="lose">แพ้การประมูล</button>
-      <button class="pill" data-filter="disqualified">แพ้ขาดคุณสมบัติ</button>
-      <button class="pill" data-filter="cancelled">ยกเลิกโครงการ</button>
-      <button class="pill" data-filter="withdrawn">ห้างขอยกเลิกเอง</button>
+      <button class="pill" data-filter="contract">จัดทำสัญญาแล้ว</button>
+      <button class="pill" data-filter="winner">อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</button>
+      <button class="pill" data-filter="win-pending">รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</button>
+      <button class="pill" data-filter="lose-pending">รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</button>
+      <button class="pill" data-filter="lose">แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด</button>
+      <button class="pill" data-filter="disqualified">แพ้ เนื่องจากโดนปรับตก</button>
+      <button class="pill" data-filter="cancelled">หน่วยงานประกาศยกเลิกโครงการ</button>
+      <button class="pill" data-filter="withdrawn">ห้างขอยกเลิกสัญญา</button>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-row" style="margin-bottom:1rem">
+      <input id="rpt-search" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderReport()">
+      <select id="rpt-agency" onchange="App.renderReport()"><option value="">ทุกหน่วยงาน</option></select>
     </div>
 
     <!-- Pending pipeline + Recent wins side by side -->
@@ -490,12 +500,12 @@ body.view-mode [data-edit-only] { display: none !important; }
         <option value="">ทุกสถานะ</option>
         <option>จัดทำสัญญาแล้ว</option>
         <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
-        <option>รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด</option>
-        <option>รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด</option>
-        <option>แพ้การประมูล</option>
-        <option>แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</option>
-        <option>ยกเลิกโครงการ</option>
-        <option>ห้างขอยกเลิกเอง</option>
+        <option>รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</option>
+        <option>รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</option>
+        <option>แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด</option>
+        <option>แพ้ เนื่องจากโดนปรับตก</option>
+        <option>หน่วยงานประกาศยกเลิกโครงการ</option>
+        <option>ห้างขอยกเลิกสัญญา</option>
       </select>
       <select id="fentity" onchange="App.renderTable()"><option value="">ทุกห้าง</option></select>
       <select id="fsort" onchange="App.renderTable()">
@@ -558,14 +568,14 @@ body.view-mode [data-edit-only] { display: none !important; }
         <div class="form-group">
           <label>สถานะ</label>
           <select id="f-status">
-            <option>รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด</option>
-            <option>รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด</option>
+            <option>รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</option>
+            <option>รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</option>
             <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
             <option>จัดทำสัญญาแล้ว</option>
-            <option>แพ้การประมูล</option>
-            <option>แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</option>
-            <option>ยกเลิกโครงการ</option>
-            <option>ห้างขอยกเลิกเอง</option>
+            <option>แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด</option>
+            <option>แพ้ เนื่องจากโดนปรับตก</option>
+            <option>หน่วยงานประกาศยกเลิกโครงการ</option>
+            <option>ห้างขอยกเลิกสัญญา</option>
           </select>
         </div>
       </div>
@@ -623,14 +633,14 @@ EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
     PENDING:      'อยู่ระหว่างพิจารณาผล',   // legacy
     WIN_PRICE:    'ราคาต่ำสุด',               // legacy
     LOSE_PRICE:   'ราคาไม่ต่ำสุด',            // legacy
-    WIN_PENDING:  'รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด',
-    LOSE_PENDING: 'รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด',
-    DISQUALIFIED: 'แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์',
+    WIN_PENDING:  'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',
+    LOSE_PENDING: 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',
+    DISQUALIFIED: 'แพ้ เนื่องจากโดนปรับตก',
     WINNER:       'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',
     CONTRACT:     'จัดทำสัญญาแล้ว',
-    LOSE:         'แพ้การประมูล',
-    CANCELLED:    'ยกเลิกโครงการ',
-    WITHDRAWN:    'ห้างขอยกเลิกเอง',
+    LOSE:         'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',
+    CANCELLED:    'หน่วยงานประกาศยกเลิกโครงการ',
+    WITHDRAWN:    'ห้างขอยกเลิกสัญญา',
   }),
   DEFAULT_ENTITY: 'ห้างหุ้นส่วน RMN',
   // เลขผู้เสียภาษี (winner_tin) ของแต่ละนิติบุคคลในกลุ่ม RMN (ครบทุกห้าง)
@@ -948,7 +958,7 @@ const SEED_BIDS = [
     "bid": 1056000,
     "pct": 49.28,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "ห้างขอยกเลิกเอง",
+    "status": "ห้างขอยกเลิกสัญญา",
     "seq": 17
   },
   {
@@ -962,7 +972,7 @@ const SEED_BIDS = [
     "bid": 1312000,
     "pct": 49.19,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "ห้างขอยกเลิกเอง",
+    "status": "ห้างขอยกเลิกสัญญา",
     "seq": 18
   },
   {
@@ -1102,7 +1112,7 @@ const SEED_BIDS = [
     "bid": 1688000,
     "pct": 51.74,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "ห้างขอยกเลิกเอง",
+    "status": "ห้างขอยกเลิกสัญญา",
     "seq": 26
   },
   {
@@ -1197,7 +1207,7 @@ const SEED_BIDS = [
     "bid": 828000,
     "pct": 48.57,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "ห้างขอยกเลิกเอง",
+    "status": "ห้างขอยกเลิกสัญญา",
     "seq": 32
   },
   {
@@ -1596,7 +1606,7 @@ const SEED_BIDS = [
     "bid": 1998000,
     "pct": 37.8,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้การประมูล",
+    "status": "แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด",
     "lowest": 1985000,
     "competitor": "หจก. ด.โชคชัยโยธา",
     "seq": 54
@@ -1612,7 +1622,7 @@ const SEED_BIDS = [
     "bid": 698000,
     "pct": 37.73,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้การประมูล",
+    "status": "แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด",
     "lowest": 694000,
     "competitor": "หจก. ธนกรรุ่งเรือง",
     "seq": 55
@@ -1628,7 +1638,7 @@ const SEED_BIDS = [
     "bid": 478000,
     "pct": 7.79,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้การประมูล",
+    "status": "แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด",
     "lowest": 322500,
     "competitor": "บริษัท ชัยศิริคอนกรีต จำกัด",
     "seq": 56
@@ -1682,7 +1692,7 @@ const SEED_BIDS = [
     "bid": 858000,
     "pct": 38.45,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้การประมูล",
+    "status": "แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด",
     "lowest": 834500,
     "competitor": "บริษัท ชัยศิริคอนกรีต จำกัด",
     "seq": 59
@@ -1698,7 +1708,7 @@ const SEED_BIDS = [
     "bid": 2456000,
     "pct": 38.65,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้การประมูล",
+    "status": "แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด",
     "lowest": 2340000,
     "competitor": "บริษัท ทวีสินคอนกรีต จำกัด",
     "seq": 60
@@ -1714,7 +1724,7 @@ const SEED_BIDS = [
     "bid": 1232000,
     "pct": 44.15,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้การประมูล",
+    "status": "แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด",
     "lowest": 1099900,
     "competitor": "หจก. ด.โชคชัย โยธา",
     "seq": 61
@@ -1786,7 +1796,7 @@ const SEED_BIDS = [
     "bid": 3658000,
     "pct": 0,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "ยกเลิกโครงการ",
+    "status": "หน่วยงานประกาศยกเลิกโครงการ",
     "date": "2569-04-24",
     "midPrice": 4832015,
     "contractPrice": 0,
@@ -1806,7 +1816,7 @@ const SEED_BIDS = [
     "bid": 1537000,
     "pct": 42.72,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์",
+    "status": "แพ้ เนื่องจากโดนปรับตก",
     "lowest": 2160000,
     "competitor": "หจก. พยัคฆ์ เกษมทรัพย",
     "seq": 66
@@ -1822,7 +1832,7 @@ const SEED_BIDS = [
     "bid": 1298000,
     "pct": 42.81,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์",
+    "status": "แพ้ เนื่องจากโดนปรับตก",
     "lowest": 1850000,
     "competitor": "หจก. พยัคฆ์เกษมทรัพย์",
     "seq": 67
@@ -1894,7 +1904,7 @@ const SEED_BIDS = [
     "bid": 369000,
     "pct": 0,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด",
+    "status": "รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]",
     "date": "2569-04-29",
     "midPrice": 3065288,
     "contractPrice": 0,
@@ -2160,7 +2170,7 @@ const SEED_BIDS = [
     "bid": 436000,
     "pct": 31.23,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด",
+    "status": "รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]",
     "date": "2569-05-14",
     "midPrice": 674076,
     "contractPrice": 0,
@@ -2179,7 +2189,7 @@ const SEED_BIDS = [
     "bid": 558000,
     "pct": 33.17,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด",
+    "status": "รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]",
     "date": "2569-05-14",
     "midPrice": 835000,
     "contractPrice": 0,
@@ -2198,7 +2208,7 @@ const SEED_BIDS = [
     "bid": 368000,
     "pct": 37.63,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด",
+    "status": "รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]",
     "date": "2569-05-14",
     "midPrice": 590000,
     "contractPrice": 0,
@@ -2217,7 +2227,7 @@ const SEED_BIDS = [
     "bid": 4948000,
     "pct": 41.06,
     "entity": "ห้างหุ้นส่วน RMN",
-    "status": "รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด",
+    "status": "รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]",
     "date": "2569-05-14",
     "midPrice": 8394274,
     "contractPrice": 0,
@@ -2225,6 +2235,25 @@ const SEED_BIDS = [
     "plant": "มหาสารคาม",
     "plantDist": 0,
     "lowest": 4948000
+  },
+  {
+    "seq": 89,
+    "id": "69049306591",
+    "name": "จ้างก่อสร้างโครงการปรับปรุงถนนลาดยาง หมู่ที่ 2 บ้านดอนยูง ช่วงจากบ้านดอนยูง บ้านป่ายาง โดยวิธีเสริมผิวแอสฟัลติกคอนกรีต จำนวน 2 ช่วง ช่วงที่ 1 ถนนกว้าง 5.00 เมตร ยาว 267.00 เมตร หนา 0.05 เมตร ไม่มีไหล่ทาง ช่วงที่ 2 กว้าง 5.00 เมตร ยาว 313.00 เมตร หนา 0.05 เมตร หรือมีพื้นที่รวมทั้งสองช่วงไม่น้อยกว่า 3,265.00 ตารางเมตร",
+    "agency": "องค์การบริหารส่วนตำบลลานสะแก",
+    "province": "มหาสารคาม",
+    "budget": 1392800,
+    "midPrice": 0,
+    "bid": 965000,
+    "pct": 30.72,
+    "entity": "ห้างหุ้นส่วน RMN",
+    "status": "รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]",
+    "date": "2569-05-15",
+    "contractPrice": 0,
+    "workType": "",
+    "plant": "",
+    "plantDist": 0,
+    "lowest": 0
   }
 ];
 
@@ -2719,8 +2748,27 @@ const App = (() => {
   const _byDateDesc = (a,b) => (b.date??'').localeCompare(a.date??'') || (b.seq??0)-(a.seq??0);
 
   function renderReport() {
-    const bids    = Store.getAll().sort(_byDateDesc);
+    const allBids = Store.getAll().sort(_byDateDesc);
     const { STATUS } = CONFIG;
+
+    // Populate agency dropdown
+    const agencySel = document.getElementById('rpt-agency');
+    if (agencySel) {
+      const q       = document.getElementById('rpt-search')?.value.toLowerCase() ?? '';
+      const agencies = [...new Set(allBids.map(b => (b.agency||'').trim()))].filter(Boolean).sort();
+      const prev    = agencySel.value;
+      agencySel.innerHTML = '<option value="">ทุกหน่วยงาน</option>' +
+        agencies.map(a => `<option value="${UI.esc(a)}" ${a===prev?'selected':''}>${UI.esc(a)}</option>`).join('');
+    }
+
+    // Apply search + agency filter
+    const q          = document.getElementById('rpt-search')?.value.toLowerCase() ?? '';
+    const fAgency    = document.getElementById('rpt-agency')?.value ?? '';
+    const bids       = allBids.filter(b => {
+      if (fAgency && (b.agency||'').trim() !== fAgency) return false;
+      if (q && !((b.name||'')+(b.agency||'')+(b.province||'')).toLowerCase().includes(q)) return false;
+      return true;
+    });
     const total      = bids.length;
     const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
     const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING  || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING);
@@ -2748,10 +2796,10 @@ const App = (() => {
     document.querySelector('[data-filter="winner"]').textContent       = `ประกาศผู้ชนะ (${won.filter(b=>b.status===STATUS.WINNER).length})`;
     document.querySelector('[data-filter="win-pending"]').textContent  = `รอผล/เสนอต่ำสุด (${winPending.length})`;
     document.querySelector('[data-filter="lose-pending"]').textContent = `รอผล/ไม่ต่ำสุด (${losePending.length})`;
-    document.querySelector('[data-filter="lose"]').textContent         = `แพ้การประมูล (${lose.length})`;
+    document.querySelector('[data-filter="lose"]').textContent         = `แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด (${lose.length})`;
     document.querySelector('[data-filter="disqualified"]').textContent = `แพ้ขาดคุณสมบัติ (${disqualified.length})`;
-    document.querySelector('[data-filter="cancelled"]').textContent    = `ยกเลิกโครงการ (${cancelled.length})`;
-    document.querySelector('[data-filter="withdrawn"]').textContent    = `ห้างขอยกเลิกเอง (${withdrawn.length})`;
+    document.querySelector('[data-filter="cancelled"]').textContent    = `หน่วยงานประกาศยกเลิกโครงการ (${cancelled.length})`;
+    document.querySelector('[data-filter="withdrawn"]').textContent    = `ห้างขอยกเลิกสัญญา (${withdrawn.length})`;
 
     renderPipelineFiltered(bids);
     renderWinsTimeline(won);
@@ -2836,7 +2884,7 @@ const App = (() => {
       UI.setHTML('lose-timeline', '');
       return;
     }
-    title.innerHTML = `❌ แพ้การประมูล (${lose.length} โครงการ)`;
+    title.innerHTML = `❌ แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด (${lose.length} โครงการ)`;
     const sorted = [...lose].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? '')).slice(0, 15);
     UI.setHTML('lose-timeline', `<div class="card" style="padding:1.2rem 1.4rem">${
       sorted.map(b => {
@@ -2865,18 +2913,17 @@ const App = (() => {
 
   /** Single project card matching G-Lead screenshot layout */
   function projectCard(b, type = 'pending', actionsHtml = '') {
-    const tagText = (type === 'pending' || type === 'win-pending' || type === 'lose-pending') ? 'รอผลพิจารณา'
-      : type === 'winner'       ? 'ชนะ'
-      : type === 'lose'         ? 'แพ้'
-      : type === 'disqualified' ? 'แพ้'
-      : type === 'cancelled'    ? 'ยกเลิก'
-      : type === 'withdrawn'    ? 'ห้างยกเลิก'
-      : 'มีสัญญา';
+    const tagText = type === 'win-pending'   ? 'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]'
+      : type === 'lose-pending'  ? 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]'
+      : type === 'pending'       ? 'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]'
+      : type === 'winner'        ? 'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ'
+      : type === 'lose'          ? 'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด'
+      : type === 'disqualified'  ? 'แพ้ เนื่องจากโดนปรับตก'
+      : type === 'cancelled'     ? 'หน่วยงานประกาศยกเลิกโครงการ'
+      : type === 'withdrawn'     ? 'ห้างขอยกเลิกสัญญา'
+      : 'จัดทำสัญญาแล้ว';
     const tagClass = type === 'win-pending' ? 'win-pending' : type === 'lose-pending' ? 'pending' : type;
-    const subLabel = type === 'win-pending'  ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› เป็นผู้เสนอต่ำสุด</span>'
-      : type === 'lose-pending' ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› ไม่ได้เป็นผู้เสนอต่ำสุด</span>'
-      : type === 'disqualified' ? '<span style="display:block;font-size:10px;font-weight:600;opacity:.85;margin-top:1px">› ขาดคุณสมบัติ/เอกสารไม่สมบูรณ์</span>'
-      : '';
+    const subLabel = '';
     // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา/แพ้
     const isLose = type === 'lose' || type === 'disqualified';
     const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', isLose ? 'แพ้' : 'เซ็นสัญญา'];
@@ -3029,14 +3076,14 @@ const App = (() => {
     // Status chips
     const chip = (cls, icon, label, n) => n > 0 ? `<div class="ds-chip ${cls}"><span class="ds-n">${n}</span>${icon} ${label}</div>` : '';
     UI.setHTML('dash-status', [
-      chip('contract',    '🟢', 'จัดทำสัญญา',      contract),
-      chip('winner',      '🔵', 'อนุมัติสั่งจ้าง', winner),
-      chip('win-pending', '⏳', 'รอผล/เสนอต่ำสุด', winPending),
-      chip('lose-pending','⏳', 'รอผล/ไม่ต่ำสุด',  losePending),
-      chip('lose',        '❌', 'แพ้การประมูล',     lose),
-      chip('disqualified','❌', 'ขาดคุณสมบัติ',     disqualSt),
-      chip('cancelled',   '⬛', 'ยกเลิก',            cancelled),
-      chip('withdrawn',   '🟣', 'ห้างขอยกเลิก',     withdrawn),
+      chip('contract',    '🟢', 'จัดทำสัญญาแล้ว',                                    contract),
+      chip('winner',      '🔵', 'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',               winner),
+      chip('win-pending', '⏳', 'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',              winPending),
+      chip('lose-pending','⏳', 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',       losePending),
+      chip('lose',        '❌', 'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',              lose),
+      chip('disqualified','❌', 'แพ้ เนื่องจากโดนปรับตก',                             disqualSt),
+      chip('cancelled',   '⬛', 'หน่วยงานประกาศยกเลิกโครงการ',                        cancelled),
+      chip('withdrawn',   '🟣', 'ห้างขอยกเลิกสัญญา',                                  withdrawn),
     ].join(''));
 
     // Entity bars
@@ -3071,6 +3118,26 @@ const App = (() => {
           <div class="bar" style="flex:1;background:rgba(255,255,255,.12)"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%;background:#34d399"></div></div>
           <span style="font-weight:700;width:20px;color:#e6edf3">${c}</span>
         </div>`).join(''));
+
+    // Competitor leaderboard
+    const compMap = {};
+    bids.forEach(b => {
+      if (b.competitor && b.competitor.trim()) {
+        const k = b.competitor.trim();
+        compMap[k] = (compMap[k] ?? 0) + 1;
+      }
+    });
+    const compEntries = Object.entries(compMap).sort(([,a],[,b]) => b - a);
+    const maxComp = compEntries.length ? compEntries[0][1] : 1;
+    UI.setHTML('competitor-bars', compEntries.length
+      ? compEntries.map(([name, c], i) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
+            <span style="width:16px;font-weight:700;color:#a78bfa;text-align:right">${i+1}.</span>
+            <span style="flex:1;color:#e9d5ff">${name}</span>
+            <div class="bar" style="width:100px;background:rgba(255,255,255,.12)"><div class="bar-fill" style="width:${Math.round(c / maxComp * 100)}%;background:#a78bfa"></div></div>
+            <span style="font-weight:700;width:24px;text-align:right;color:#e6edf3">${c}</span>
+          </div>`).join('')
+      : '<div style="color:rgba(255,255,255,.4);font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูลคู่แข่ง</div>');
   }
 
   function metric(label, value, sub = '', color = '', fontSize = '24px') {
