@@ -3156,7 +3156,7 @@ const App = (() => {
 
     // Competitor leaderboard (normalize: collapse spaces, trim)
     const compMap = {};
-    allBids.forEach(b => {
+    bids.forEach(b => {
       if (b.competitor && b.competitor.trim()) {
         const k = b.competitor.trim().replace(/\s+/g, ' ');
         compMap[k] = (compMap[k] ?? 0) + 1;
