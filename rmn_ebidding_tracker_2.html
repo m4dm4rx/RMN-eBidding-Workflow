@@ -444,7 +444,7 @@ body.view-mode [data-edit-only] { display: none !important; }
       <div id="competitor-bars"></div>
     </div>
     <div class="card" style="margin-top:14px">
-      <div class="card-title">🏆 ประวัติโครงการที่ชนะ</div>
+      <div class="card-title">📋 Timeline การประมูลโครงการ</div>
       <div id="wins-timeline-dash"></div>
     </div>
   </div>
@@ -633,6 +633,21 @@ body.view-mode [data-edit-only] { display: none !important; }
 
 <script>
 'use strict';
+
+/* ── Theme (light default) ──────────────────────────────────── */
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('rmn_theme', isDark ? 'dark' : 'light');
+  document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
+}
+(function initTheme() {
+  const saved = localStorage.getItem('rmn_theme') ?? 'light';
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark');
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '🌙';
+  }
+})();
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIG  — all magic strings in one place
@@ -2906,6 +2921,49 @@ const App = (() => {
   }
 
   /** Lose bids as compact list */
+  function renderBidTimeline(allBids, targetId) {
+    const { STATUS } = CONFIG;
+    const recent = [...allBids].sort((a,b) => (b.date??'').localeCompare(a.date??'')).slice(0,10);
+    const statusMeta = s => {
+      if(s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)  return {text:'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',        bg:'#1d4ed8'};
+      if(s===STATUS.LOSE_PENDING||s===STATUS.LOSE_PRICE)                    return {text:'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',   bg:'#d97706'};
+      if(s===STATUS.CONTRACT)                                                return {text:'จัดทำสัญญาแล้ว',                                bg:'#065f46'};
+      if(s===STATUS.WINNER)                                                  return {text:'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',          bg:'#16a34a'};
+      if(s===STATUS.LOSE)                                                    return {text:'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',         bg:'#dc2626'};
+      if(s===STATUS.DISQUALIFIED)                                            return {text:'แพ้ เนื่องจากโดนปรับตก',                        bg:'#dc2626'};
+      if(s===STATUS.CANCELLED)                                               return {text:'หน่วยงานประกาศยกเลิกโครงการ',                   bg:'#6b7280'};
+      if(s===STATUS.WITHDRAWN)                                               return {text:'ห้างขอยกเลิกสัญญา',                             bg:'#6b7280'};
+      return {text:s||'—',bg:'#6b7280'};
+    };
+    if(!recent.length){UI.setHTML(targetId,'<div class="empty">ยังไม่มีข้อมูล</div>');return;}
+    UI.setHTML(targetId, `
+      <div style="max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px">
+        ${recent.map(b => {
+          const d = (b.date??'').split('-');
+          const mon = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][Number(d[1])||0];
+          const dateStr = d[2] ? `${d[2]} ${mon} ${d[0]}` : '—';
+          const base = Math.max(b.budget||0, b.midPrice||0);
+          const pctStr = base>0 ? ((base-b.bid)/base*100).toFixed(1)+'%' : (b.pct ? b.pct.toFixed(1)+'%' : '—');
+          const {text,bg} = statusMeta(b.status);
+          return `
+            <div style="border:1px solid var(--card-border,#e2e8f0);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="font-size:11px;color:var(--muted);white-space:nowrap">📅 ${dateStr}</span>
+                <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap">หน่วยงาน: ${UI.esc(b.agency)}</span>
+                <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:4px;color:#fff;background:${bg};white-space:nowrap;margin-left:auto">${text}</span>
+              </div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${UI.esc(b.name||b.agency)}">${UI.esc(b.name||b.agency)}</div>
+              <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+                <span>งบประมาณ: ${b.budget ? UI.fmt(b.budget) : '—'}</span>
+                <span>ราคากลาง: ${b.midPrice ? UI.fmt(b.midPrice) : '—'}</span>
+                <span style="color:#16a34a;font-weight:600">ราคาที่ยื่น: ฿${UI.fmt(b.bid)}</span>
+                <span>คิดเป็น: ${pctStr}</span>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`);
+  }
+
   function renderLoseTimeline(lose) {
     const title = document.getElementById('lose-section-title');
     if (!lose.length) {
@@ -2970,52 +3028,61 @@ const App = (() => {
       </div>${i < steps.length - 1 ? `<div class="tl-line ${i < doneCount ? 'done' : ''}"></div>` : ''}`).join('');
 
     return `
-      <div class="proj-card" style="padding:0">
-        <div onclick="(function(el){var body=el.closest('.proj-card').querySelector('.proj-card-body');var btn=el.querySelector('.expand-btn');if(body.style.display==='none'||!body.style.display){body.style.display='block';btn.textContent='▲ ซ่อน';}else{body.style.display='none';btn.textContent='รายละเอียด ▽';}})(this)" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;flex-wrap:wrap;border-bottom:1px solid #eee;">
-          <span class="proj-status-tag ${tagClass}" style="font-size:11px;padding:2px 8px;white-space:nowrap;flex-shrink:0">${tagText}</span>
-          <span style="font-size:11px;color:#999;white-space:nowrap;flex-shrink:0">${UI.esc(b.id)}</span>
-          <span style="font-size:12px;color:#333;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${UI.esc(b.name || b.agency)}">${UI.esc(b.name || b.agency)}</span>
-          <span style="font-size:12px;color:#555;white-space:nowrap;flex-shrink:0">🏢 ${UI.esc(b.agency)}</span>
-          <span style="font-size:12px;color:#888;white-space:nowrap;flex-shrink:0">📅 ${UI.fmtDate(b.date)}</span>
-          <span style="font-size:12px;color:#555;white-space:nowrap;flex-shrink:0">💰 ${UI.fmt(b.bid)}</span>
-          ${actionsHtml ? `<div style="flex-shrink:0">${actionsHtml}</div>` : ''}
-          <button class="expand-btn" style="flex-shrink:0;background:none;border:1px solid #ccc;border-radius:6px;padding:2px 10px;font-size:11px;cursor:pointer;color:#555;white-space:nowrap">รายละเอียด ▽</button>
-        </div>
-        <div class="proj-card-body" style="display:none">
-          <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
-          <div class="proj-meta-grid">
-            <div class="proj-meta-item">
-              <span class="proj-meta-item-icon">🏢</span>
-              <div><span class="proj-meta-item-label">หน่วยงาน</span>
-              <span class="proj-meta-item-val">${UI.esc(b.agency)}</span></div>
-            </div>
-            <div class="proj-meta-item">
-              <span class="proj-meta-item-icon">📍</span>
-              <div><span class="proj-meta-item-label">พื้นที่โครงการ</span>
-              <span class="proj-meta-item-val">${UI.esc((b.province ?? '').trim())}</span></div>
-            </div>
-            <div class="proj-meta-item">
-              <span class="proj-meta-item-icon">📅</span>
-              <div><span class="proj-meta-item-label">วันที่ประมูล</span>
-              <span class="proj-meta-item-val">${UI.fmtDate(b.date)}</span></div>
-            </div>
-            <div class="proj-meta-item">
-              <span class="proj-meta-item-icon">🏛️</span>
-              <div><span class="proj-meta-item-label">ห้างที่ใช้เสนอ</span>
-              <span class="proj-meta-item-val">${UI.esc(b.entity)}</span></div>
-            </div>
-            ${b.workType ? `<div class="proj-meta-item">
-              <span class="proj-meta-item-icon">🔧</span>
-              <div><span class="proj-meta-item-label">ประเภทงาน</span>
-              <span class="proj-meta-item-val">${UI.esc(b.workType)}</span></div>
-            </div>` : ''}
-            ${b.plant ? `<div class="proj-meta-item">
-              <span class="proj-meta-item-icon">🏭</span>
-              <div><span class="proj-meta-item-label">Plant ที่ใช้ยื่น</span>
-              <span class="proj-meta-item-val">${UI.esc(b.plant)}${b.plantDist ? ` · ${b.plantDist} km` : ''}</span></div>
-            </div>` : ''}
+      <div class="proj-card">
+        <div class="proj-card-header">
+          <span class="proj-status-tag ${tagClass}">${tagText}${subLabel}</span>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span class="proj-id-label">เลขที่โครงการ</span>
+            <span class="proj-id-value">${UI.esc(b.id)}</span>
           </div>
-          <div class="proj-timeline">${tl}</div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span class="proj-id-label">🏢 หน่วยงาน</span>
+            <span class="proj-id-value" style="font-family:inherit">${UI.esc(b.agency)}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span class="proj-id-label">📅 วันที่ประมูล</span>
+            <span class="proj-id-value" style="font-family:inherit">${UI.fmtDate(b.date)}</span>
+          </div>
+          ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
+          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)" style="margin-left:auto;background:none;border:1px solid #cbd5e1;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;color:#475569;white-space:nowrap;font-family:inherit">รายละเอียด &#9661;</button>
+        </div>
+        <div class="proj-card-body">
+          <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
+          <div class="proj-card-detail" style="display:none">
+            <div class="proj-meta-grid">
+              <div class="proj-meta-item">
+                <span class="proj-meta-item-icon">🏢</span>
+                <div><span class="proj-meta-item-label">หน่วยงาน</span>
+                <span class="proj-meta-item-val">${UI.esc(b.agency)}</span></div>
+              </div>
+              <div class="proj-meta-item">
+                <span class="proj-meta-item-icon">📍</span>
+                <div><span class="proj-meta-item-label">พื้นที่โครงการ</span>
+                <span class="proj-meta-item-val">${UI.esc((b.province ?? '').trim())}</span></div>
+              </div>
+              <div class="proj-meta-item">
+                <span class="proj-meta-item-icon">📅</span>
+                <div><span class="proj-meta-item-label">วันที่ประมูล</span>
+                <span class="proj-meta-item-val">${UI.fmtDate(b.date)}</span></div>
+              </div>
+              <div class="proj-meta-item">
+                <span class="proj-meta-item-icon">🏛️</span>
+                <div><span class="proj-meta-item-label">ห้างที่ใช้เสนอ</span>
+                <span class="proj-meta-item-val">${UI.esc(b.entity)}</span></div>
+              </div>
+              ${b.workType ? `<div class="proj-meta-item">
+                <span class="proj-meta-item-icon">🔧</span>
+                <div><span class="proj-meta-item-label">ประเภทงาน</span>
+                <span class="proj-meta-item-val">${UI.esc(b.workType)}</span></div>
+              </div>` : ''}
+              ${b.plant ? `<div class="proj-meta-item">
+                <span class="proj-meta-item-icon">🏭</span>
+                <div><span class="proj-meta-item-label">Plant ที่ใช้ยื่น</span>
+                <span class="proj-meta-item-val">${UI.esc(b.plant)}${b.plantDist ? ` · ${b.plantDist} km` : ''}</span></div>
+              </div>` : ''}
+            </div>
+            <div class="proj-timeline">${tl}</div>
+          </div>
           <div class="proj-fin-grid">
             <div class="proj-fin-item">
               <div class="proj-fin-label">งบประมาณ</div>
@@ -3153,8 +3220,7 @@ const App = (() => {
         </div>`).join(''));
 
     // Recent Wins Timeline
-    const wonBids = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
-    renderWinsTimeline(wonBids, 'wins-timeline-dash');
+    renderBidTimeline(bids, 'wins-timeline-dash');
 
     // Competitor leaderboard (normalize: collapse spaces, trim)
     const compMap = {};
