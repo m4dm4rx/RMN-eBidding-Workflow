@@ -2951,7 +2951,9 @@ const App = (() => {
       const dateStr = d[2] ? `${d[2]} ${mon} ${d[0]}` : '—';
       const monthKey = `${d[0]}-${d[1]}`;
       const base = Math.max(b.budget||0, b.midPrice||0);
-      const pctStr = base>0 ? ((base-b.bid)/base*100).toFixed(1)+'%' : (b.pct ? b.pct.toFixed(1)+'%' : '—');
+      const _bid = +(b.bid)||0;
+      const _num = base>0 ? (base-_bid)/base*100 : (+b.pct||null);
+      const pctStr = (_num != null && isFinite(_num) && _num >= 0) ? _num.toFixed(1)+'%' : '—';
       const {text,bg} = statusMeta(b.status);
       let divider = '';
       if(monthKey !== lastMonthKey && monthKey !== '-') {
@@ -3049,7 +3051,6 @@ const App = (() => {
     return `
       <div class="proj-card">
         <div class="proj-card-header">
-          <span class="proj-status-tag ${tagClass}">${tagText}${subLabel}</span>
           <div style="display:flex;flex-direction:column;gap:1px">
             <span class="proj-id-label">เลขที่โครงการ</span>
             <span class="proj-id-value">${UI.esc(b.id)}</span>
@@ -3063,7 +3064,8 @@ const App = (() => {
             <span class="proj-id-value" style="font-family:inherit">${UI.fmtDate(b.date)}</span>
           </div>
           ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
-          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)" style="margin-left:auto;background:none;border:1px solid #cbd5e1;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;color:#475569;white-space:nowrap;font-family:inherit">รายละเอียด &#9661;</button>
+          <span class="proj-status-tag ${tagClass}" style="margin-left:auto;flex-shrink:0;font-size:10px;padding:3px 10px;min-height:unset;min-width:unset;line-height:1.4">${tagText}${subLabel}</span>
+          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)" style="background:none;border:1px solid var(--card-border,#cbd5e1);border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;color:var(--text,#1e293b);white-space:nowrap;font-family:inherit">รายละเอียด &#9661;</button>
         </div>
         <div class="proj-card-body">
           <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
@@ -3120,7 +3122,7 @@ const App = (() => {
               <div class="proj-fin-value">${
                 isLose
                   ? (b.lowest ? '฿'+UI.fmt(b.lowest) : '—')
-                  : (base=>base>0?((base-b.bid)/base*100).toFixed(2)+'%':b.pct?b.pct.toFixed(2)+'%':'—')(Math.max(b.budget||0,b.midPrice||0))
+                  : (()=>{const _b=Math.max(b.budget||0,b.midPrice||0);const _v=_b>0?(_b-(+(b.bid)||0))/_b*100:(+b.pct||null);return(_v!=null&&isFinite(_v)&&_v>=0)?_v.toFixed(2)+'%':'—';})()
               }</div>
             </div>
             <div class="proj-fin-item">
