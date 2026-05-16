@@ -199,9 +199,14 @@ textarea{resize:vertical;min-height:60px}
 .dash-meta strong{color:#7dd3fc;display:block;margin-top:2px}
 /* ── Dashboard status chips ─────────────────────────────────────── */
 .dash-status-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.2rem}
+.dash-status-row{display:flex;flex-wrap:wrap;gap:12px}
+.ds-group{display:flex;flex-direction:column;gap:4px}
+.ds-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;padding-left:2px}
+.ds-group-chips{display:flex;flex-wrap:wrap;gap:6px}
 .ds-chip{display:flex;align-items:center;gap:6px;padding:7px 14px;
   border-radius:20px;font-size:12px;font-weight:600;color:#fff;cursor:default}
 .ds-chip .ds-n{font-size:16px;font-weight:800;line-height:1}
+.ds-chip .ds-label{font-size:12px;font-weight:500}
 .ds-chip.contract{background:linear-gradient(135deg,#065f46,#047857)}
 .ds-chip.winner{background:linear-gradient(135deg,#0c4a6e,#0369a1)}
 .ds-chip.win-pending{background:linear-gradient(135deg,#1e3a8a,#1d4ed8)}
@@ -444,7 +449,7 @@ body.view-mode [data-edit-only] { display: none !important; }
       <div id="competitor-bars"></div>
     </div>
     <div class="card" style="margin-top:14px">
-      <div class="card-title">📋 Timeline การประมูลโครงการ</div>
+      <div class="card-title">📋 Timeline การประมูลโครงการล่าสุด</div>
       <div id="wins-timeline-dash"></div>
     </div>
   </div>
@@ -2923,7 +2928,7 @@ const App = (() => {
   /** Lose bids as compact list */
   function renderBidTimeline(allBids, targetId) {
     const { STATUS } = CONFIG;
-    const recent = [...allBids].sort((a,b) => (b.date??'').localeCompare(a.date??'')).slice(0,10);
+    const recent = [...allBids].sort((a,b) => (b.date??'').localeCompare(a.date??''));
     const statusMeta = s => {
       if(s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)  return {text:'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',        bg:'#1d4ed8'};
       if(s===STATUS.LOSE_PENDING||s===STATUS.LOSE_PRICE)                    return {text:'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',   bg:'#d97706'};
@@ -2936,31 +2941,45 @@ const App = (() => {
       return {text:s||'—',bg:'#6b7280'};
     };
     if(!recent.length){UI.setHTML(targetId,'<div class="empty">ยังไม่มีข้อมูล</div>');return;}
+    const MONTHS = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const MONTHS_SHORT = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    let lastMonthKey = '';
+    const rows = recent.map(b => {
+      const d = (b.date??'').split('-');
+      const mon = MONTHS_SHORT[Number(d[1])||0];
+      const monFull = MONTHS[Number(d[1])||0];
+      const dateStr = d[2] ? `${d[2]} ${mon} ${d[0]}` : '—';
+      const monthKey = `${d[0]}-${d[1]}`;
+      const base = Math.max(b.budget||0, b.midPrice||0);
+      const pctStr = base>0 ? ((base-b.bid)/base*100).toFixed(1)+'%' : (b.pct ? b.pct.toFixed(1)+'%' : '—');
+      const {text,bg} = statusMeta(b.status);
+      let divider = '';
+      if(monthKey !== lastMonthKey && monthKey !== '-') {
+        divider = `<div style="display:flex;align-items:center;gap:8px;margin:4px 0 2px">
+          <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">${monFull} ${d[0]}</span>
+          <div style="flex:1;height:1px;background:var(--card-border)"></div>
+        </div>`;
+        lastMonthKey = monthKey;
+      }
+      return divider + `
+        <div style="background:var(--surface);border:1px solid var(--card-border);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--muted);white-space:nowrap">📅 ${dateStr}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap">หน่วยงาน: ${UI.esc(b.agency)}</span>
+            <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:4px;color:#fff;background:${bg};white-space:nowrap;margin-left:auto">${text}</span>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${UI.esc(b.name||b.agency)}">${UI.esc(b.name||b.agency)}</div>
+          <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+            <span>งบประมาณ: ${b.budget ? UI.fmt(b.budget) : '—'}</span>
+            <span>ราคากลาง: ${b.midPrice ? UI.fmt(b.midPrice) : '—'}</span>
+            <span style="color:#16a34a;font-weight:600">ราคาที่ยื่น: ฿${UI.fmt(b.bid)}</span>
+            <span>คิดเป็น: ${pctStr}</span>
+          </div>
+        </div>`;
+    }).join('');
     UI.setHTML(targetId, `
-      <div style="max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px">
-        ${recent.map(b => {
-          const d = (b.date??'').split('-');
-          const mon = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][Number(d[1])||0];
-          const dateStr = d[2] ? `${d[2]} ${mon} ${d[0]}` : '—';
-          const base = Math.max(b.budget||0, b.midPrice||0);
-          const pctStr = base>0 ? ((base-b.bid)/base*100).toFixed(1)+'%' : (b.pct ? b.pct.toFixed(1)+'%' : '—');
-          const {text,bg} = statusMeta(b.status);
-          return `
-            <div style="border:1px solid var(--card-border,#e2e8f0);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px">
-              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                <span style="font-size:11px;color:var(--muted);white-space:nowrap">📅 ${dateStr}</span>
-                <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap">หน่วยงาน: ${UI.esc(b.agency)}</span>
-                <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:4px;color:#fff;background:${bg};white-space:nowrap;margin-left:auto">${text}</span>
-              </div>
-              <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${UI.esc(b.name||b.agency)}">${UI.esc(b.name||b.agency)}</div>
-              <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap">
-                <span>งบประมาณ: ${b.budget ? UI.fmt(b.budget) : '—'}</span>
-                <span>ราคากลาง: ${b.midPrice ? UI.fmt(b.midPrice) : '—'}</span>
-                <span style="color:#16a34a;font-weight:600">ราคาที่ยื่น: ฿${UI.fmt(b.bid)}</span>
-                <span>คิดเป็น: ${pctStr}</span>
-              </div>
-            </div>`;
-        }).join('')}
+      <div style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:8px;padding:10px">
+        ${rows}
       </div>`);
   }
 
@@ -3174,17 +3193,22 @@ const App = (() => {
       `);
 
     // Status chips
-    const chip = (cls, icon, label, n) => n > 0 ? `<div class="ds-chip ${cls}"><span class="ds-n">${n}</span>${icon} ${label}</div>` : '';
-    UI.setHTML('dash-status', [
-      chip('contract',    '🟢', 'จัดทำสัญญาแล้ว',                                    contract),
-      chip('winner',      '🔵', 'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',               winner),
-      chip('win-pending', '⏳', 'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',              winPending),
-      chip('lose-pending','⏳', 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',       losePending),
-      chip('lose',        '❌', 'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',              lose),
-      chip('disqualified','❌', 'แพ้ เนื่องจากโดนปรับตก',                             disqualSt),
-      chip('cancelled',   '⬛', 'หน่วยงานประกาศยกเลิกโครงการ',                        cancelled),
-      chip('withdrawn',   '🟣', 'ห้างขอยกเลิกสัญญา',                                  withdrawn),
-    ].join(''));
+    const chip = (cls, label, n) => n > 0 ? `<div class="ds-chip ${cls}"><span class="ds-n">${n}</span><span class="ds-label">${label}</span></div>` : '';
+    const grp = (title, chips) => `<div class="ds-group"><div class="ds-group-title">${title}</div><div class="ds-group-chips">${chips}</div></div>`;
+    UI.setHTML('dash-status',
+      grp('ชนะ / มีสัญญา',
+        chip('contract',    'จัดทำสัญญาแล้ว',                    contract) +
+        chip('winner',      'ประกาศผู้ชนะ',                       winner)) +
+      grp('รอผล',
+        chip('win-pending', 'เสนอราคาต่ำที่สุด',                  winPending) +
+        chip('lose-pending','ไม่ได้เสนอราคาต่ำที่สุด',            losePending)) +
+      grp('แพ้',
+        chip('lose',        'ราคาไม่ต่ำที่สุด',                   lose) +
+        chip('disqualified','โดนปรับตก',                           disqualSt)) +
+      grp('ยกเลิก',
+        chip('cancelled',   'หน่วยงานยกเลิก',                     cancelled) +
+        chip('withdrawn',   'ห้างขอยกเลิก',                       withdrawn))
+    );
 
     // Entity bars
     const entMap = {};
