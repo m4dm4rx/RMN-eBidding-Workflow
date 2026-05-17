@@ -13,6 +13,7 @@
   --border:#e5e7eb; --text:#1a1a1a; --muted:#666;
   --radius:10px; --radius-sm:7px;
   --shadow:0 1px 4px rgba(0,0,0,.08);
+  --pipe-alt:#eef3ff;
 }
 html.dark{
   --blue:#4a9eff;--blue-dk:#3a8eef;
@@ -23,6 +24,7 @@ html.dark{
   --navy:#79c0ff;--navy-dk:#58a6ff;
   --card-border:#30363d;
   --pill-bg:#21262d;--pill-active:#1f6feb;
+  --pipe-alt:#1a1f2e;
 }
 html.dark .metric-sub,html.dark .entity-tag{color:#8b949e}
 html.dark .empty{color:#8b949e}
@@ -198,23 +200,41 @@ textarea{resize:vertical;min-height:60px}
 .dash-meta{font-size:11px;color:rgba(255,255,255,.6);text-align:right}
 .dash-meta strong{color:#7dd3fc;display:block;margin-top:2px}
 /* ── Dashboard status chips ─────────────────────────────────────── */
-.dash-status-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.2rem}
-.dash-status-row{display:flex;flex-wrap:wrap;gap:12px}
-.ds-group{display:flex;flex-direction:column;gap:4px}
-.ds-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;padding-left:2px}
-.ds-group-chips{display:flex;flex-wrap:wrap;gap:6px}
-.ds-chip{display:flex;align-items:center;gap:6px;padding:7px 14px;
-  border-radius:20px;font-size:12px;font-weight:600;color:#fff;cursor:default}
-.ds-chip .ds-n{font-size:16px;font-weight:800;line-height:1}
-.ds-chip .ds-label{font-size:12px;font-weight:500}
-.ds-chip.contract{background:linear-gradient(135deg,#065f46,#047857)}
-.ds-chip.winner{background:linear-gradient(135deg,#0c4a6e,#0369a1)}
-.ds-chip.win-pending{background:linear-gradient(135deg,#1e3a8a,#1d4ed8)}
-.ds-chip.lose-pending{background:linear-gradient(135deg,#78350f,#b45309)}
-.ds-chip.lose{background:linear-gradient(135deg,#7f1d1d,#b91c1c)}
-.ds-chip.disqualified{background:linear-gradient(135deg,#7f1d1d,#991b1b)}
-.ds-chip.cancelled{background:linear-gradient(135deg,#1f2937,#374151)}
-.ds-chip.withdrawn{background:linear-gradient(135deg,#3b0764,#6d28d9)}
+/* ── Status cards (new) ─────────────────────────────────────── */
+.dash-status-row{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:10px;margin-bottom:1.2rem}
+@media(min-width:900px){.dash-status-row{grid-template-columns:repeat(4,1fr)}}
+.sc{background:var(--surface);border:1px solid var(--card-border,#e2e8f0);
+  border-radius:12px;overflow:hidden;
+  font-family:'TH SarabunPSK','Sarabun',sans-serif}
+.sc-head{padding:9px 16px 8px;font-size:12px;font-weight:700;
+  letter-spacing:.06em;color:#fff;
+  display:flex;align-items:center;gap:7px;
+  font-family:'TH SarabunPSK','Sarabun',sans-serif}
+.sc-head.h-win   {background:#059669}
+.sc-head.h-pend  {background:#1d4ed8}
+.sc-head.h-lose  {background:#dc2626}
+.sc-head.h-cancel{background:#4b5563}
+.sc-row{display:flex;align-items:center;padding:8px 16px;gap:12px;
+  border-bottom:1px solid var(--bg,#f1f5f9)}
+.sc-row:last-child{border-bottom:none}
+.sc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sc-lbl{font-size:15px;color:var(--text);flex:1;
+  font-family:'TH SarabunPSK','Sarabun',sans-serif}
+.sc-n{font-size:19px;font-weight:600;color:var(--text);
+  font-family:'Helvetica Neue','Arial',sans-serif;
+  font-variant-numeric:lining-nums;
+  min-width:28px;text-align:right}
+.sc-n.zero{color:var(--muted)}
+.sd-contract {background:#059669}
+.sd-winner   {background:#0284c7}
+.sd-winpend  {background:#1d4ed8}
+.sd-losepend {background:#d97706}
+.sd-lose     {background:#dc2626}
+.sd-disq     {background:#991b1b}
+.sd-cancelled{background:#374151}
+.sd-withdrawn{background:#7c3aed}
 /* ── Report tab (G-Lead style) ─────────────────────────────────── */
 :root{
   --navy:#1e2a5e; --navy-dk:#15204a;
@@ -384,12 +404,74 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
 .win-tl-meta{font-size:11px;color:#64748b;display:flex;gap:1rem;flex-wrap:wrap}
 .win-tl-meta strong{color:#0f9d58;font-weight:700}
 
-@media(max-width:600px){
+/* ── Mobile-first responsive ─────────────────────────────────── */
+@media(max-width:640px){
+  /* Layout */
+  .app{padding:.5rem}
+  /* Topbar */
+  .topbar{padding:.6rem .9rem;gap:6px}
+  .logo-area h1{font-size:13px}
+  .logo-area p{display:none}
+  .logo-area img{height:36px}
+  /* Tabs: horizontal scroll, no wrap */
+  .tabs{overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;
+    padding:.35rem .5rem 0;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:7px 11px;font-size:12px;flex-shrink:0}
+  /* Dashboard header */
+  .dash-header{padding:.9rem 1rem;margin-bottom:.8rem}
+  .dash-title{font-size:15px}
+  .dash-subtitle{font-size:11px}
+  .dash-meta{display:none}
+  /* KPI: 2 cols */
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:.8rem}
+  .kpi-card{padding:.85rem 1rem}
+  .kpi-icon{width:28px;height:28px;font-size:14px;margin-bottom:5px}
+  .kpi-value{font-size:20px}
+  .kpi-label{font-size:11px}
+  .kpi-unit{font-size:11px;margin-top:2px}
+  /* Status cards: compact on mobile */
+  .dash-status-row{gap:8px;margin-bottom:.8rem}
+  .sc-lbl{font-size:14px}
+  .sc-n{font-size:17px}
+  .sc-head{font-size:11px;padding:8px 12px}
+  /* Two-col → single */
+  .two-col{grid-template-columns:1fr}
+  .card{padding:.8rem}
+  /* Report header */
+  .report-header{padding:.8rem 1rem;margin-bottom:.8rem}
+  .report-title{font-size:15px}
+  .report-meta{display:none}
+  /* Filter pills: horizontal scroll */
+  .report-pills{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;
+    gap:6px;margin-bottom:.8rem;scrollbar-width:none;-ms-overflow-style:none}
+  .report-pills::-webkit-scrollbar{display:none}
+  .pill{flex-shrink:0;font-size:11px;padding:6px 11px;white-space:nowrap}
+  /* Filter row: 2-col grid */
+  .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.8rem}
+  .filter-row input[type=text]{grid-column:1/-1}
+  /* Pipeline fin-row: 2×2 grid */
+  .pipe-fin{display:grid !important;grid-template-columns:1fr 1fr}
+  .pipe-fin > div{flex:unset !important;border-right:none !important;
+    border-bottom:1px solid var(--card-border,#e2e8f0)}
+  .pipe-fin > div:nth-child(odd){border-right:1px solid var(--card-border,#e2e8f0) !important}
+  .pipe-fin > div:nth-child(3),.pipe-fin > div:nth-child(4){border-bottom:none}
+  /* Pipeline proc bar: hide step labels */
+  .pstep-lbl{display:none}
+  /* Report section title */
+  .report-section-title{font-size:13px}
+  /* Old proj-card */
+  .proj-card-header{gap:6px;padding:.6rem .8rem}
   .proj-meta-grid{grid-template-columns:1fr}
   .proj-fin-grid{grid-template-columns:repeat(2,1fr)}
   .proj-fin-item{border-right:none;border-bottom:1px solid var(--card-border)}
   .tl-step{width:auto}
   .tl-step-label{display:none}
+  /* Wins / lose timeline */
+  .win-tl-date{width:46px}
+  .win-tl-date-day{font-size:16px}
+  .win-tl-name{font-size:12px}
+  .win-tl-meta{font-size:10px;gap:.5rem}
 }
 /* View-only mode */
 body.view-mode [data-edit-only] { display: none !important; }
@@ -2877,7 +2959,7 @@ const App = (() => {
       return;
     }
     const sorted = [...filtered].sort((a,b) => (b.date ?? '').localeCompare(a.date ?? ''));
-    UI.setHTML('pipeline-list', sorted.map(b => projectCard(b,
+    UI.setHTML('pipeline-list', `<div style="display:flex;flex-direction:column;gap:8px">${sorted.map((b,idx) => pipelineCardC(b,
       b.status === STATUS.WIN_PENDING   ? 'win-pending'   :
       b.status === STATUS.LOSE_PENDING  ? 'lose-pending'  :
       b.status === STATUS.DISQUALIFIED  ? 'disqualified'  :
@@ -2886,11 +2968,11 @@ const App = (() => {
       b.status === STATUS.LOSE          ? 'lose'          :
       b.status === STATUS.CANCELLED     ? 'cancelled'     :
       b.status === STATUS.WITHDRAWN     ? 'withdrawn'     :
-      b.status === STATUS.WIN_PRICE     ? 'win-pending'   :  // legacy
-      b.status === STATUS.LOSE_PRICE    ? 'lose-pending'  :  // legacy
-      b.status === STATUS.PENDING       ? 'win-pending'   :  // legacy
+      b.status === STATUS.WIN_PRICE     ? 'win-pending'   :
+      b.status === STATUS.LOSE_PRICE    ? 'lose-pending'  :
+      b.status === STATUS.PENDING       ? 'win-pending'   :
       'win-pending'
-    )).join(''));
+    , idx)).join('')}</div>`);
   }
 
   /** Recent wins as vertical timeline */
@@ -2964,18 +3046,23 @@ const App = (() => {
         lastMonthKey = monthKey;
       }
       return divider + `
-        <div style="background:var(--surface);border:1px solid var(--card-border);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="font-size:11px;color:var(--muted);white-space:nowrap">📅 ${dateStr}</span>
-            <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap">หน่วยงาน: ${UI.esc(b.agency)}</span>
-            <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:4px;color:#fff;background:${bg};white-space:nowrap;margin-left:auto">${text}</span>
+        <div style="background:var(--surface);border:1px solid var(--card-border);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
+          <div style="width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid var(--card-border);background:var(--bg)">
+            <span style="font-size:20px;font-weight:700;color:var(--text);line-height:1">${d[2]||'—'}</span>
+            <span style="font-size:10px;color:var(--muted);margin-top:2px">${mon} ${(d[0]||'').slice(-2)}</span>
           </div>
-          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${UI.esc(b.name||b.agency)}">${UI.esc(b.name||b.agency)}</div>
-          <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap">
-            <span>งบประมาณ: ${b.budget ? UI.fmt(b.budget) : '—'}</span>
-            <span>ราคากลาง: ${b.midPrice ? UI.fmt(b.midPrice) : '—'}</span>
-            <span style="color:#16a34a;font-weight:600">ราคาที่ยื่น: ฿${UI.fmt(b.bid)}</span>
-            <span>คิดเป็น: ${pctStr}</span>
+          <div style="flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:4px;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--text)">${UI.esc(b.agency)}</span>
+              <span style="font-size:10px;color:var(--muted);flex-shrink:0">${UI.esc(b.id||'')}</span>
+              <span style="margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;color:#fff;background:${bg};white-space:nowrap;flex-shrink:0">${text}</span>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5">${UI.esc(b.name||b.agency)}</div>
+            <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+              <span>งบ ${b.budget ? UI.fmt(b.budget) : '—'}</span>
+              <span>กลาง ${b.midPrice ? UI.fmt(b.midPrice) : '—'}</span>
+              <span style="color:#16a34a;font-weight:600">ยื่น ฿${UI.fmt(b.bid)} · ลด ${pctStr}</span>
+            </div>
           </div>
         </div>`;
     }).join('');
@@ -3017,6 +3104,106 @@ const App = (() => {
           </div>`;
       }).join('')
     }</div>`);
+  }
+
+  /** Pipeline card — Design C (date column + EucrosiaUPC) */
+  function pipelineCardC(b, type = 'win-pending', idx = 0) {
+    const FONT = "'EucrosiaUPC','Sarabun',sans-serif";
+    const tagText = type === 'win-pending'  ? 'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]'
+      : type === 'lose-pending' ? 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]'
+      : type === 'winner'       ? 'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ'
+      : type === 'contract'     ? 'จัดทำสัญญาแล้ว'
+      : type === 'lose'         ? 'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด'
+      : type === 'disqualified' ? 'แพ้ เนื่องจากโดนปรับตก'
+      : type === 'cancelled'    ? 'หน่วยงานประกาศยกเลิกโครงการ'
+      : type === 'withdrawn'    ? 'ห้างขอยกเลิกสัญญา'
+      : 'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]';
+    const tagBg = type === 'win-pending'  ? '#1d4ed8'
+      : type === 'lose-pending' ? '#d97706'
+      : type === 'winner'       ? '#16a34a'
+      : type === 'contract'     ? '#065f46'
+      : type === 'lose'         ? '#dc2626'
+      : type === 'disqualified' ? '#dc2626'
+      : type === 'cancelled'    ? '#6b7280'
+      : type === 'withdrawn'    ? '#6b7280'
+      : '#1d4ed8';
+    const isLose = type === 'lose' || type === 'disqualified';
+    const isWon  = type === 'contract' || type === 'winner';
+    const steps  = ['ยื่นประมูล','เปิดซอง','ตรวจเอกสาร','ประกาศผู้ชนะ', isLose ? 'แพ้' : 'เซ็นสัญญา'];
+    const doneCount = (isWon || isLose) ? 5 : type === 'winner' ? 4 : (type === 'win-pending' || type === 'lose-pending') ? 2 : 1;
+    const activeIdx = (isWon || isLose) ? -1 : (type === 'win-pending' || type === 'lose-pending') ? 2 : 1;
+    const tl = steps.map((s, i) => {
+      const done   = i < doneCount;
+      const active = i === activeIdx;
+      const dStyle = done   ? 'background:#16a34a;color:#fff;border:none'
+        : active            ? 'background:var(--surface);border:2px solid #1d4ed8;color:#1d4ed8;font-weight:700'
+        :                     'background:var(--bg);border:1px solid var(--card-border,#cbd5e1);color:var(--muted)';
+      const lStyle = done ? 'background:#16a34a' : 'background:var(--card-border,#e2e8f0)';
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1">
+        <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;${dStyle}">${done?'✓':(i+1)}</div>
+        <div class="pstep-lbl" style="font-size:9px;color:var(--muted);text-align:center;white-space:nowrap;font-family:${FONT}">${s}</div>
+      </div>${i<steps.length-1?`<div style="height:2px;flex:1;margin:0 -2px;align-self:start;margin-top:9px;${lStyle}"></div>`:''}`;
+    }).join('');
+    const d   = (b.date??'').split('-');
+    const mon = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][Number(d[1])||0];
+    const yr  = (d[0]||'').slice(-2);
+    const base = Math.max(b.budget||0, b.midPrice||0);
+    const _bid = +(b.bid)||0;
+    const _num = base>0 ? (base-_bid)/base*100 : (+b.pct||null);
+    const pctStr = (_num!=null && isFinite(_num) && _num>=0) ? _num.toFixed(2)+'%' : '—';
+    const cardBg = idx%2===0 ? 'var(--surface)' : 'var(--pipe-alt)';
+    const uid = 'pc-' + (b.id||'') + '-' + idx;
+    const metaItems = [
+      ['พื้นที่โครงการ', (b.province??'').trim()||'—'],
+      ['ห้างที่ใช้เสนอ', b.entity||'—'],
+      [isLose?'ผู้เสนอราคาต่ำสุด':'วันที่ประมูล', isLose?(b.competitor||'—'):UI.fmtDate(b.date)],
+    ].map(([lbl,val])=>`
+      <div style="padding:7px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
+        <div style="font-size:10px;color:var(--muted)">${lbl}</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);font-family:${FONT}">${UI.esc(val)}</div>
+      </div>`).join('');
+    return `
+      <div class="pipe-card-c" id="${uid}" style="background:${cardBg};border:1px solid var(--card-border,#e2e8f0);border-radius:8px;overflow:hidden;font-family:${FONT}">
+        <div style="display:flex;align-items:stretch">
+          <div style="width:56px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 4px;border-right:1px solid var(--card-border,#e2e8f0);background:var(--bg)">
+            <span style="font-size:26px;font-weight:700;color:var(--text);line-height:1;font-family:${FONT}">${d[2]||'—'}</span>
+            <span style="font-size:11px;color:var(--muted);margin-top:3px;font-family:${FONT}">${mon} ${yr}</span>
+          </div>
+          <div style="flex:1;min-width:0;padding:10px 14px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
+              <span style="font-size:16px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.esc(b.agency)}</span>
+              <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
+              <span style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;color:#fff;background:${tagBg};white-space:nowrap;flex-shrink:0;font-family:${FONT}">${tagText}</span>
+              <button onclick="(function(btn){var det=document.getElementById('${uid}').querySelector('.pipe-det');var open=det.style.display!=='none';det.style.display=open?'none':'block';btn.textContent=open?'รายละเอียด ▽':'△ ซ่อน';})(this)" style="background:none;border:1px solid var(--card-border,#cbd5e1);border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer;color:var(--text,#1e293b);white-space:nowrap;font-family:${FONT}">รายละเอียด ▽</button>
+            </div>
+            <div style="font-size:15px;color:var(--text);line-height:1.55;font-family:${FONT};font-weight:500">${UI.esc(b.name||b.agency)}</div>
+          </div>
+        </div>
+        <div class="pipe-fin" style="display:flex;border-top:1px solid var(--card-border,#e2e8f0)">
+          <div style="flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
+            <div style="font-size:10px;color:var(--muted)">งบประมาณ</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.fmt(b.budget)}</div>
+          </div>
+          <div style="flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
+            <div style="font-size:10px;color:var(--muted)">ราคายื่น (เรา)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.fmt(b.bid)}</div>
+          </div>
+          <div style="flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
+            <div style="font-size:10px;color:var(--muted)">${isLose?'ราคาที่คู่แข่งชนะ':'% ต่ำกว่าราคางาน'}</div>
+            <div style="font-size:13px;font-weight:700;color:${isLose?'var(--text)':'#16a34a'};font-family:${FONT}">${isLose?(b.lowest?'฿'+UI.fmt(b.lowest):'—'):pctStr}</div>
+          </div>
+          <div style="flex:1;padding:6px 12px">
+            <div style="font-size:10px;color:var(--muted)">${isLose?'คู่แข่งที่ได้งาน':'ราคากลาง'}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${isLose?(b.competitor?UI.esc(b.competitor):'—'):(b.midPrice?UI.fmt(b.midPrice):'—')}</div>
+          </div>
+        </div>
+        <div class="pipe-det" style="display:none;border-top:1px solid var(--card-border,#e2e8f0);background:var(--bg)">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--card-border,#e2e8f0)">
+            ${metaItems}
+          </div>
+          <div style="display:flex;align-items:center;padding:10px 16px;gap:0">${tl}</div>
+        </div>
+      </div>`;
   }
 
   /** Single project card matching G-Lead screenshot layout */
@@ -3194,22 +3381,31 @@ const App = (() => {
       </div></div>
       `);
 
-    // Status chips
-    const chip = (cls, label, n) => n > 0 ? `<div class="ds-chip ${cls}"><span class="ds-n">${n}</span><span class="ds-label">${label}</span></div>` : '';
-    const grp = (title, chips) => `<div class="ds-group"><div class="ds-group-title">${title}</div><div class="ds-group-chips">${chips}</div></div>`;
+    // Status cards
+    const scRow = (dotCls, label, n) =>
+      `<div class="sc-row">
+        <div class="sc-dot ${dotCls}"></div>
+        <span class="sc-lbl">${label}</span>
+        <span class="sc-n${n===0?' zero':''}">${n}</span>
+      </div>`;
+    const scCard = (headCls, icon, title, rows) =>
+      `<div class="sc">
+        <div class="sc-head ${headCls}">${icon} ${title}</div>
+        ${rows}
+      </div>`;
     UI.setHTML('dash-status',
-      grp('ชนะ / มีสัญญา',
-        chip('contract',    'จัดทำสัญญาแล้ว',                    contract) +
-        chip('winner',      'ประกาศผู้ชนะ',                       winner)) +
-      grp('รอผล',
-        chip('win-pending', 'เสนอราคาต่ำที่สุด',                  winPending) +
-        chip('lose-pending','ไม่ได้เสนอราคาต่ำที่สุด',            losePending)) +
-      grp('แพ้',
-        chip('lose',        'ราคาไม่ต่ำที่สุด',                   lose) +
-        chip('disqualified','โดนปรับตก',                           disqualSt)) +
-      grp('ยกเลิก',
-        chip('cancelled',   'หน่วยงานยกเลิก',                     cancelled) +
-        chip('withdrawn',   'ห้างขอยกเลิก',                       withdrawn))
+      scCard('h-win',   '🏆','ชนะ / มีสัญญา',
+        scRow('sd-contract','จัดทำสัญญาแล้ว',        contract) +
+        scRow('sd-winner',  'ประกาศให้เป็นผู้ชนะ',   winner)) +
+      scCard('h-pend',  '⏳','รอผลพิจารณา',
+        scRow('sd-winpend', 'เสนอราคาต่ำที่สุด',     winPending) +
+        scRow('sd-losepend','ไม่ได้เสนอต่ำที่สุด',   losePending)) +
+      scCard('h-lose',  '❌','แพ้',
+        scRow('sd-lose',    'ราคาไม่ต่ำที่สุด',      lose) +
+        scRow('sd-disq',    'โดนปรับตก',             disqualSt)) +
+      scCard('h-cancel','🚫','ยกเลิก',
+        scRow('sd-cancelled','หน่วยงานยกเลิก',       cancelled) +
+        scRow('sd-withdrawn','ห้างขอยกเลิก',         withdrawn))
     );
 
     // Entity bars
