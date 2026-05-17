@@ -73,12 +73,16 @@ html.dark .tl-line{background:#30363d}
 html.dark .tl-step-label{color:#8b949e}
 /* ── Reset ─────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'TH SarabunPSK','Sarabun',sans-serif;font-size:14px;background:var(--bg);color:var(--text)}
-/* ตัวเลข Arabic ทั้งแอพ */
-*{font-variant-numeric:lining-nums}
-.num,td,th,.metric-value,.kpi-value,.sc-n,.fin-val,.proj-fin-value,.pcard-n{
-  font-family:'Helvetica Neue','Arial',sans-serif!important;
-  font-variant-numeric:lining-nums}
+/* บังคับเลข 0-9 ใช้ EucrosiaUPC ทั้งแอพ */
+@font-face{
+  font-family:'AppFont';
+  src:local('EucrosiaUPC');
+  unicode-range:U+0030-0039,U+002E,U+002C,U+0025,U+0E3F}
+@font-face{
+  font-family:'AppFont';
+  src:local('TH SarabunPSK'),local('Sarabun');
+  unicode-range:U+0E00-U+0E7F,U+0020-U+002F,U+003A-U+007E}
+body{font-family:'AppFont','TH SarabunPSK','Sarabun',sans-serif;font-size:14px;background:var(--bg);color:var(--text)}
 /* ── Layout ────────────────────────────────────────────────────── */
 .app{max-width:1200px;margin:0 auto;padding:1rem}
 .topbar{display:flex;justify-content:space-between;align-items:center;
