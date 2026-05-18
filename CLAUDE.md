@@ -17,6 +17,13 @@
   2. Think step-by-step before acting — analyze → plan → execute
   3. Never hallucinate data, values, or field names — if unclear, ask first
 
+## 🖥️ Multi-Machine Setup (PC ↔ Laptop)
+- **OneDrive sync**: โฟลเดอร์ project และ E-BIDDING sync ผ่าน OneDrive อัตโนมัติ
+- **CMD paths**: ใช้ `%USERPROFILE%` แทน hardcode username — ทำงานได้ทุกเครื่อง
+- **Sandbox paths**: Claude detect อัตโนมัติจาก system prompt mount path (ไม่ต้อง hardcode)
+- **Git credentials**: ต้องตั้งค่าบน Laptop ด้วย (`git config --global user.email / user.name`)
+- **กฎ**: ห้าม hardcode `C:\Users\<username>\` ในคำสั่งที่ให้ user รัน — ใช้ `%USERPROFILE%` เสมอ
+
 Web app ติดตามการประมูลโครงการถนน ปีงบประมาณ 2569.
 
 ## Files
@@ -58,16 +65,16 @@ Web app ติดตามการประมูลโครงการถน
 **ส่งทีละบรรทัด** ห้ามรวมกัน เพราะ copy-paste แล้วจะติดกันเป็น error "git: 'pushgit' is not a git command"
 
 ```
-del "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker\.git\HEAD.lock"
+del "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker\.git\HEAD.lock"
 ```
 ```
-git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" add rmn_ebidding_tracker_2.html
+git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" add rmn_ebidding_tracker_2.html
 ```
 ```
-git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" commit -m "Add seq XX: agency date"
+git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" commit -m "Add seq XX: agency date"
 ```
 ```
-git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" push
+git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" push
 ```
 
 ## STATUS values (stored in data)
@@ -91,7 +98,7 @@ git -C "C:\Users\Advice\OneDrive\Claude\Projects\RMN e-Bidding Tracker" push
 ## แผนที่ PDF workflow (เอกสารแนบ e-GP)
 1. User ส่ง screenshot Google Maps (route จาก RMN Enterprise Asphalt → โครงการ) เป็น **ไฟล์ upload**
 2. Claude สร้าง `แผนที่_[id].pdf` ด้วย **reportlab + Sarabun font** โดยตรง
-   - **บันทึกที่**: `C:\Users\Advice\OneDrive\E-BIDDING\Log\แผนที่แสดงเส้นทางขนส่ง\แผนที่จากที่ตั้งโรงงานถึงหน้างาน_[agency]_[id].pdf`
+   - **บันทึกที่**: `%USERPROFILE%\OneDrive\E-BIDDING\Log\แผนที่แสดงเส้นทางขนส่ง\แผนที่จากที่ตั้งโรงงานถึงหน้างาน_[agency]_[id].pdf`
    - **ห้ามใช้ LibreOffice แปลง** — sandbox ไม่มี Thai font → ข้อความเป็นกล่องทั้งหมด
    - **ห้ามสร้าง docx แล้วแปลง** — ใช้ reportlab ตรงๆ เท่านั้น
 3. โครงสร้างเอกสาร (A4, Sarabun font):
@@ -114,7 +121,7 @@ urllib.request.urlretrieve(BASE + "Sarabun-Bold.ttf", "/tmp/Sarabun-Bold.ttf")
 ```
 
 **ชื่อไฟล์**: `แผนที่จากที่ตั้งโรงงานถึงหน้างาน_[agency]_[id].pdf`
-**บันทึกที่**: `C:\Users\Advice\OneDrive\E-BIDDING\Log\แผนที่แสดงเส้นทางขนส่ง\`
+**บันทึกที่**: sandbox path — Claude detect จาก system prompt mount อัตโนมัติ
 
 **หมายเหตุ**: ห้าม import จาก create_map_pdf.py — มีปัญหา `__pycache__` ทำให้ code ใหม่ไม่ถูกโหลด
 ให้เขียน script inline ใน bash แทนทุกครั้ง เช่น:
