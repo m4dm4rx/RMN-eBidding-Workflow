@@ -106,7 +106,7 @@ body{font-family:'AppFont','TH SarabunPSK','Sarabun',sans-serif;font-size:12px;b
   background:linear-gradient(160deg,#0d1b2a 0%,#12263a 35%,#0f1f35 65%,#130f24 100%);
   border-radius:var(--radius);padding:.2rem;margin-bottom:.5rem}
 html:not(.dark) #tab-dashboard{
-  background:linear-gradient(160deg,#e0eaff 0%,#ddf4f0 40%,#f0e8ff 100%)}
+  background:linear-gradient(160deg,#1e3a5f 0%,#1a4731 40%,#3b1f5e 100%)}
 /* ── Cards ─────────────────────────────────────────────────────── */
 .card{background:var(--surface);border-radius:var(--radius);padding:1.1rem;
   margin-bottom:1rem;box-shadow:var(--shadow)}
@@ -3571,12 +3571,12 @@ const App = (() => {
     UI.setHTML('agency-bars', agencyEntries.length
       ? agencyEntries.map(([name, c], i) => `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-            <span style="width:16px;font-weight:700;color:#7dd3fc;text-align:right">${i+1}.</span>
-            <span style="flex:1;color:#bae6fd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${name}">${name}</span>
-            <div class="bar" style="width:100px;background:rgba(255,255,255,.12)"><div class="bar-fill" style="width:${Math.round(c / maxAgency * 100)}%;background:#38bdf8"></div></div>
-            <span style="font-weight:700;width:24px;text-align:right;color:#e6edf3">${c}</span>
+            <span style="width:16px;font-weight:700;color:${_dk?'#7dd3fc':'#0284c7'};text-align:right">${i+1}.</span>
+            <span style="flex:1;color:${_dk?'#bae6fd':'#0c4a6e'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${name}">${name}</span>
+            <div class="bar" style="width:100px;background:${_dk?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)'}"><div class="bar-fill" style="width:${Math.round(c / maxAgency * 100)}%;background:#38bdf8"></div></div>
+            <span style="font-weight:700;width:24px;text-align:right;color:${_dk?'#e6edf3':'#1a1a1a'}">${c}</span>
           </div>`).join('')
-      : '<div style="color:rgba(255,255,255,.4);font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูล</div>');
+      : `<div style="color:${_dk?'rgba(255,255,255,.4)':'#9ca3af'};font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูล</div>`);
   }
 
   function metric(label, value, sub = '', color = '', fontSize = '24px') {
