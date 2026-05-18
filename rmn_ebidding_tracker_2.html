@@ -313,23 +313,27 @@ textarea{resize:vertical;min-height:60px}
   position:relative;overflow:hidden;
   border-radius:var(--radius);
   padding:1.5rem 1.6rem;
-  color:#faf9f5;
-  background:rgba(20,20,19,.45);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 4px 24px rgba(0,0,0,.4)}
-.kpi-card.blue  {border-top:2px solid #6a9bcc}
-.kpi-card.green {border-top:2px solid #788c5d}
-.kpi-card.purple{border-top:2px solid #d97757}
-.kpi-card.orange{border-top:2px solid #d97757}
+  color:#141413;
+  background:#ffffff;
+  border:1px solid #e8e6dc;
+  box-shadow:0 2px 8px rgba(20,20,19,.08)}
+.kpi-card.blue  {border-top:3px solid #6a9bcc}
+.kpi-card.green {border-top:3px solid #788c5d}
+.kpi-card.purple{border-top:3px solid #d97757}
+.kpi-card.orange{border-top:3px solid #d9a057}
 .kpi-card-inner{position:relative;z-index:1}
 .kpi-icon{
   display:inline-flex;align-items:center;justify-content:center;
   width:36px;height:36px;border-radius:8px;
-  background:rgba(255,255,255,.1);font-size:18px;margin-bottom:10px}
-.kpi-label{font-size:14px;font-weight:500;color:rgba(250,249,245,.65);margin-bottom:4px}
-.kpi-value{font-size:32px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#faf9f5}
-.kpi-unit{font-size:14px;color:rgba(250,249,245,.55);margin-top:4px}
+  background:#f5f3ee;font-size:18px;margin-bottom:10px}
+.kpi-label{font-size:14px;font-weight:500;color:#6b6a65;margin-bottom:4px}
+.kpi-value{font-size:32px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#141413}
+.kpi-unit{font-size:14px;color:#8a8880;margin-top:4px}
+html.dark .kpi-card{color:#faf9f5;background:rgba(20,20,19,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.4)}
+html.dark .kpi-icon{background:rgba(255,255,255,.1)}
+html.dark .kpi-label{color:rgba(250,249,245,.65)}
+html.dark .kpi-value{color:#faf9f5}
+html.dark .kpi-unit{color:rgba(250,249,245,.55)}
 
 /* Filter pills */
 .report-pills{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
