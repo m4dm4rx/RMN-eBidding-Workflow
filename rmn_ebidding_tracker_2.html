@@ -3934,7 +3934,7 @@ const App = (() => {
 
   function _setReportFilter(filter) {
     _reportFilter = filter;
-    renderPipelineFiltered(Store.getAll().sort(_byDateDesc));
+    renderReport();
   }
 
   /* ── Public API ──────────────────────────────────────────── */
