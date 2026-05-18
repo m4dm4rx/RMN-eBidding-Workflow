@@ -3163,15 +3163,19 @@ const App = (() => {
     const pctStr = (_num!=null && isFinite(_num) && _num>=0) ? _num.toFixed(2)+'%' : '—';
     const cardBg = idx%2===0 ? 'var(--surface)' : 'var(--pipe-alt)';
     const uid = 'pc-' + (b.id||'') + '-' + idx;
-    const metaItems = [
-      ['พื้นที่โครงการ', (b.province??'').trim()||'—'],
-      ['ห้างที่ใช้เสนอ', b.entity||'—'],
-      [isLose?'ผู้เสนอราคาต่ำสุด':'วันที่ประมูล', isLose?(b.competitor||'—'):UI.fmtDate(b.date)],
-    ].map(([lbl,val])=>`
-      <div style="padding:7px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
+    const metaCell = (lbl, val) => val ? `
+      <div style="padding:7px 12px;border-right:1px solid var(--card-border,#e2e8f0);border-bottom:1px solid var(--card-border,#e2e8f0)">
         <div style="font-size:10px;color:var(--muted)">${lbl}</div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);font-family:${FONT}">${UI.esc(val)}</div>
-      </div>`).join('');
+        <div style="font-size:13px;font-weight:600;color:var(--text);font-family:${FONT}">${UI.esc(String(val))}</div>
+      </div>` : '';
+    const metaItems =
+      metaCell('หน่วยงาน',         b.agency) +
+      metaCell('พื้นที่โครงการ',   (b.province??'').trim()||'—') +
+      metaCell('วันที่ประมูล',     UI.fmtDate(b.date)) +
+      metaCell('ห้างที่ใช้เสนอ',  b.entity||'—') +
+      (b.workType ? metaCell('ประเภทงาน', b.workType) : '') +
+      (b.plant    ? metaCell('PLANT ที่ใช้ยื่น', b.plant + (b.plantDist ? ` · ${b.plantDist} km` : '')) : '') +
+      (isLose     ? metaCell('ผู้เสนอราคาต่ำสุด', b.competitor||'—') : '');
     return `
       <div class="pipe-card-c" id="${uid}" style="background:${cardBg};border:1px solid var(--card-border,#e2e8f0);border-radius:8px;overflow:hidden;font-family:${FONT}">
         <div style="display:flex;align-items:stretch">
@@ -3180,12 +3184,17 @@ const App = (() => {
             <span style="font-size:11px;color:var(--muted);margin-top:3px;font-family:${FONT}">${mon} ${yr}</span>
           </div>
           <div style="flex:1;min-width:0;padding:10px 14px">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
+            <!-- Row 1: agency + ID + expand button -->
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
               <span style="font-size:16px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.esc(b.agency)}</span>
               <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
-              <span style="margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;color:#fff;background:${tagBg};white-space:nowrap;flex-shrink:0;font-family:${FONT}">${tagText}</span>
-              <button onclick="(function(btn){var det=document.getElementById('${uid}').querySelector('.pipe-det');var open=det.style.display!=='none';det.style.display=open?'none':'block';btn.textContent=open?'รายละเอียด ▽':'△ ซ่อน';})(this)" style="background:none;border:1px solid var(--card-border,#cbd5e1);border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer;color:var(--text,#1e293b);white-space:nowrap;font-family:${FONT}">รายละเอียด ▽</button>
+              <button onclick="(function(btn){var det=document.getElementById('${uid}').querySelector('.pipe-det');var open=det.style.display!=='none';det.style.display=open?'none':'block';btn.textContent=open?'รายละเอียด ▽':'△ ซ่อน';})(this)" style="margin-left:auto;background:none;border:1px solid var(--card-border,#cbd5e1);border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer;color:var(--text,#1e293b);white-space:nowrap;font-family:${FONT}">รายละเอียด ▽</button>
             </div>
+            <!-- Row 2: badge ชิดซ้าย -->
+            <div style="margin-bottom:5px">
+              <span style="display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;color:#fff;background:${tagBg};font-family:${FONT}">${tagText}</span>
+            </div>
+            <!-- Project name -->
             <div style="font-size:15px;color:var(--text);line-height:1.55;font-family:${FONT};font-weight:500">${UI.esc(b.name||b.agency)}</div>
           </div>
         </div>
@@ -3208,7 +3217,7 @@ const App = (() => {
           </div>
         </div>
         <div class="pipe-det" style="display:none;border-top:1px solid var(--card-border,#e2e8f0);background:var(--bg)">
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--card-border,#e2e8f0)">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr)">
             ${metaItems}
           </div>
           <div style="display:flex;align-items:center;padding:10px 16px;gap:0">${tl}</div>
