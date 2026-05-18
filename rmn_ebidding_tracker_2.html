@@ -2589,14 +2589,15 @@ const GovAPI = (() => {
 
   /** Fetch winner record for a project ID. Returns { hasWinner, raw } */
   async function fetchWinner(projectId) {
-    const data = await get('service/egp-winner', `project_id=${projectId}&offset=0&limit=3`);
+    const year = _yearFromId(projectId);
+    const data = await get('service/egp-winner', `year=${year}&project_id=${projectId}&offset=0&limit=3`);
     const results = data.data ?? data.result ?? []; // new API uses data.data
     return { hasWinner: results.length > 0, raw: results };
   }
 
   /** Fetch winner records by company keyword. Returns { results, total } */
-  async function searchWinner(keyword) {
-    const data = await get('service/egp-winner', `winner=${encodeURIComponent(keyword)}&offset=0&limit=20`);
+  async function searchWinner(keyword, year=2569) {
+    const data = await get('service/egp-winner', `year=${year}&winner=${encodeURIComponent(keyword)}&offset=0&limit=20`);
     const results = data.data ?? data.result ?? []; // new API uses data.data
     return { results, total: data.total ?? data.summary?.total ?? results.length };
   }
