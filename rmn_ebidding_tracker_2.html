@@ -4,73 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RMN e-Bidding Tracker 2569</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ── Design tokens ─────────────────────────────────────────────── */
+/* ── Design tokens — Claude brand palette ──────────────────────── */
 :root{
-  --blue:#1a5fa8; --blue-dk:#155090;
-  --green:#1a8a4a; --red:#a00;
-  --bg:#f8f9fa; --surface:#fff;
-  --border:#e5e7eb; --text:#1a1a1a; --muted:#666;
+  --accent:#d97757; --accent-dk:#c4633e;
+  --blue:#6a9bcc;   --blue-dk:#5585b5;
+  --green:#788c5d;  --red:#c0392b;
+  --bg:#faf9f5; --surface:#ffffff;
+  --border:#e8e6dc; --text:#141413; --muted:#b0aea5;
   --radius:10px; --radius-sm:7px;
-  --shadow:0 1px 4px rgba(0,0,0,.08);
-  --pipe-alt:#eef3ff;
+  --shadow:0 1px 6px rgba(20,20,19,.09);
+  --pipe-alt:#f5f3ee;
+  --card-border:#e8e6dc;
+  --pill-bg:#f0ede6; --pill-active:var(--accent);
 }
 html.dark{
-  --blue:#4a9eff;--blue-dk:#3a8eef;
-  --green:#4ade80;--red:#f87171;
-  --bg:#0d1117;--surface:#161b22;
-  --border:#30363d;--text:#e6edf3;--muted:#8b949e;
-  --shadow:0 2px 8px rgba(0,0,0,.6);
-  --navy:#79c0ff;--navy-dk:#58a6ff;
-  --card-border:#30363d;
-  --pill-bg:#21262d;--pill-active:#1f6feb;
-  --pipe-alt:#1a1f2e;
+  --accent:#d97757; --accent-dk:#c4633e;
+  --blue:#6a9bcc;   --blue-dk:#5585b5;
+  --green:#8faa6e;  --red:#e05c4b;
+  --bg:#1c1b18;--surface:#252320;
+  --border:#3a3733;--text:#faf9f5;--muted:#857f76;
+  --shadow:0 2px 10px rgba(0,0,0,.55);
+  --navy:#6a9bcc;--navy-dk:#5585b5;
+  --card-border:#3a3733;
+  --pill-bg:#2e2c28;--pill-active:var(--accent);
+  --pipe-alt:#1f1e1b;
 }
-html.dark .metric-sub,html.dark .entity-tag{color:#8b949e}
-html.dark .empty{color:#8b949e}
-html.dark label{color:#8b949e}
-html.dark td{border-bottom-color:#21262d}
-html.dark .btn:hover{background:#21262d}
-html.dark .btn-primary{background:#e6edf3;color:#0d1117}
-html.dark .btn-primary:hover{background:#b1bac4}
-html.dark .b-contract{background:#0d3321;color:#56d364}
-html.dark .b-winner{background:#0c2d3f;color:#79c0ff}
-html.dark .b-pending{background:#2f2008;color:#e3b341}
-html.dark .b-win-price{background:#051d2c;color:#58c8e8}
-html.dark .b-lose-price{background:#2c1a00;color:#ffa657}
-html.dark .b-win-pending{background:#051d2c;color:#58c8e8}
-html.dark .b-lose-pending{background:#2c1a00;color:#ffa657}
-html.dark .b-disqualified{background:#300808;color:#fca5a5}
-html.dark .b-lose{background:#300808;color:#f85149}
-html.dark .b-cancelled{background:#21262d;color:#8b949e}
-html.dark .b-withdrawn{background:#2d1a3d;color:#c084fc}
-html.dark .b-new{background:#21262d;color:#8b949e}
-html.dark .bar{background:#21262d}
-html.dark .spinner{border-color:#30363d;border-top-color:var(--blue)}
-html.dark .refresh-banner{background:#1a2008;border-color:#d97706;color:#e6edf3}
-html.dark .progress-wrap{background:#161b22;border:1px solid #30363d}
-html.dark .progress-bar{background:#21262d}
-html.dark .api-note{background:#051d2c;border-color:#1f6feb;color:#58a6ff}
-html.dark .proj-card{background:#161b22;border-color:#30363d}
-html.dark .proj-card:hover{border-color:#1f6feb;box-shadow:0 4px 12px rgba(0,0,0,.5)}
-html.dark .proj-card-header{background:#0d1f3c;border-bottom-color:#1f6feb}
-html.dark .proj-meta-item-val{color:#e6edf3 !important}
-html.dark .proj-card-name{color:#8b949e !important;border-bottom-color:#21262d}
-html.dark .proj-fin-item{background:#0d1117;border-color:#30363d}
-html.dark .proj-fin-item:last-child{background:#0a1f12;border-color:#30363d}
-html.dark .proj-fin-label{color:#8b949e}
-html.dark .proj-id-label,.html.dark .proj-status-label{color:#8b949e}
-html.dark .proj-id-value{color:#79c0ff}
-html.dark .proj-status-value{color:#f85149}
-html.dark .proj-fin-item{background:#0d1117;border-color:#30363d}
-html.dark .proj-fin-value{color:#e6edf3}
-html.dark .report-section-title{color:#79c0ff;border-bottom-color:#30363d}
-html.dark .win-tl-item{border-bottom-color:#21262d}
-html.dark .win-tl-name{color:#e6edf3}
-html.dark .win-tl-meta{color:#8b949e}
-html.dark .tl-dot{background:#21262d;border-color:#0d1117;box-shadow:0 0 0 1.5px #30363d}
-html.dark .tl-line{background:#30363d}
-html.dark .tl-step-label{color:#8b949e}
+html.dark .metric-sub,html.dark .entity-tag{color:var(--muted)}
+html.dark .empty{color:var(--muted)}
+html.dark label{color:var(--muted)}
+html.dark td{border-bottom-color:#2e2c28}
+html.dark .btn:hover{background:#2e2c28}
+html.dark .btn-primary{background:#faf9f5;color:#141413}
+html.dark .btn-primary:hover{background:#e8e6dc}
+html.dark .b-contract{background:#1a2510;color:#8faa6e}
+html.dark .b-winner{background:#1a2035;color:#6a9bcc}
+html.dark .b-pending{background:#2e2010;color:#d9a057}
+html.dark .b-win-price{background:#1a2035;color:#6a9bcc}
+html.dark .b-lose-price{background:#2e1a10;color:#d97757}
+html.dark .b-win-pending{background:#1a2035;color:#6a9bcc}
+html.dark .b-lose-pending{background:#2e1a10;color:#d97757}
+html.dark .b-disqualified{background:#2a1210;color:#e05c4b}
+html.dark .b-lose{background:#2a1210;color:#e05c4b}
+html.dark .b-cancelled{background:#2e2c28;color:var(--muted)}
+html.dark .b-withdrawn{background:#251f2e;color:#b09bcc}
+html.dark .b-new{background:#2e2c28;color:var(--muted)}
+html.dark .bar{background:#2e2c28}
+html.dark .spinner{border-color:#3a3733;border-top-color:var(--accent)}
+html.dark .refresh-banner{background:#2a2010;border-color:#d97757;color:#faf9f5}
+html.dark .progress-wrap{background:#252320;border:1px solid #3a3733}
+html.dark .progress-bar{background:#2e2c28}
+html.dark .api-note{background:#1a2035;border-color:#6a9bcc;color:#6a9bcc}
+html.dark .proj-card{background:#252320;border-color:#3a3733}
+html.dark .proj-card:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(0,0,0,.5)}
+html.dark .proj-card-header{background:#1f1e1b;border-bottom-color:#3a3733}
+html.dark .proj-meta-item-val{color:#faf9f5 !important}
+html.dark .proj-card-name{color:var(--muted) !important;border-bottom-color:#2e2c28}
+html.dark .proj-fin-item{background:#1c1b18;border-color:#3a3733}
+html.dark .proj-fin-item:last-child{background:#1a2510;border-color:#3a3733}
+html.dark .proj-fin-label{color:var(--muted)}
+html.dark .proj-id-label,.html.dark .proj-status-label{color:var(--muted)}
+html.dark .proj-id-value{color:#6a9bcc}
+html.dark .proj-status-value{color:#e05c4b}
+html.dark .proj-fin-value{color:#faf9f5}
+html.dark .report-section-title{color:#6a9bcc;border-bottom-color:#3a3733}
+html.dark .win-tl-item{border-bottom-color:#2e2c28}
+html.dark .win-tl-name{color:#faf9f5}
+html.dark .win-tl-meta{color:var(--muted)}
+html.dark .tl-dot{background:#2e2c28;border-color:#1c1b18;box-shadow:0 0 0 1.5px #3a3733}
+html.dark .tl-line{background:#3a3733}
+html.dark .tl-step-label{color:var(--muted)}
 /* ── Reset ─────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 /* บังคับเลข 0-9 ใช้ EucrosiaUPC ทั้งแอพ */
@@ -82,53 +86,58 @@ html.dark .tl-step-label{color:#8b949e}
   font-family:'AppFont';
   src:local('TH SarabunPSK'),local('Sarabun');
   unicode-range:U+0E00-U+0E7F,U+0020-U+002F,U+003A-U+007E}
-body{font-family:'AppFont','TH SarabunPSK','Sarabun',sans-serif;font-size:12px;background:var(--bg);color:var(--text)}
+body{font-family:'Poppins','AppFont','TH SarabunPSK','Sarabun',sans-serif;font-size:14px;
+  background:var(--bg);min-height:100vh;color:var(--text)}
+h1,h2,h3,.dash-title,.kpi-value,.card-title,.report-title{font-family:'Poppins',sans-serif}
+/* ── Transparent scrollbar ─────────────────────────────────────── */
+#wins-timeline-dash::-webkit-scrollbar{width:4px}
+#wins-timeline-dash::-webkit-scrollbar-track{background:transparent}
+#wins-timeline-dash::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:99px}
+#wins-timeline-dash::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.35)}
+html:not(.dark) #wins-timeline-dash::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15)}
+html:not(.dark) #wins-timeline-dash::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}
+#wins-timeline-dash{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
 /* ── Layout ────────────────────────────────────────────────────── */
 .app{max-width:1200px;margin:0 auto;padding:1rem}
 .topbar{display:flex;justify-content:space-between;align-items:center;
   margin-bottom:1.2rem;flex-wrap:wrap;gap:8px;
-  background:var(--surface);padding:1rem 1.2rem;
-  border-radius:var(--radius);box-shadow:var(--shadow)}
-.logo-area h1{font-size:17px;font-weight:700}
-.logo-area p{font-size:12px;color:var(--muted)}
+  background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.09);
+  padding:1rem 1.2rem;border-radius:var(--radius);box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
+.logo-area h1{font-size:19px;font-weight:700}
+.logo-area h1{color:#faf9f5}
+.logo-area p{font-size:14px;color:rgba(250,249,245,.55)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:600px){.two-col,.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:1}}
 /* ── Tabs ──────────────────────────────────────────────────────── */
-.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.2rem;
-  background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;
-  padding:.5rem 1rem 0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.tab{padding:9px 16px;font-size:13px;cursor:pointer;border:none;background:none;
-  color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:1.2rem;
+  background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:var(--radius) var(--radius) 0 0;padding:.5rem 1rem 0}
+.tab{padding:9px 16px;font-size:15px;cursor:pointer;border:none;background:none;
+  color:rgba(250,249,245,.45);border-bottom:2px solid transparent;margin-bottom:-2px;
   font-family:inherit;font-weight:500}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+.tab.active{color:#faf9f5;border-bottom-color:var(--accent);font-weight:700}
 .section{display:none}.section.active{display:block}
-#tab-dashboard{
-  background:linear-gradient(160deg,#0d1b2a 0%,#12263a 35%,#0f1f35 65%,#130f24 100%);
-  border-radius:var(--radius);padding:.2rem;margin-bottom:.5rem}
-html:not(.dark) #tab-dashboard{
-  background:linear-gradient(160deg,#1e3a5f 0%,#1a4731 40%,#3b1f5e 100%)}
-/* ── Cards ─────────────────────────────────────────────────────── */
-.card{background:var(--surface);border-radius:var(--radius);padding:1.1rem;
-  margin-bottom:1rem;box-shadow:var(--shadow)}
-/* ── Glassmorphism cards ───────────────────────────────────────── */
-.glass{background:rgba(255,255,255,.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:1.1rem;
-  margin-bottom:1rem;box-shadow:0 4px 24px rgba(0,0,0,.35);color:#e6edf3}
-.glass.g-purple{border-top:2px solid #a78bfa;background:rgba(139,92,246,.08)}
-.glass.g-blue  {border-top:2px solid #38bdf8;background:rgba(56,189,248,.08)}
-.glass.g-green {border-top:2px solid #34d399;background:rgba(52,211,153,.08)}
-.glass.g-amber {border-top:2px solid #fbbf24;background:rgba(251,191,36,.07)}
-.glass.g-slate {border-top:2px solid #94a3b8;background:rgba(148,163,184,.07)}
-html:not(.dark) .glass{background:rgba(255,255,255,.82);backdrop-filter:blur(14px);
-  border:1px solid rgba(0,0,0,.1);color:#1a1a1a;box-shadow:0 4px 20px rgba(0,0,0,.12)}
-html:not(.dark) .glass .card-title{color:#374151 !important}
-html:not(.dark) .glass.g-purple{border-top:2px solid #7c3aed;background:rgba(255,255,255,.85)}
-html:not(.dark) .glass.g-blue  {border-top:2px solid #0284c7;background:rgba(255,255,255,.85)}
-html:not(.dark) .glass.g-green {border-top:2px solid #059669;background:rgba(255,255,255,.85)}
-html:not(.dark) .glass.g-amber {border-top:2px solid #d97706;background:rgba(255,255,255,.85)}
-html:not(.dark) .glass.g-slate {border-top:2px solid #475569;background:rgba(255,255,255,.85)}
-.card-title{font-size:12px;font-weight:700;margin-bottom:1rem;
-  color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+#tab-dashboard{padding:.2rem;margin-bottom:.5rem}
+/* ── Cards — dark glass everywhere ─────────────────────────────── */
+.card,.glass,.sc,.kpi-card,.topbar,.tabs{
+  --text:#faf9f5; --muted:rgba(250,249,245,.55);
+  --border:rgba(255,255,255,.1); --surface:rgba(255,255,255,.06);
+  --bg:rgba(255,255,255,.04); --card-border:rgba(255,255,255,.09);
+  --pipe-alt:rgba(255,255,255,.09)}
+.card{background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.09);border-radius:var(--radius);padding:1.1rem;
+  margin-bottom:1rem;box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
+/* ── Glassmorphism cards — dark glass, all modes ───────────────── */
+.glass{background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.09);border-radius:var(--radius);padding:1.1rem;
+  margin-bottom:1rem;box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
+.glass.g-orange{border-top:2px solid #d97757}
+.glass.g-green {border-top:2px solid #788c5d}
+.glass.g-black {border-top:2px solid rgba(255,255,255,.2)}
+.card-title{font-size:14px;font-weight:700;margin-bottom:1rem;
+  color:rgba(250,249,245,.55);text-transform:uppercase;letter-spacing:.05em}
 /* ── Metrics ───────────────────────────────────────────────────── */
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
   gap:10px;margin-bottom:1.2rem}
@@ -140,13 +149,13 @@ html:not(.dark) .glass.g-slate {border-top:2px solid #475569;background:rgba(255
 .metric-sub{font-size:11px;color:#888;margin-top:2px}
 /* ── Buttons ───────────────────────────────────────────────────── */
 .btn{padding:8px 15px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;
-  border:1.5px solid var(--border);background:var(--surface);
+  border:1.5px solid var(--card-border);background:var(--bg);
   color:var(--text);font-family:inherit;white-space:nowrap;font-weight:500}
-.btn:hover{background:#f3f4f6}
+.btn:hover{background:var(--pipe-alt)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-primary{background:var(--text);color:var(--surface);border-color:var(--text)}.btn-primary:hover{background:#333}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-primary:hover{background:var(--accent-dk)}
 .btn-api{background:var(--blue);color:var(--surface);border-color:var(--blue)}.btn-api:hover{background:var(--blue-dk)}
-.btn-green{background:var(--green);color:var(--surface);border-color:var(--green)}.btn-green:hover{opacity:.85}
+.btn-green{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-green:hover{background:var(--accent-dk)}
 .btn-sm{padding:4px 10px;font-size:11px}
 .btn-row{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
 /* ── Table ─────────────────────────────────────────────────────── */
@@ -184,7 +193,8 @@ tr:hover td{background:var(--bg)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-group.full{grid-column:1/-1}
-label{font-size:11px;color:#555;font-weight:600}
+label{font-size:11px;color:#666;font-weight:600}
+.card label,.glass label{color:rgba(250,249,245,.6)}
 input,select,textarea{
   padding:8px 10px;border:1.5px solid var(--border);
   border-radius:var(--radius-sm);font-size:13px;
@@ -216,9 +226,9 @@ textarea{resize:vertical;min-height:60px}
   padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-bottom:1rem}
 /* ── Dashboard header ──────────────────────────────────────────── */
 .dash-header{
-  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#1a5fa8 100%);
+  background:linear-gradient(135deg,#141413 0%,#2a1f17 55%,#3d2318 100%);
   border-radius:var(--radius);margin-bottom:1.2rem;
-  padding:1.4rem 1.6rem;color:#fff;position:relative;overflow:hidden}
+  padding:1.4rem 1.6rem;color:#faf9f5;position:relative;overflow:hidden}
 .dash-header::before{
   content:'';position:absolute;inset:0;
   background:repeating-linear-gradient(135deg,
@@ -226,9 +236,9 @@ textarea{resize:vertical;min-height:60px}
   pointer-events:none}
 .dash-header-inner{display:flex;justify-content:space-between;align-items:flex-end;
   gap:1rem;flex-wrap:wrap;position:relative}
-.dash-title{font-size:20px;font-weight:800;letter-spacing:.01em}
-.dash-subtitle{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px}
-.dash-meta{font-size:11px;color:rgba(255,255,255,.6);text-align:right}
+.dash-title{font-size:22px;font-weight:800;letter-spacing:.01em}
+.dash-subtitle{font-size:14px;color:rgba(255,255,255,.6);margin-top:3px}
+.dash-meta{font-size:13px;color:rgba(255,255,255,.6);text-align:right}
 .dash-meta strong{color:#7dd3fc;display:block;margin-top:2px}
 /* ── Dashboard status chips ─────────────────────────────────────── */
 /* ── Status cards (new) ─────────────────────────────────────── */
@@ -236,28 +246,30 @@ textarea{resize:vertical;min-height:60px}
   display:grid;grid-template-columns:repeat(2,1fr);
   gap:10px;margin-bottom:1.2rem}
 @media(min-width:900px){.dash-status-row{grid-template-columns:repeat(4,1fr)}}
-.sc{background:var(--surface);border:1px solid var(--card-border,#e2e8f0);
-  border-radius:12px;overflow:hidden;
+.sc{background:rgba(20,20,19,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;overflow:hidden;color:#faf9f5;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);
   font-family:'TH SarabunPSK','Sarabun',sans-serif}
-.sc-head{padding:6px 12px 5px;font-size:11px;font-weight:700;
-  letter-spacing:.06em;color:#fff;
+.sc-head{padding:7px 12px 6px;font-size:14px;font-weight:700;
+  letter-spacing:.04em;color:#faf9f5;
   display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.07);
   font-family:'TH SarabunPSK','Sarabun',sans-serif}
-.sc-head.h-win   {background:#059669}
-.sc-head.h-pend  {background:#1d4ed8}
-.sc-head.h-lose  {background:#dc2626}
-.sc-head.h-cancel{background:#4b5563}
-.sc-row{display:flex;align-items:center;padding:5px 12px;gap:8px;
-  border-bottom:1px solid var(--bg,#f1f5f9)}
+.sc-head.h-win   {border-top:2px solid #788c5d}
+.sc-head.h-pend  {border-top:2px solid #6a9bcc}
+.sc-head.h-lose  {border-top:2px solid #d97757}
+.sc-head.h-cancel{border-top:2px solid rgba(255,255,255,.25)}
+.sc-row{display:flex;align-items:center;padding:6px 12px;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.06)}
 .sc-row:last-child{border-bottom:none}
 .sc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sc-lbl{font-size:13px;color:var(--text);flex:1;
+.sc-lbl{font-size:15px;color:rgba(250,249,245,.8);flex:1;
   font-family:'TH SarabunPSK','Sarabun',sans-serif}
-.sc-n{font-size:16px;font-weight:600;color:var(--text);
-  font-family:'Helvetica Neue','Arial',sans-serif;
-  font-variant-numeric:lining-nums;
+.sc-n{font-size:18px;font-weight:700;color:#faf9f5;
+  font-family:'Poppins','Helvetica Neue','Arial',sans-serif;
   min-width:22px;text-align:right}
-.sc-n.zero{color:var(--muted)}
+.sc-n.zero{color:rgba(250,249,245,.35)}
 .sd-contract {background:#059669}
 .sd-winner   {background:#0284c7}
 .sd-winpend  {background:#1d4ed8}
@@ -301,25 +313,23 @@ textarea{resize:vertical;min-height:60px}
   position:relative;overflow:hidden;
   border-radius:var(--radius);
   padding:1.5rem 1.6rem;
-  color:#fff;
-  box-shadow:0 4px 14px rgba(43,57,144,.18)}
-.kpi-card.blue{background:linear-gradient(135deg,var(--kpi-blue-1) 0%,var(--kpi-blue-2) 100%)}
-.kpi-card.green{background:linear-gradient(135deg,var(--kpi-green-1) 0%,var(--kpi-green-2) 100%)}
-.kpi-card.purple{background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%)}
-.kpi-card.orange{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)}
-.kpi-card::before{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(135deg,
-    transparent 0 24px,rgba(255,255,255,.05) 24px 25px);
-  pointer-events:none}
+  color:#faf9f5;
+  background:rgba(20,20,19,.45);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.kpi-card.blue  {border-top:2px solid #6a9bcc}
+.kpi-card.green {border-top:2px solid #788c5d}
+.kpi-card.purple{border-top:2px solid #d97757}
+.kpi-card.orange{border-top:2px solid #d97757}
 .kpi-card-inner{position:relative;z-index:1}
 .kpi-icon{
   display:inline-flex;align-items:center;justify-content:center;
   width:36px;height:36px;border-radius:8px;
-  background:rgba(255,255,255,.15);font-size:18px;margin-bottom:10px}
-.kpi-label{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:4px}
-.kpi-value{font-size:30px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
-.kpi-unit{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px}
+  background:rgba(255,255,255,.1);font-size:18px;margin-bottom:10px}
+.kpi-label{font-size:14px;font-weight:500;color:rgba(250,249,245,.65);margin-bottom:4px}
+.kpi-value{font-size:32px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#faf9f5}
+.kpi-unit{font-size:14px;color:rgba(250,249,245,.55);margin-top:4px}
 
 /* Filter pills */
 .report-pills{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
@@ -553,24 +563,24 @@ body.view-mode [data-edit-only] { display: none !important; }
     <div class="kpi-grid" id="dash-kpi"></div>
     <div class="dash-status-row" id="dash-status"></div>
     <div class="two-col">
-      <div class="glass g-slate">
-        <div class="card-title" style="color:#94a3b8">💼 วงเงิน SME ต่อห้าง</div><div id="dash-sme"></div></div>
-      <div class="glass g-blue">
-        <div class="card-title" style="color:#38bdf8">🏛️ Top หน่วยงาน (จำนวนโครงการ)</div>
+      <div class="glass g-green">
+        <div class="card-title" style="color:#788c5d">💼 วงเงิน SME ต่อห้าง</div><div id="dash-sme"></div></div>
+      <div class="glass g-orange">
+        <div class="card-title" style="color:#d97757">🏛️ Top หน่วยงาน (จำนวนโครงการ)</div>
         <div id="agency-bars"></div>
       </div>
     </div>
     <div class="two-col" style="margin-top:0">
-      <div class="glass g-purple">
-        <div class="card-title" style="color:#c4b5fd">🥊 คู่แข่งที่ได้งานไปแทน (จำนวนครั้ง)</div>
+      <div class="glass g-orange">
+        <div class="card-title" style="color:#d97757">🥊 คู่แข่งที่ได้งานไปแทน (จำนวนครั้ง)</div>
         <div id="competitor-bars"></div>
       </div>
       <div class="glass g-green">
-        <div class="card-title" style="color:#34d399">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
+        <div class="card-title" style="color:#788c5d">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
     </div>
-    <div class="glass g-amber" style="margin-top:0">
-      <div class="card-title" style="color:#fbbf24">📋 Timeline การประมูลโครงการล่าสุด</div>
-      <div id="wins-timeline-dash"></div>
+    <div class="glass g-black" style="margin-top:0">
+      <div class="card-title" style="color:rgba(255,255,255,.5)">📋 Timeline การประมูลโครงการล่าสุด</div>
+      <div id="wins-timeline-dash" style="max-height:420px;overflow-y:auto;padding-right:4px"></div>
     </div>
   </div>
 
@@ -3081,7 +3091,7 @@ const App = (() => {
   /** Lose bids as compact list */
   function renderBidTimeline(allBids, targetId) {
     const { STATUS } = CONFIG;
-    const recent = [...allBids].sort((a,b) => (b.date??'').localeCompare(a.date??'')).slice(0,15);
+    const recent = [...allBids].sort((a,b) => (b.date??'').localeCompare(a.date??''));
     const statusMeta = s => {
       if(s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)  return {text:'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',        bg:'#1d4ed8'};
       if(s===STATUS.LOSE_PENDING||s===STATUS.LOSE_PRICE)                    return {text:'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',   bg:'#d97706'};
@@ -3117,22 +3127,22 @@ const App = (() => {
         lastMonthKey = monthKey;
       }
       return divider + `
-        <div style="background:var(--surface);border:1px solid var(--card-border);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
-          <div style="width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid var(--card-border);background:var(--bg)">
-            <span style="font-size:20px;font-weight:700;color:var(--text);line-height:1">${d[2]||'—'}</span>
-            <span style="font-size:10px;color:var(--muted);margin-top:2px">${mon} ${(d[0]||'').slice(-2)}</span>
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
+          <div style="width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04)">
+            <span style="font-size:22px;font-weight:700;color:var(--accent);line-height:1">${d[2]||'—'}</span>
+            <span style="font-size:11px;color:var(--text);opacity:.6;margin-top:2px">${mon} ${(d[0]||'').slice(-2)}</span>
           </div>
           <div style="flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:4px;min-width:0">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:4px">
-              <span style="font-size:13px;font-weight:700;color:var(--text)">${UI.esc(b.agency)}</span>
-              <span style="font-size:10px;color:var(--muted);flex-shrink:0">${UI.esc(b.id||'')}</span>
-              <span style="margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;color:#fff;background:${bg};white-space:nowrap;flex-shrink:0">${text}</span>
+              <span style="font-size:15px;font-weight:700;color:var(--text)">${UI.esc(b.agency)}</span>
+              <span style="font-size:11px;color:var(--muted);flex-shrink:0">${UI.esc(b.id||'')}</span>
+              <span style="margin-left:auto;font-size:11px;font-weight:700;padding:2px 10px;border-radius:3px;color:#fff;background:${bg};white-space:nowrap;flex-shrink:0">${text}</span>
             </div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.5">${UI.esc(b.name||b.agency)}</div>
-            <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+            <div style="font-size:13px;color:var(--text);opacity:.75;line-height:1.5">${UI.esc(b.name||b.agency)}</div>
+            <div style="display:flex;gap:16px;font-size:13px;color:var(--text);opacity:.7;flex-wrap:wrap">
               <span>งบ ${b.budget ? UI.fmt(b.budget) : '—'}</span>
               <span>กลาง ${b.midPrice ? UI.fmt(b.midPrice) : '—'}</span>
-              <span style="color:#16a34a;font-weight:600">ยื่น ฿${UI.fmt(b.bid)} · ลด ${pctStr}</span>
+              <span style="color:#d97757;font-weight:700;opacity:1">ยื่น ฿${UI.fmt(b.bid)} · ลด ${pctStr}</span>
             </div>
           </div>
         </div>`;
@@ -3459,7 +3469,7 @@ const App = (() => {
         <div class="kpi-value">${winRate}%</div>
         <div class="kpi-unit">${won}/${decided} โครงการที่รู้ผล</div>
       </div></div>
-      <div class="kpi-card" style="background:linear-gradient(135deg,#0f4c5c,#0a3344)"><div class="kpi-card-inner">
+      <div class="kpi-card" style="border-top:2px solid #d9a057"><div class="kpi-card-inner">
         <div class="kpi-icon">📉</div>
         <div class="kpi-label">% ลดราคาเฉลี่ย</div>
         <div class="kpi-value">${avgDrop}%</div>
@@ -3504,9 +3514,9 @@ const App = (() => {
       .sort(([, a], [, b]) => b - a)
       .map(([p, c]) => `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px">
-          <span style="width:90px;color:${_dk?'#86efac':'#065f46'}">${p}</span>
-          <div class="bar" style="flex:1;background:${_dk?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)'}"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%;background:#34d399"></div></div>
-          <span style="font-weight:700;width:20px;color:${_dk?'#e6edf3':'#064e3b'}">${c}</span>
+          <span style="width:90px;color:rgba(250,249,245,.8)">${p}</span>
+          <div class="bar" style="flex:1;background:rgba(255,255,255,.1)"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%;background:#788c5d"></div></div>
+          <span style="font-weight:700;width:20px;color:#faf9f5">${c}</span>
         </div>`).join(''));
 
     // SME mini card
@@ -3524,14 +3534,14 @@ const App = (() => {
       const left  = Math.max(SME_LIMIT - used, 0);
       const color = pct >= 95 ? 'var(--red)' : pct >= 80 ? '#f59e0b' : 'var(--green)';
       return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-          <span style="font-weight:700;color:var(--text)">${UI.esc(e)}</span>
-          <span style="color:var(--muted)">เหลือ <strong style="color:${color}">${UI.fmt(left)}</strong> / 300M</span>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span style="font-weight:700;color:#faf9f5">${UI.esc(e)}</span>
+          <span style="color:rgba(250,249,245,.6)">เหลือ <strong style="color:${color}">${UI.fmt(left)}</strong> / 300M</span>
         </div>
-        <div style="background:var(--border);border-radius:4px;overflow:hidden;height:10px">
+        <div style="background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;height:10px">
           <div style="height:100%;width:${pct.toFixed(1)}%;background:${color};transition:width .4s"></div>
         </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">ใช้ไป ${UI.fmt(used)} (${pct.toFixed(1)}%)</div>
+        <div style="font-size:12px;color:rgba(250,249,245,.5);margin-top:3px">ใช้ไป ${UI.fmt(used)} (${pct.toFixed(1)}%)</div>
       </div>`;
     }).join('') : '<div class="empty" style="font-size:11px">ยังไม่มีข้อมูล</div>');
 
@@ -3551,12 +3561,12 @@ const App = (() => {
     UI.setHTML('competitor-bars', compEntries.length
       ? compEntries.map(([name, c], i) => `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-            <span style="width:16px;font-weight:700;color:${_dk?'#a78bfa':'#7c3aed'};text-align:right">${i+1}.</span>
-            <span style="flex:1;color:${_dk?'#e9d5ff':'#4c1d95'}">${name}</span>
-            <div class="bar" style="width:100px;background:${_dk?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)'}"><div class="bar-fill" style="width:${Math.round(c / maxComp * 100)}%;background:#a78bfa"></div></div>
-            <span style="font-weight:700;width:24px;text-align:right;color:${_dk?'#e6edf3':'#1a1a1a'}">${c}</span>
+            <span style="width:16px;font-weight:700;color:#d97757;text-align:right">${i+1}.</span>
+            <span style="flex:1;color:rgba(250,249,245,.85)">${name}</span>
+            <div class="bar" style="width:100px;background:rgba(255,255,255,.1)"><div class="bar-fill" style="width:${Math.round(c / maxComp * 100)}%;background:#d97757"></div></div>
+            <span style="font-weight:700;width:24px;text-align:right;color:#faf9f5">${c}</span>
           </div>`).join('')
-      : `<div style="color:${_dk?'rgba(255,255,255,.4)':'#9ca3af'};font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูลคู่แข่ง</div>`);
+      : `<div style="color:rgba(250,249,245,.35);font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูลคู่แข่ง</div>`);
 
     // Top agency leaderboard (by bid count)
     const agencyMap = {};
@@ -3571,12 +3581,12 @@ const App = (() => {
     UI.setHTML('agency-bars', agencyEntries.length
       ? agencyEntries.map(([name, c], i) => `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
-            <span style="width:16px;font-weight:700;color:${_dk?'#7dd3fc':'#0284c7'};text-align:right">${i+1}.</span>
-            <span style="flex:1;color:${_dk?'#bae6fd':'#0c4a6e'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${name}">${name}</span>
-            <div class="bar" style="width:100px;background:${_dk?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)'}"><div class="bar-fill" style="width:${Math.round(c / maxAgency * 100)}%;background:#38bdf8"></div></div>
-            <span style="font-weight:700;width:24px;text-align:right;color:${_dk?'#e6edf3':'#1a1a1a'}">${c}</span>
+            <span style="width:16px;font-weight:700;color:#6a9bcc;text-align:right">${i+1}.</span>
+            <span style="flex:1;color:rgba(250,249,245,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${name}">${name}</span>
+            <div class="bar" style="width:100px;background:rgba(255,255,255,.1)"><div class="bar-fill" style="width:${Math.round(c / maxAgency * 100)}%;background:#6a9bcc"></div></div>
+            <span style="font-weight:700;width:24px;text-align:right;color:#faf9f5">${c}</span>
           </div>`).join('')
-      : `<div style="color:${_dk?'rgba(255,255,255,.4)':'#9ca3af'};font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูล</div>`);
+      : `<div style="color:rgba(250,249,245,.35);font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูล</div>`);
   }
 
   function metric(label, value, sub = '', color = '', fontSize = '24px') {
@@ -4071,9 +4081,9 @@ document.getElementById('records-list').addEventListener('change', e => {
 
 App.renderDash();
 
-// Dark theme — default on, persisted in localStorage
+// Light theme — default, persisted in localStorage
 (function(){
-  const t = localStorage.getItem('rmn_theme') ?? 'dark';
+  const t = localStorage.getItem('rmn_theme') ?? 'light';
   if (t === 'dark') document.documentElement.classList.add('dark');
   const btn = document.getElementById('theme-btn');
   if (btn) btn.textContent = document.documentElement.classList.contains('dark') ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
