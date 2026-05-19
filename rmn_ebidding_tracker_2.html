@@ -2488,7 +2488,7 @@ const SEED_BIDS = [
     "budget": 1212000,
     "midPrice": 1629602,
     "bid": 998000,
-    "pct": 17.65,
+    "pct": 38.76,
     "entity": "ห้างหุ้นส่วน RMN",
     "status": "รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด",
     "date": "2569-05-19",
@@ -4111,45 +4111,4 @@ const App = (() => {
 
 /* Boot — pill filter for report tab */
 document.querySelector('.report-pills').addEventListener('click', e => {
-  const pill = e.target.closest('.pill');
-  if (!pill) return;
-  document.querySelectorAll('.report-pills .pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  App._setReportFilter(pill.dataset.filter);
-});
-
-/* Boot — delegated listener on records-list for card action buttons */
-document.getElementById('records-list').addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]');
-  if (!btn) return;
-  const { action, id } = btn.dataset;
-  if (action === 'check')  App.checkOne(id);
-  if (action === 'edit')   App.editBid(id);
-  if (action === 'delete') App.deleteBid(id);
-});
-
-document.getElementById('records-list').addEventListener('change', e => {
-  const sel = e.target.closest('[data-action="quickstatus"]');
-  if (!sel || !sel.value) return;
-  Store.updateStatus(sel.dataset.id, sel.value);
-  App.renderTable();
-  App.renderDash();
-});
-
-App.renderDash();
-
-function copyViewLink() {
-  const url = new URL(window.location.href);
-  url.searchParams.set('view', '1');
-  navigator.clipboard.writeText(url.toString()).catch(() => {});
-  const toast = document.getElementById('toast');
-  if (toast) {
-    toast.textContent = '🔗 คัดลอก Share Link แล้ว!';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-}
-</script>
-</body>
-</html>
   const pill = e.target.closest('.pil
