@@ -11,13 +11,13 @@
   --accent:#d97757; --accent-dk:#c4633e;
   --blue:#6a9bcc;   --blue-dk:#5585b5;
   --green:#788c5d;  --red:#c0392b;
-  --bg:#faf9f5; --surface:#ffffff;
-  --border:#e8e6dc; --text:#141413; --muted:#b0aea5;
-  --radius:10px; --radius-sm:7px;
-  --shadow:0 1px 6px rgba(20,20,19,.09);
-  --pipe-alt:#f5f3ee;
-  --card-border:#e8e6dc;
-  --pill-bg:#f0ede6; --pill-active:var(--accent);
+  --bg:#f8f7f3; --surface:#ffffff;
+  --border:#eae8e2; --text:#1a1917; --muted:#a8a59d;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 3px rgba(20,20,19,.06),0 2px 8px rgba(20,20,19,.04);
+  --pipe-alt:#f3f1ea;
+  --card-border:#eae8e2;
+  --pill-bg:#eeece6; --pill-active:var(--accent);
 }
 html.dark{
   --accent:#d97757; --accent-dk:#c4633e;
@@ -86,7 +86,7 @@ html.dark .tl-step-label{color:var(--muted)}
   font-family:'AppFont';
   src:local('TH SarabunPSK'),local('Sarabun');
   unicode-range:U+0E00-U+0E7F,U+0020-U+002F,U+003A-U+007E}
-body{font-family:'Poppins','AppFont','TH SarabunPSK','Sarabun',sans-serif;font-size:14px;
+body{font-family:'Poppins','AppFont','TH SarabunPSK','Sarabun',sans-serif;font-size:13.5px;
   background:var(--bg);min-height:100vh;color:var(--text)}
 h1,h2,h3,.dash-title,.kpi-value,.card-title,.report-title{font-family:'Poppins',sans-serif}
 /* ── Transparent scrollbar ─────────────────────────────────────── */
@@ -100,24 +100,25 @@ html:not(.dark) #wins-timeline-dash::-webkit-scrollbar-thumb:hover{background:rg
 /* ── Layout ────────────────────────────────────────────────────── */
 .app{max-width:1200px;margin:0 auto;padding:1rem}
 .topbar{display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:1.2rem;flex-wrap:wrap;gap:8px;
-  background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.09);
-  padding:1rem 1.2rem;border-radius:var(--radius);box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
+  margin-bottom:1rem;flex-wrap:wrap;gap:8px;
+  background:rgba(22,21,18,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.07);
+  padding:.85rem 1.2rem;border-radius:var(--radius);box-shadow:0 2px 16px rgba(0,0,0,.35);color:#faf9f5}
 .logo-area h1{font-size:19px;font-weight:700}
 .logo-area h1{color:#faf9f5}
 .logo-area p{font-size:14px;color:rgba(250,249,245,.55)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:600px){.two-col,.form-grid{grid-template-columns:1fr}.form-group.full{grid-column:1}}
 /* ── Tabs ──────────────────────────────────────────────────────── */
-.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:1.2rem;
-  background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.09);
-  border-radius:var(--radius) var(--radius) 0 0;padding:.5rem 1rem 0}
-.tab{padding:9px 16px;font-size:15px;cursor:pointer;border:none;background:none;
-  color:rgba(250,249,245,.45);border-bottom:2px solid transparent;margin-bottom:-2px;
-  font-family:inherit;font-weight:500}
-.tab.active{color:#faf9f5;border-bottom-color:var(--accent);font-weight:700}
+.tabs{display:flex;margin-bottom:1rem;
+  background:rgba(22,21,18,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--radius) var(--radius) 0 0;padding:.4rem .8rem 0}
+.tab{padding:8px 15px;font-size:14px;cursor:pointer;border:none;background:none;
+  color:rgba(250,249,245,.4);border-bottom:2px solid transparent;margin-bottom:-1px;
+  font-family:inherit;font-weight:500;letter-spacing:.01em;transition:color .15s}
+.tab:hover:not(.active){color:rgba(250,249,245,.7)}
+.tab.active{color:#faf9f5;border-bottom-color:var(--accent);font-weight:600}
 .section{display:none}.section.active{display:block}
 #tab-dashboard{padding:.2rem;margin-bottom:.5rem}
 /* ── Cards — dark glass everywhere ─────────────────────────────── */
@@ -188,8 +189,8 @@ tr:hover td{background:var(--bg)}
 .bar{height:7px;border-radius:4px;background:#f0f0f0;margin-top:3px}
 .bar-fill{height:100%;border-radius:4px;background:var(--blue)}
 /* ── Form ──────────────────────────────────────────────────────── */
-.filter-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
-.filter-row input,.filter-row select{flex:1;min-width:120px}
+.filter-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.filter-row input,.filter-row select{flex:1;min-width:120px;border-radius:99px !important;padding:7px 14px !important}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-group.full{grid-column:1/-1}
@@ -226,14 +227,9 @@ textarea{resize:vertical;min-height:60px}
   padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-bottom:1rem}
 /* ── Dashboard header ──────────────────────────────────────────── */
 .dash-header{
-  background:linear-gradient(135deg,#141413 0%,#2a1f17 55%,#3d2318 100%);
-  border-radius:var(--radius);margin-bottom:1.2rem;
-  padding:1.4rem 1.6rem;color:#faf9f5;position:relative;overflow:hidden}
-.dash-header::before{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(135deg,
-    transparent 0 18px,rgba(255,255,255,.025) 18px 19px);
-  pointer-events:none}
+  background:linear-gradient(135deg,#1a1917 0%,#2c2018 100%);
+  border-radius:var(--radius);margin-bottom:1rem;
+  padding:1.25rem 1.5rem;color:#faf9f5;position:relative;overflow:hidden}
 .dash-header-inner{display:flex;justify-content:space-between;align-items:flex-end;
   gap:1rem;flex-wrap:wrap;position:relative}
 .dash-title{font-size:22px;font-weight:800;letter-spacing:.01em}
@@ -246,10 +242,10 @@ textarea{resize:vertical;min-height:60px}
   display:grid;grid-template-columns:repeat(2,1fr);
   gap:10px;margin-bottom:1.2rem}
 @media(min-width:900px){.dash-status-row{grid-template-columns:repeat(4,1fr)}}
-.sc{background:rgba(20,20,19,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:12px;overflow:hidden;color:#faf9f5;
-  box-shadow:0 4px 24px rgba(0,0,0,.4);
+.sc{background:rgba(22,21,18,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--radius);overflow:hidden;color:#faf9f5;
+  box-shadow:0 2px 12px rgba(0,0,0,.28);
   font-family:'TH SarabunPSK','Sarabun',sans-serif}
 .sc-head{padding:7px 12px 6px;font-size:14px;font-weight:700;
   letter-spacing:.04em;color:#faf9f5;
@@ -288,17 +284,12 @@ textarea{resize:vertical;min-height:60px}
   --status-new:#10b981;
 }
 .report-header{
-  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dk) 100%);
+  background:linear-gradient(135deg,#1e2a5e 0%,#15204a 100%);
   border-radius:var(--radius);
-  margin-bottom:1.2rem;
-  padding:1.25rem 1.5rem;
+  margin-bottom:1rem;
+  padding:1.1rem 1.4rem;
   color:#fff;
   position:relative;overflow:hidden}
-.report-header::before{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(135deg,
-    transparent 0 18px,rgba(255,255,255,.03) 18px 19px);
-  pointer-events:none}
 .report-header-inner{
   display:flex;justify-content:space-between;align-items:flex-end;
   gap:1rem;flex-wrap:wrap;position:relative}
@@ -312,23 +303,23 @@ textarea{resize:vertical;min-height:60px}
 .kpi-card{
   position:relative;overflow:hidden;
   border-radius:var(--radius);
-  padding:1.5rem 1.6rem;
-  color:#141413;
+  padding:1.25rem 1.4rem;
+  color:#1a1917;
   background:#ffffff;
-  border:1px solid #e8e6dc;
-  box-shadow:0 2px 8px rgba(20,20,19,.08)}
-.kpi-card.blue  {border-top:3px solid #6a9bcc}
-.kpi-card.green {border-top:3px solid #788c5d}
-.kpi-card.purple{border-top:3px solid #d97757}
-.kpi-card.orange{border-top:3px solid #d9a057}
+  border:1px solid #eae8e2;
+  box-shadow:0 1px 3px rgba(20,20,19,.05),0 2px 8px rgba(20,20,19,.03)}
+.kpi-card.blue  {border-left:3px solid #6a9bcc}
+.kpi-card.green {border-left:3px solid #788c5d}
+.kpi-card.purple{border-left:3px solid #d97757}
+.kpi-card.orange{border-left:3px solid #d9a057}
 .kpi-card-inner{position:relative;z-index:1}
 .kpi-icon{
   display:inline-flex;align-items:center;justify-content:center;
   width:36px;height:36px;border-radius:8px;
   background:#f5f3ee;font-size:18px;margin-bottom:10px}
-.kpi-label{font-size:14px;font-weight:500;color:#6b6a65;margin-bottom:4px}
-.kpi-value{font-size:32px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#141413}
-.kpi-unit{font-size:14px;color:#8a8880;margin-top:4px}
+.kpi-label{font-size:12px;font-weight:500;color:#7a7872;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-value{font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#1a1917}
+.kpi-unit{font-size:12px;color:#8a8880;margin-top:4px}
 html.dark .kpi-card{color:#faf9f5;background:rgba(20,20,19,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.4)}
 html.dark .kpi-icon{background:rgba(255,255,255,.1)}
 html.dark .kpi-label{color:rgba(250,249,245,.65)}
@@ -355,12 +346,12 @@ html.dark .kpi-unit{color:rgba(250,249,245,.55)}
 /* Project cards (G-Lead card style) */
 .proj-card{
   background:#fff;border:1px solid var(--card-border);
-  border-radius:10px;margin-bottom:12px;overflow:hidden;
-  transition:all .2s}
-.proj-card:hover{border-color:var(--kpi-blue-1);box-shadow:0 4px 12px rgba(43,57,144,.08)}
+  border-radius:var(--radius);margin-bottom:10px;overflow:hidden;
+  transition:border-color .15s,box-shadow .15s}
+.proj-card:hover{border-color:#c0cadf;box-shadow:0 2px 10px rgba(43,57,144,.07)}
 .proj-card-header{
-  display:flex;align-items:center;gap:10px;padding:.7rem 1.1rem;
-  background:#f0f4ff;border-bottom:2px solid var(--card-border);flex-wrap:wrap}
+  display:flex;align-items:center;gap:8px;padding:.6rem 1rem;
+  background:#fafafa;border-bottom:1px solid var(--card-border);flex-wrap:wrap}
 .proj-header-actions{margin-left:auto;display:flex;gap:5px;align-items:center}
 .proj-status-tag{
   background:var(--status-new);color:#fff;font-size:11px;
@@ -521,6 +512,32 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
 }
 /* View-only mode */
 body.view-mode [data-edit-only] { display: none !important; }
+
+/* ── View Mode: Mobile-first, Low-tech UX ───────────────────── */
+body.view-mode #theme-btn          { display:none !important }
+body.view-mode .topbar             { padding:.65rem 1rem }
+body.view-mode .logo-area p        { font-size:12px }
+body.view-mode .tabs               { padding:.4rem .6rem 0 }
+body.view-mode .tab                { font-size:15px;padding:10px 16px;font-weight:600 }
+body.view-mode .kpi-label          { font-size:13px }
+body.view-mode .kpi-value          { font-size:30px }
+body.view-mode .badge              { font-size:11.5px;padding:4px 11px }
+body.view-mode .proj-card          { margin-bottom:14px }
+body.view-mode .proj-card-header   { padding:.75rem 1.1rem }
+body.view-mode .proj-fin-label     { font-size:10px }
+body.view-mode .proj-fin-value     { font-size:15px }
+body.view-mode .filter-row input,
+body.view-mode .filter-row select  { font-size:15px;padding:9px 16px !important }
+body.view-mode .pill               { font-size:14px;padding:9px 18px }
+body.view-mode .sc-lbl             { font-size:16px }
+body.view-mode .sc-n               { font-size:20px }
+/* view mode: single-col on narrow screens */
+@media(max-width:720px){
+  body.view-mode .kpi-grid         { grid-template-columns:repeat(2,1fr) }
+  body.view-mode .proj-meta-grid   { grid-template-columns:1fr }
+  body.view-mode .proj-fin-grid    { grid-template-columns:repeat(2,1fr) }
+  body.view-mode .proj-fin-item    { border-right:none;border-bottom:1px solid var(--card-border) }
+}
 </style>
 </head>
 <body>
@@ -528,14 +545,14 @@ body.view-mode [data-edit-only] { display: none !important; }
   <!-- Top bar -->
   <div class="topbar">
     <div class="logo-area" style="display:flex;align-items:center;gap:12px">
-      <img src="output-onlinepngtools.png" style="height:52px;width:auto">
+      <img src="assets/logo.png" style="height:52px;width:auto">
       <div>
         <h1>R.M.N. Enterprise — e-Bidding Tracker</h1>
         <p>ระบบติดตามการประมูล ปีงบประมาณ 2569 · govspending API</p>
       </div>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">☀️ โหมดสว่าง</button>
+      <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">🌙 โหมดมืด</button>
       <button class="btn" onclick="copyViewLink()" data-edit-only title="คัดลอก Link สำหรับแชร์ (view-only)">🔗 Share Link</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
       <button class="btn btn-green" onclick="App.exportAllForPush()" data-edit-only title="Export ข้อมูลทั้งหมดเป็น JSON สำหรับส่งให้ Claude push">📤 Export สำหรับ Push</button>
@@ -784,7 +801,10 @@ function toggleTheme() {
   if (saved === 'dark') {
     document.documentElement.classList.add('dark');
     const btn = document.getElementById('theme-btn');
-    if (btn) btn.textContent = '☀️ โหมดสว่าง';
+    if (btn) btn.textContent = '☀️ โหมดสว่าง';  // in dark mode → btn says "switch to light"
+  } else {
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '🌙 โหมดมืด';    // in light mode → btn says "switch to dark"
   }
 })();
 
@@ -792,7 +812,24 @@ function toggleTheme() {
    CONFIG  — all magic strings in one place
 ═══════════════════════════════════════════════════════════════ */
 const VIEW_MODE = new URLSearchParams(window.location.search).has('view');
-if (VIEW_MODE) document.body.classList.add('view-mode');
+if (VIEW_MODE) {
+  document.body.classList.add('view-mode');
+  // Rule 2: lock viewport scale for mobile viewers
+  const vp = document.querySelector('meta[name=viewport]');
+  if (vp) vp.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+  // Rule 3: simplify tab labels for low-tech viewers
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabMap = {
+      dashboard : '📊 ภาพรวม',
+      report    : '📋 โครงการ',
+      sme       : '💼 แบ่งยอด SME',
+    };
+    document.querySelectorAll('.tab[onclick]').forEach(btn => {
+      const m = btn.getAttribute('onclick').match(/'(\w+)'/);
+      if (m && tabMap[m[1]]) btn.textContent = tabMap[m[1]];
+    });
+  });
+}
 
 const CONFIG = Object.freeze({
 EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
@@ -2441,6 +2478,21 @@ const SEED_BIDS = [
     "workType": "ชั้น 4",
     "plant": "มหาสารคาม",
     "plantDist": 100
+  },
+  {
+    "seq": 91,
+    "id": "69059048337",
+    "name": "จ้างก่อสร้างโครงการปรับปรุงถนนแบบปูทับด้วยแอสฟัลต์คอนกรีต จากบ้านนางมอญ โพธิ์ศรี ถึงบ้านนายเทศนา แสดง บ้านชัวกาย หมู่ที่ ๑๐ ขนาดกว้าง ๔.๐๐ เมตร ยาว ๒๒๓.๐๐ เมตร หนา ๐.๐๕ เมตร หรือมีพื้นที่ไม่น้อยกว่า ๒,๖๕๖.๐๐ ตารางเมตร องค์การบริหารส่วนตำบลชัวกาย อำเภอ วานรนิวาส จังหวัดสกลนคร",
+    "agency": "องค์การบริหารส่วนตำบลชัวกาย",
+    "province": "สกลนคร",
+    "budget": 1212000,
+    "midPrice": 1629602,
+    "bid": 998000,
+    "pct": 17.65,
+    "entity": "ห้างหุ้นส่วน RMN",
+    "status": "รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด",
+    "date": "2569-05-19",
+    "note": "เสริมผิว+ผลงาน (สกลนคร28)"
   }
 ];;
 
@@ -3264,7 +3316,7 @@ const App = (() => {
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
               <span style="font-size:16px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.esc(b.agency)}</span>
               <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
-              <button onclick="(function(btn){var det=document.getElementById('${uid}').querySelector('.pipe-det');var open=det.style.display!=='none';det.style.display=open?'none':'block';btn.textContent=open?'รายละเอียด ▽':'△ ซ่อน';})(this)" style="margin-left:auto;background:none;border:1px solid var(--card-border,#cbd5e1);border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer;color:var(--text,#1e293b);white-space:nowrap;font-family:${FONT}">รายละเอียด ▽</button>
+              <button onclick="(function(btn){var det=document.getElementById('${uid}').querySelector('.pipe-det');var open=det.style.display!=='none';det.style.display=open?'none':'block';btn.textContent=open?'รายละเอียด ▽':'△ ซ่อน';})(this)" style="margin-left:auto;background:none;border:none;padding:3px 6px;font-size:11.5px;cursor:pointer;color:#6a9bcc;white-space:nowrap;font-family:${FONT};font-weight:500;opacity:.85">รายละเอียด ▽</button>
             </div>
             <!-- Row 2: badge ชิดซ้าย -->
             <div style="margin-bottom:5px">
@@ -3347,7 +3399,7 @@ const App = (() => {
           </div>
           ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
           <span class="proj-status-tag ${tagClass}" style="margin-left:auto;flex-shrink:0;font-size:10px;padding:3px 10px;min-height:unset;min-width:unset;line-height:1.4">${tagText}${subLabel}</span>
-          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)" style="background:none;border:1px solid var(--card-border,#cbd5e1);border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;color:var(--text,#1e293b);white-space:nowrap;font-family:inherit">รายละเอียด &#9661;</button>
+          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)" style="background:none;border:none;padding:3px 6px;font-size:11.5px;cursor:pointer;color:#6a9bcc;white-space:nowrap;font-family:inherit;font-weight:500;opacity:.85">รายละเอียด &#9661;</button>
         </div>
         <div class="proj-card-body">
           <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
@@ -4059,62 +4111,4 @@ const App = (() => {
 
 /* Boot — pill filter for report tab */
 document.querySelector('.report-pills').addEventListener('click', e => {
-  const pill = e.target.closest('.pill');
-  if (!pill) return;
-  document.querySelectorAll('.report-pills .pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  App._setReportFilter(pill.dataset.filter);
-});
-
-/* Boot — delegated listener on records-list for card action buttons */
-document.getElementById('records-list').addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]');
-  if (!btn) return;
-  const { action, id } = btn.dataset;
-  if (action === 'check')  App.checkOne(id);
-  if (action === 'edit')   App.editBid(id);
-  if (action === 'delete') App.deleteBid(id);
-});
-
-document.getElementById('records-list').addEventListener('change', e => {
-  const sel = e.target.closest('[data-action="quickstatus"]');
-  if (!sel || !sel.value) return;
-  Store.updateStatus(sel.dataset.id, sel.value);
-  App.renderTable();
-  App.renderDash();
-});
-
-App.renderDash();
-
-// Light theme — default, persisted in localStorage
-(function(){
-  const t = localStorage.getItem('rmn_theme') ?? 'light';
-  if (t === 'dark') document.documentElement.classList.add('dark');
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = document.documentElement.classList.contains('dark') ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
-})();
-function copyViewLink() {
-  const url = new URL(window.location.href);
-  url.searchParams.set('view', '1');
-  navigator.clipboard.writeText(url.toString()).then(() => {
-    App._toast && App._toast('🔗 คัดลอก Link แล้ว!');
-    // fallback toast via UI if App._toast not available
-  }).catch(() => {});
-  // toast fallback
-  const toast = document.getElementById('toast');
-  if (toast) {
-    toast.textContent = '🔗 คัดลอก Share Link แล้ว!';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-}
-
-function toggleTheme() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('rmn_theme', isDark ? 'dark' : 'light');
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = isDark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
-}
-</script>
-</body>
-</html>
+  const pill = e.target.closest('.pil
