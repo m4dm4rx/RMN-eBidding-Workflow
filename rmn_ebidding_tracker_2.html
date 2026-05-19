@@ -122,23 +122,29 @@ html:not(.dark) #wins-timeline-dash::-webkit-scrollbar-thumb:hover{background:rg
 .section{display:none}.section.active{display:block}
 #tab-dashboard{padding:.2rem;margin-bottom:.5rem}
 /* ── Cards — dark glass everywhere ─────────────────────────────── */
-.card,.glass,.sc,.kpi-card,.topbar,.tabs{
+.topbar,.tabs,.sc{
   --text:#faf9f5; --muted:rgba(250,249,245,.55);
   --border:rgba(255,255,255,.1); --surface:rgba(255,255,255,.06);
   --bg:rgba(255,255,255,.04); --card-border:rgba(255,255,255,.09);
   --pipe-alt:rgba(255,255,255,.09)}
-.card{background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.09);border-radius:var(--radius);padding:1.1rem;
-  margin-bottom:1rem;box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
-/* ── Glassmorphism cards — dark glass, all modes ───────────────── */
-.glass{background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.09);border-radius:var(--radius);padding:1.1rem;
-  margin-bottom:1rem;box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
+html.dark .card,html.dark .glass{
+  --text:#faf9f5; --muted:rgba(250,249,245,.55);
+  --border:rgba(255,255,255,.1); --surface:rgba(255,255,255,.06);
+  --bg:rgba(255,255,255,.04); --card-border:rgba(255,255,255,.09);
+  --pipe-alt:rgba(255,255,255,.09)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;
+  margin-bottom:1rem;box-shadow:var(--shadow);color:var(--text)}
+/* ── Glassmorphism cards — light surface / dark glass ──────────── */
+.glass{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;
+  margin-bottom:1rem;box-shadow:var(--shadow);color:var(--text)}
+html.dark .card,html.dark .glass{
+  background:rgba(15,14,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.09);box-shadow:0 4px 28px rgba(0,0,0,.5);color:#faf9f5}
 .glass.g-orange{border-top:2px solid #d97757}
 .glass.g-green {border-top:2px solid #788c5d}
 .glass.g-black {border-top:2px solid rgba(255,255,255,.2)}
 .card-title{font-size:14px;font-weight:700;margin-bottom:1rem;
-  color:rgba(250,249,245,.55);text-transform:uppercase;letter-spacing:.05em}
+  color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 /* ── Metrics ───────────────────────────────────────────────────── */
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
   gap:10px;margin-bottom:1.2rem}
@@ -195,7 +201,7 @@ tr:hover td{background:var(--bg)}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-group.full{grid-column:1/-1}
 label{font-size:11px;color:#666;font-weight:600}
-.card label,.glass label{color:rgba(250,249,245,.6)}
+html.dark .card label,html.dark .glass label{color:rgba(250,249,245,.6)}
 input,select,textarea{
   padding:8px 10px;border:1.5px solid var(--border);
   border-radius:var(--radius-sm);font-size:13px;
