@@ -1,147 +1,67 @@
 # RMN e-Bidding Tracker
 
-## ⚙️ Workflow Reminder (Claude behavior rules)
-- **ประหยัด Tokens**: ไม่สร้าง TaskList / ไม่ถาม AskUserQuestion / ไม่โหลด ToolSearch สำหรับงานที่ไม่จำเป็น
-- **ตอบสั้น ตรงประเด็น** — ไม่ขยายความโดยไม่จำเป็น
-- **คิดทีละ Step** — วิเคราะห์ก่อน ลงมือทีละขั้น ไม่ข้ามขั้นตอน
-- **ห้ามเดาข้อมูล** — ถ้าไม่มีข้อมูลชัดเจน ให้ถามก่อน ไม่สมมติค่า
+## 🚫 NEVER USE (no exceptions)
+TaskCreate · TaskUpdate · TaskList · TaskStop · TaskGet · AskUserQuestion · mcp__visualize__read_me
+ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มีใน schema จริงๆ
 
-## 🎨 UI/Coding Role Rules
-- **Role**: UI/Coding Master
-- **Output**: Compact Diff/Change-log only — **NEVER preview full code or full tables**
-- **State**: Maintain workflow state across short inputs
-- **Format**: 50/50 Human-readable + clean code
-- **Style**: Reply directly — no intro/outro chatter
-- **Anchor Rules** *(strict, always enforced)*:
-  1. Do NOT output full file / full code block / full table — Diff/Change-log only
-  2. Think step-by-step before acting — analyze → plan → execute
-  3. Never hallucinate data, values, or field names — if unclear, ask first
+## ⚙️ Core Rules
+- Diff/changelog only — ห้าม output full file/table
+- grep/bash หา section ก่อน — ห้าม Read ทั้งไฟล์
+- Edit (diff) เสมอ — Write เฉพาะ full rewrite
+- อ่านไฟล์ครั้งเดียว/task — ไม่อ่านซ้ำ verify
+- ห้ามเดาข้อมูล — ถามก่อนถ้าไม่ชัด
+- bash output → pipe | head -40 เสมอ — ห้าม dump .git/objects
+- Auto-update MD @ 90% context → append ## 🔄 Session State → แจ้ง user เริ่ม session ใหม่
+- คำนวณ usage ก่อนทุก Edit — ถ้า context ไม่พอ ห้าม Edit แจ้ง user แทน
 
-## 🖥️ Multi-Machine Setup (PC ↔ Laptop)
-- **OneDrive sync**: โฟลเดอร์ project และ E-BIDDING sync ผ่าน OneDrive อัตโนมัติ
-- **CMD paths**: ใช้ `%USERPROFILE%` แทน hardcode username — ทำงานได้ทุกเครื่อง
-- **Sandbox paths**: Claude detect อัตโนมัติจาก system prompt mount path (ไม่ต้อง hardcode)
-- **Git credentials**: ต้องตั้งค่าบน Laptop ด้วย (`git config --global user.email / user.name`)
-- **กฎ**: ห้าม hardcode `C:\Users\<username>\` ในคำสั่งที่ให้ user รัน — ใช้ `%USERPROFILE%` เสมอ
-
-Web app ติดตามการประมูลโครงการถนน ปีงบประมาณ 2569.
-
-## Files
-- `rmn_ebidding_tracker_2.html` — single source of truth (HTML + SEED_BIDS data)
-- `netlify/functions/proxy.js` — CORS proxy for opend.data.go.th API
+## 📁 Files & URLs
+- Main: `rmn_ebidding_tracker_2.html` (single source of truth)
+- Logo: `assets/logo.png`
+- Proxy: `netlify/functions/proxy.js`
 - Live: https://dorpnightmare-wq.github.io/rmn-ebidding-tracker/rmn_ebidding_tracker_2.html
-- GitHub: https://github.com/dorpnightmare-wq/rmn-ebidding-tracker.git
-- Deployments: https://github.com/dorpnightmare-wq/rmn-ebidding-tracker/deployments
+- Repo: https://github.com/dorpnightmare-wq/rmn-ebidding-tracker.git
 
-## เวลาผลเบื้องต้นประมูล e-GP
-- รอบเช้า → ผลออก **12:01 น.**
-- รอบบ่าย → ผลออก **16:01 น.**
+## 🖥️ Multi-Machine
+- CMD: ใช้ `%USERPROFILE%` เสมอ — ห้าม hardcode path
+- Mounts: `RMN e-Bidding Tracker` / `E-BIDDING` / `Downloads`
 
-## Data entry workflow
-1. User pastes row(s) from Excel → Claude **แปลงเป็น text** แสดงข้อมูลที่ parse ได้ (id, name, agency, province, budget, bid, date, status)
-2. User ยืนยัน → Claude add to SEED_BIDS in HTML
-3. User ยืนยัน push → git push → GitHub Pages auto-deploys
+## 📊 Data Entry (Excel → SEED_BIDS)
+Cols: id | name | agency | province | budget | หมายเหตุ(bid หลัง"ยื่น") | date | (ignore)
+Defaults: entity="ห้างหุ้นส่วน RMN" · seq=next · pct=round((budget-bid)/budget*10000)/100
+Status: ต่ำสุด→"รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด" · ไม่ต่ำสุด→"รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด"
+ผลเช้า→12:01 · ผลบ่าย→16:01
 
-**Excel columns (left→right):**
-1. เลขที่โครงการ (id เช่น 69049395087)
-2. ชื่อโครงการ (name — long text)
-3. หน่วยงาน (agency)
-4. จังหวัด (province)
-5. งบประมาณ (budget)
-6. หมายเหตุ — contains bid after "ยื่น" keyword (เช่น "ยื่น 1,318,000")
-7. วันที่/เวลา (date — เช่น "11 พ.ค.69 เวลา 9.00น." → "2569-05-11")
-8. (ignore)
-
-**Default values when adding:**
-- `entity`: "ห้างหุ้นส่วน RMN"
-- `status`: ดูจากผลเบื้องต้นวันประมูล
-  - ราคาเราต่ำสุด (ชนะเบื้องต้น) → `"รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด"`
-  - ราคาเราไม่ต่ำสุด (แพ้เบื้องต้น) → `"รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด"`
-- `seq`: next number after last entry
-- `pct`: `Math.round((budget - bid) / budget * 10000) / 100` (0 if no budget)
-
-## Git push commands
-**กฎสำคัญ**: sandbox push GitHub ไม่ได้ (ไม่มี credentials) — ต้องให้ user รันจาก CMD เสมอ
-**ส่งทีละบรรทัด** ห้ามรวมกัน เพราะ copy-paste แล้วจะติดกันเป็น error "git: 'pushgit' is not a git command"
-
-```
-del "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker\.git\HEAD.lock"
-```
+## 🔀 Git Push (ส่งทีละบรรทัด — ห้ามรวม)
 ```
 git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" add rmn_ebidding_tracker_2.html
-```
-```
-git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" commit -m "Add seq XX: agency date"
-```
-```
+git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" commit -m "msg"
 git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN e-Bidding Tracker" push
 ```
 
-## STATUS values (stored in data)
-- รอผลพิจารณา / เป็นผู้เสนอราคาต่ำสุด
-- รอผลพิจารณา / ไม่ได้เป็นผู้เสนอราคาต่ำสุด
-- อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ
-- จัดทำสัญญาแล้ว
-- แพ้การประมูล
-- แพ้เนื่องจากขาดคุณสมบัติ/เอกสารไม่สมบูรณ์
-- ยกเลิกโครงการ
-- ห้างขอยกเลิกเอง
+## 🎨 UI Rules
+- Light mode default · Viewer URL: `?view=1` (mobile) · Editor: no param (desktop)
+- View mode: ซ่อน data-edit-only, theme btn, ปรับ tab labels สั้น
+- KPI border-left accent · filter inputs pill-shape · expand btn = text-link
 
-## UI / Layout สำคัญ
-- **View mode tabs**: แสดงแค่ 3 tabs → Dashboard, รายงานข้อมูลโครงการ, รายงานแบ่งตามยอด SME (Records tab ซ่อนด้วย `data-edit-only`)
-- **Project cards พับได้**: ค่าเริ่มต้น collapsed แสดง status badge + เลขโครงการ + หน่วยงาน + วันที่ + ยอดยื่น + ปุ่ม "รายละเอียด ▽" กดเพื่อขยาย/ซ่อน
-- **Recent Wins Timeline**: อยู่ใน Dashboard เท่านั้น (ลบออกจาก Report tab แล้ว)
-- **Report tab**: มี filter bar — search + status + entity + agency + sort
-- **Badge status**: ใช้ชื่อเต็มทุกที่ ไม่ตัดย่อ
-- **Dashboard KPI**: มี Competitor Leaderboard (บาร์แสดงคู่แข่งที่ได้งานไปแทน นับจำนวนครั้ง)
+## 📋 STATUS values
+รอผลพิจารณา/เป็นผู้เสนอต่ำสุด · ไม่ได้เป็นผู้เสนอต่ำสุด · อนุมัติสั่งจ้าง · จัดทำสัญญา · แพ้การประมูล · แพ้/ขาดคุณสมบัติ · ยกเลิกโครงการ · ห้างขอยกเลิก
 
-## แผนที่ PDF workflow (เอกสารแนบ e-GP)
-1. User ส่ง screenshot Google Maps (route จาก RMN Enterprise Asphalt → โครงการ) เป็น **ไฟล์ upload**
-2. Claude สร้าง `แผนที่_[id].pdf` ด้วย **reportlab + Sarabun font** โดยตรง
-   - **บันทึกที่**: `%USERPROFILE%\OneDrive\E-BIDDING\Log\แผนที่แสดงเส้นทางขนส่ง\แผนที่จากที่ตั้งโรงงานถึงหน้างาน_[agency]_[id].pdf`
-   - **ห้ามใช้ LibreOffice แปลง** — sandbox ไม่มี Thai font → ข้อความเป็นกล่องทั้งหมด
-   - **ห้ามสร้าง docx แล้วแปลง** — ใช้ reportlab ตรงๆ เท่านั้น
-3. โครงสร้างเอกสาร (A4, Sarabun font):
-   - หัวขวา (underline, 14pt): "เอกสารแนบท้ายเอกสารประกวดราคาอิเล็กทรอนิกส์"
-   - หัวกลาง (bold 26pt): "แผนที่แสดงเส้นทางการขนส่ง"
-   - subheading ซ้าย (16pt, wrap): "จากโรงงานผสม Asphalt Concrete ของ ห.จ.ก. อาร์เอ็มเอ็น เอ็นเตอร์ไพส์"
-   - กล่องรูปแผนที่ (border 2pt, image เต็มกล่อง)
-   - กล่องข้อความ (border 2pt, bullet 16pt, label bold):
-     - **ชื่อหน่วยงานเจ้าของโครงการ**: [agency]
-     - **ชื่อโครงการ**: [name เต็ม — wrap หลายบรรทัด]
-     - **ระยะทาง**: [XX] กม.
-4. User อัพโหลด PDF ใน e-GP ได้เลย ไม่ต้องแปลงเพิ่ม
+## 🗺️ PDF Map
+reportlab + Sarabun inline script · บันทึก: E-BIDDING/Log/แผนที่แสดงเส้นทางขนส่ง/
+ห้าม LibreOffice · ห้าม import create_map_pdf.py (pycache bug) · เขียน script inline เสมอ
+Font: /tmp/Sarabun-Regular.ttf + Sarabun-Bold.ttf (download จาก google/fonts)
 
-**Font setup** (ทำครั้งแรก หรือถ้า /tmp/Sarabun-Regular.ttf หาย):
-```python
-import urllib.request
-BASE = "https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/"
-urllib.request.urlretrieve(BASE + "Sarabun-Regular.ttf", "/tmp/Sarabun-Regular.ttf")
-urllib.request.urlretrieve(BASE + "Sarabun-Bold.ttf", "/tmp/Sarabun-Bold.ttf")
-```
+## 🔄 Session State (2026-05-19)
+### ✅ Done this session
+- Perf analysis: ตรวจ 7 token drain risks พร้อม impact analysis
+- FIX 2: debounce oninput renderReport/renderTable (200ms)
+- FIX 4: rAF guard dedup renderDash ใน quickstatus handler
+- FIX 5: debounce persist() 500ms + beforeunload flush (_persistNow)
+- FIX 1: แยก SEED_BIDS → seed_bids.js (1,618 lines) + HTML ลดจาก 4,135 → 2,554 lines (-38%)
+- Boot truncation restored: records-list click listener + change listener + copyViewLink + </script></body></html>
+- FIX 3: renderBidTimeline pagination (PAGE_SIZE=20) + load-more button + App.timelineLoadMore()
 
-**ชื่อไฟล์**: `แผนที่จากที่ตั้งโรงงานถึงหน้างาน_[agency]_[id].pdf`
-**บันทึกที่**: sandbox path — Claude detect จาก system prompt mount อัตโนมัติ
-
-**หมายเหตุ**: ห้าม import จาก create_map_pdf.py — มีปัญหา `__pycache__` ทำให้ code ใหม่ไม่ถูกโหลด
-ให้เขียน script inline ใน bash แทนทุกครั้ง เช่น:
-```python
-filename = f"แผนที่จากที่ตั้งโรงงานถึงหน้างาน_{agency}_{project_id}.pdf"
-out_path = f"/sessions/.../mnt/E-BIDDING/Log/แผนที่แสดงเส้นทางขนส่ง/{filename}"
-```
-
-**reportlab canvas approach** (ไม่ใช้ Platypus/Frame — ใช้ canvas วาดตรงๆ ควบคุม position ได้เต็มที่):
-```python
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm, mm
-pdfmetrics.registerFont(TTFont('Sarabun', '/tmp/Sarabun-Regular.ttf'))
-pdfmetrics.registerFont(TTFont('Sarabun-Bold', '/tmp/Sarabun-Bold.ttf'))
-```
-
-## Entity options
-- ห้างหุ้นส่วน RMN (default)
-- กิจการร่วมค้า RMN
-- กิจการร่วมค้า ตักสิลา
+### ⏳ Pending
+- **Push ✅ done**
+- FIX 6: CSS class refactor (inline styles → classes) — ทำทีหลัง/phase
+- ตรวจสอบ light mode + timeline load-more หลัง push
