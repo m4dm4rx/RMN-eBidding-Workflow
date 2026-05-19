@@ -1543,7 +1543,9 @@ const App = (() => {
   }
 
   /** Lose bids as compact list */
-  function renderBidTimeline(allBids, targetId) {
+  const _timelinePage = {};  // tracks load-more state per targetId
+  function renderBidTimeline(allBids, targetId, page = 1) {
+    const PAGE_SIZE = 20;
     const { STATUS } = CONFIG;
     const recent = [...allBids].sort((a,b) => (b.date??'').localeCompare(a.date??''));
     const statusMeta = s => {
@@ -1558,10 +1560,13 @@ const App = (() => {
       return {text:s||'—',bg:'#6b7280'};
     };
     if(!recent.length){UI.setHTML(targetId,'<div class="empty">ยังไม่มีข้อมูล</div>');return;}
+    _timelinePage[targetId] = page;
+    const visible = recent.slice(0, PAGE_SIZE * page);
+    const hasMore = recent.length > visible.length;
     const MONTHS = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
     const MONTHS_SHORT = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
     let lastMonthKey = '';
-    const rows = recent.map(b => {
+    const rows = visible.map(b => {
       const d = (b.date??'').split('-');
       const mon = MONTHS_SHORT[Number(d[1])||0];
       const monFull = MONTHS[Number(d[1])||0];
@@ -1601,9 +1606,14 @@ const App = (() => {
           </div>
         </div>`;
     }).join('');
+    const loadMoreBtn = hasMore
+      ? `<button onclick="App.timelineLoadMore('${targetId}')" style="margin-top:8px;width:100%;padding:8px;background:none;border:1px solid var(--card-border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted);font-family:inherit">
+          โหลดเพิ่ม (${recent.length - visible.length} รายการ) ▾
+        </button>` : '';
     UI.setHTML(targetId, `
       <div style="display:flex;flex-direction:column;gap:6px">
         ${rows}
+        ${loadMoreBtn}
       </div>`);
   }
 
@@ -2499,6 +2509,10 @@ const App = (() => {
   /* ── Public API ──────────────────────────────────────────── */
   return {
     navigate, renderDash, renderReport, renderTable, renderSme,
+    timelineLoadMore: (targetId) => {
+      const page = (_timelinePage[targetId] || 1) + 1;
+      renderBidTimeline(Store.getAll(), targetId, page);
+    },
     checkOne, bulkRefresh,
     doLookup, doWinnerLookup, autofillFromAPI,
     saveBid, saveBidAndExport, exportAllForPush, editBid, deleteBid, clearForm, exportCSV,
