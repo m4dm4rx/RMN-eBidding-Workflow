@@ -638,7 +638,7 @@ body.view-mode .sc-n               { font-size:20px }
 
     <!-- Filter bar -->
     <div class="filter-row" style="margin-bottom:1rem">
-      <input id="rpt-search" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderReport()">
+      <input id="rpt-search" type="text" placeholder="🔍 ค้นหา..." oninput="_debouncedReport()">
       <select id="rpt-status" onchange="App.renderReport()">
         <option value="">ทุกสถานะ</option>
         <option>จัดทำสัญญาแล้ว</option>
@@ -676,7 +676,7 @@ body.view-mode .sc-n               { font-size:20px }
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
     </div>
     <div class="filter-row">
-      <input id="fsearch" type="text" placeholder="🔍 ค้นหา..." oninput="App.renderTable()">
+      <input id="fsearch" type="text" placeholder="🔍 ค้นหา..." oninput="_debouncedTable()">
       <select id="fstatus" onchange="App.renderTable()">
         <option value="">ทุกสถานะ</option>
         <option>จัดทำสัญญาแล้ว</option>
@@ -880,6 +880,11 @@ EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
     '0993000529367',  // กิจการร่วมค้า ตักสิลา
   ]),
 });
+
+/* ── Debounce helpers ───────────────────────────────────────── */
+function _debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+const _debouncedReport = _debounce(() => typeof App !== 'undefined' && App.renderReport(), 200);
+const _debouncedTable  = _debounce(() => typeof App !== 'undefined' && App.renderTable(),  200);
 
 /* ═══════════════════════════════════════════════════════════════
    SEED DATA
@@ -4137,8 +4142,13 @@ document.getElementById('records-list').addEventListener('change', e => {
   if (!sel || !sel.value) return;
   Store.updateStatus(sel.dataset.id, sel.value);
   App.renderTable();
-  App.renderDash();
+  // rAF guard — dedup renderDash; one repaint per status change
+  if (!_dashRafPending) {
+    _dashRafPending = true;
+    requestAnimationFrame(() => { _dashRafPending = false; App.renderDash(); });
+  }
 });
+let _dashRafPending = false;
 
 App.renderDash();
 
