@@ -69,9 +69,7 @@ html.dark .proj-id-value{color:#6a9bcc}
 html.dark .proj-status-value{color:#e05c4b}
 html.dark .proj-fin-value{color:#faf9f5}
 html.dark .report-section-title{color:#6a9bcc;border-bottom-color:#3a3733}
-html.dark .win-tl-item{border-bottom-color:#2e2c28}
-html.dark .win-tl-name{color:#faf9f5}
-html.dark .win-tl-meta{color:var(--muted)}
+html.dark .win-tl-item{border-color:#2e2c28;background:var(--surface)}
 html.dark .tl-dot{background:#2e2c28;border-color:#1c1b18;box-shadow:0 0 0 1.5px #3a3733}
 html.dark .tl-line{background:#3a3733}
 html.dark .tl-step-label{color:var(--muted)}
@@ -266,7 +264,7 @@ textarea{resize:vertical;min-height:60px}
   border-bottom:1px solid var(--card-border)}
 .sc-row:last-child{border-bottom:none}
 .sc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sc-lbl{font-size:15px;color:var(--muted);flex:1;
+.sc-lbl{font-size:15px;color:var(--text);flex:1;
   font-family:'TH SarabunPSK','Sarabun',sans-serif}
 .sc-n{font-size:18px;font-weight:700;color:var(--text);
   font-family:'Poppins','Helvetica Neue','Arial',sans-serif;
@@ -430,20 +428,22 @@ html.dark .proj-fin-input{background:#0d1117;border-color:#30363d}
 
 /* Wins timeline (vertical) */
 .win-tl-item{
-  display:flex;gap:14px;padding:.85rem 0;
-  border-bottom:1px solid #f1f3f9}
-.win-tl-item:last-child{border-bottom:none}
+  display:flex;gap:14px;padding:.75rem .85rem;
+  border:1px solid var(--card-border);
+  border-radius:8px;margin-bottom:6px;
+  background:var(--surface)}
+.win-tl-item:last-child{margin-bottom:0}
 .win-tl-date{
   flex-shrink:0;width:60px;text-align:right;
-  font-size:11px;color:#64748b;line-height:1.4;padding-top:3px}
+  font-size:11px;color:var(--muted);line-height:1.4;padding-top:3px}
 .win-tl-date-day{font-size:18px;font-weight:700;color:var(--navy);display:block}
 .win-tl-bullet{
   flex-shrink:0;width:14px;height:14px;border-radius:50%;
   background:#0f9d58;margin-top:6px;
   box-shadow:0 0 0 4px rgba(16,185,129,.15)}
 .win-tl-content{flex:1}
-.win-tl-name{font-size:12.5px;font-weight:600;color:#1e293b;line-height:1.5;margin-bottom:3px}
-.win-tl-meta{font-size:11px;color:#64748b;display:flex;gap:1rem;flex-wrap:wrap}
+.win-tl-name{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:3px}
+.win-tl-meta{font-size:11px;color:var(--muted);display:flex;gap:1rem;flex-wrap:wrap}
 .win-tl-meta strong{color:#0f9d58;font-weight:700}
 
 /* ── Mobile-first responsive ─────────────────────────────────── */
@@ -554,7 +554,7 @@ body.view-mode .sc-n               { font-size:20px }
 .mla{margin-left:auto}.flex-1{flex:1}.flex-g8{display:flex;gap:8px}.flex-wrap{flex-wrap:wrap}
 .lbl-xs{font-size:10px;color:var(--muted)}.f11{font-size:11px}.fmono{font-family:monospace;font-size:10px}
 .trw{text-align:right;white-space:nowrap}.tr{text-align:right}.nowrap{white-space:nowrap}
-.ct-green{color:#788c5d}.ct-orange{color:#d97757}.ct-dim{color:rgba(255,255,255,.5)}
+.ct-green{color:#788c5d}.ct-orange{color:#d97757}.ct-dim{color:var(--muted)}
 .tl-divider{display:flex;align-items:center;gap:8px;margin:4px 0 2px}.tl-hr{flex:1;height:1px;background:var(--card-border)}
 .flex-col-1{display:flex;flex-direction:column;gap:1px}
 .pipe-fin{display:flex;border-top:1px solid var(--card-border,#e2e8f0)}
@@ -621,7 +621,7 @@ body.view-mode .sc-n               { font-size:20px }
     <div class="dash-status-row" id="dash-status"></div>
     <div class="two-col">
       <div class="glass g-green">
-        <div class="card-title ct-green">💼 วงเงิน SME ต่อห้าง</div><div id="dash-sme"></div></div>
+        <div class="card-title ct-orange">💼 วงเงิน SME ต่อห้าง</div><div id="dash-sme"></div></div>
       <div class="glass g-orange">
         <div class="card-title ct-orange">🏛️ Top หน่วยงาน (จำนวนโครงการ)</div>
         <div id="agency-bars"></div>
@@ -633,7 +633,7 @@ body.view-mode .sc-n               { font-size:20px }
         <div id="competitor-bars"></div>
       </div>
       <div class="glass g-green">
-        <div class="card-title ct-green">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
+        <div class="card-title ct-orange">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
     </div>
     <div class="glass g-black mt-0">
       <div class="card-title ct-dim">📋 Timeline การประมูลโครงการล่าสุด</div>
