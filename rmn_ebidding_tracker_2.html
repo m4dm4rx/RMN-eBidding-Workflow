@@ -544,20 +544,49 @@ body.view-mode .sc-n               { font-size:20px }
   body.view-mode .proj-fin-grid    { grid-template-columns:repeat(2,1fr) }
   body.view-mode .proj-fin-item    { border-right:none;border-bottom:1px solid var(--card-border) }
 }
+/* FIX-6 utility */
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-area>img{height:52px;width:auto}
+.topbar-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#wins-timeline-dash{max-height:420px;overflow-y:auto;padding-right:4px}
+.progress-label{font-size:12px;color:var(--blue);font-weight:600}
+.mt-0{margin-top:0}.mt-15{margin-top:1.5rem}.mb-1{margin-bottom:1rem}.mb-5{margin-bottom:5px}
+.mla{margin-left:auto}.flex-1{flex:1}.flex-g8{display:flex;gap:8px}.flex-wrap{flex-wrap:wrap}
+.lbl-xs{font-size:10px;color:var(--muted)}.f11{font-size:11px}.fmono{font-family:monospace;font-size:10px}
+.trw{text-align:right;white-space:nowrap}.tr{text-align:right}.nowrap{white-space:nowrap}
+.ct-green{color:#788c5d}.ct-orange{color:#d97757}.ct-dim{color:rgba(255,255,255,.5)}
+.tl-divider{display:flex;align-items:center;gap:8px;margin:4px 0 2px}.tl-hr{flex:1;height:1px;background:var(--card-border)}
+.flex-col-1{display:flex;flex-direction:column;gap:1px}
+.pipe-fin{display:flex;border-top:1px solid var(--card-border,#e2e8f0)}
+.pipe-fin-cell{flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)}
+.pipe-det{display:none;border-top:1px solid var(--card-border,#e2e8f0);background:var(--bg)}
+.pipe-det-grid{display:grid;grid-template-columns:repeat(2,1fr)}.pipe-tl-row{display:flex;align-items:center;padding:10px 16px;gap:0}
+.pipe-body-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.pipe-fin-last{flex:1;padding:6px 12px}
+.th-l{text-align:left;padding:4px 6px}.th-r{text-align:right;padding:4px 6px}.th-c{padding:4px 6px}
+.pipe-date-col{width:56px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 4px;border-right:1px solid var(--card-border,#e2e8f0);background:var(--bg)}
+.pipe-body{flex:1;min-width:0;padding:10px 14px}
+.pipe-outer-row{display:flex;align-items:stretch}
+.pstep-item{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.dark-empty{color:rgba(250,249,245,.35);font-size:12px;padding:.5rem 0}
+.expand-btn{background:none;border:none;padding:3px 6px;font-size:11.5px;cursor:pointer;color:#6a9bcc;white-space:nowrap;font-family:inherit;font-weight:500;opacity:.85}
+.win-tl-bullet.red{background:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.15)}
+.kpi-card.gold{border-top:2px solid #d9a057}
 </style>
 </head>
 <body>
 <div class="app">
   <!-- Top bar -->
   <div class="topbar">
-    <div class="logo-area" style="display:flex;align-items:center;gap:12px">
-      <img src="assets/logo.png" style="height:52px;width:auto">
+    <div class="logo-area">
+      <img src="assets/logo.png">
       <div>
         <h1>R.M.N. Enterprise — e-Bidding Tracker</h1>
         <p>ระบบติดตามการประมูล ปีงบประมาณ 2569 · govspending API</p>
       </div>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+    <div class="topbar-actions">
       <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">🌙 โหมดมืด</button>
       <button class="btn" onclick="copyViewLink()" data-edit-only title="คัดลอก Link สำหรับแชร์ (view-only)">🔗 Share Link</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
@@ -591,23 +620,23 @@ body.view-mode .sc-n               { font-size:20px }
     <div class="dash-status-row" id="dash-status"></div>
     <div class="two-col">
       <div class="glass g-green">
-        <div class="card-title" style="color:#788c5d">💼 วงเงิน SME ต่อห้าง</div><div id="dash-sme"></div></div>
+        <div class="card-title ct-green">💼 วงเงิน SME ต่อห้าง</div><div id="dash-sme"></div></div>
       <div class="glass g-orange">
-        <div class="card-title" style="color:#d97757">🏛️ Top หน่วยงาน (จำนวนโครงการ)</div>
+        <div class="card-title ct-orange">🏛️ Top หน่วยงาน (จำนวนโครงการ)</div>
         <div id="agency-bars"></div>
       </div>
     </div>
-    <div class="two-col" style="margin-top:0">
+    <div class="two-col mt-0">
       <div class="glass g-orange">
-        <div class="card-title" style="color:#d97757">🥊 คู่แข่งที่ได้งานไปแทน (จำนวนครั้ง)</div>
+        <div class="card-title ct-orange">🥊 คู่แข่งที่ได้งานไปแทน (จำนวนครั้ง)</div>
         <div id="competitor-bars"></div>
       </div>
       <div class="glass g-green">
-        <div class="card-title" style="color:#788c5d">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
+        <div class="card-title ct-green">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
     </div>
-    <div class="glass g-black" style="margin-top:0">
-      <div class="card-title" style="color:rgba(255,255,255,.5)">📋 Timeline การประมูลโครงการล่าสุด</div>
-      <div id="wins-timeline-dash" style="max-height:420px;overflow-y:auto;padding-right:4px"></div>
+    <div class="glass g-black mt-0">
+      <div class="card-title ct-dim">📋 Timeline การประมูลโครงการล่าสุด</div>
+      <div id="wins-timeline-dash"></div>
     </div>
   </div>
 
@@ -637,7 +666,7 @@ body.view-mode .sc-n               { font-size:20px }
     </div>
 
     <!-- Filter bar -->
-    <div class="filter-row" style="margin-bottom:1rem">
+    <div class="filter-row">
       <input id="rpt-search" type="text" placeholder="🔍 ค้นหา..." oninput="_debouncedReport()">
       <select id="rpt-status" onchange="App.renderReport()">
         <option value="">ทุกสถานะ</option>
@@ -664,7 +693,7 @@ body.view-mode .sc-n               { font-size:20px }
     <div class="report-section-title">⏳ Pipeline งานรอผล</div>
     <div id="pipeline-list"></div>
 
-    <div class="report-section-title" style="margin-top:1.5rem" id="lose-section-title"></div>
+    <div class="report-section-title mt-15" id="lose-section-title"></div>
     <div id="lose-timeline"></div>
   </div>
 
@@ -672,7 +701,7 @@ body.view-mode .sc-n               { font-size:20px }
   <div id="tab-records" class="section">
     <div id="pending-banner"></div>
     <div class="progress-wrap" id="progress-wrap">
-      <div style="font-size:12px;color:var(--blue);font-weight:600" id="progress-label"></div>
+      <div class="progress-label" id="progress-label"></div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
     </div>
     <div class="filter-row">
@@ -711,8 +740,8 @@ body.view-mode .sc-n               { font-size:20px }
       <div class="form-grid">
         <div class="form-group full">
           <label>เลขที่โครงการ (Project ID)</label>
-          <div style="display:flex;gap:8px">
-            <input id="f-id" type="text" placeholder="เช่น 69039516906" style="flex:1">
+          <div class="flex-g8">
+            <input id="f-id" type="text" placeholder="เช่น 69039516906" class="flex-1">
             <button class="btn btn-api" id="btn-autofill" onclick="App.autofillFromAPI()">⚡ ดึงจาก API</button>
           </div>
         </div>
@@ -765,7 +794,7 @@ body.view-mode .sc-n               { font-size:20px }
         <button class="btn btn-primary" onclick="App.saveBid()">💾 บันทึก</button>
         <button class="btn btn-green" onclick="App.saveBidAndExport()" title="บันทึกแล้ว export JSON สำหรับให้ Claude push">💾 บันทึก + Export สำหรับ Push</button>
         <button class="btn" onclick="App.clearForm()">✕ ล้างฟอร์ม</button>
-        <button class="btn" onclick="App.navigate('records')" style="margin-left:auto">← กลับ</button>
+        <button class="btn mla" onclick="App.navigate('records')">← กลับ</button>
       </div>
     </div>
   </div>
@@ -775,16 +804,16 @@ body.view-mode .sc-n               { font-size:20px }
     <div class="api-note">⚡ หากใช้ corsproxy ไม่ได้ ให้รันผ่าน <strong>python -m http.server 8080</strong> แล้วเปิดใน Chrome</div>
     <div class="card">
       <div class="card-title">🔍 ค้นหาโครงการ (egp-contract)</div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
-        <input id="lookup-id" type="text" placeholder="เลขที่โครงการ เช่น 68109441956" style="flex:1">
+      <div class="flex-g8 flex-wrap mb-1">
+        <input id="lookup-id" type="text" placeholder="เลขที่โครงการ เช่น 68109441956" class="flex-1">
         <button class="btn btn-api" id="btn-lookup" onclick="App.doLookup()">🔍 ค้นหา</button>
       </div>
       <div id="lookup-result"><div class="empty">ใส่เลขโครงการแล้วกดค้นหา</div></div>
     </div>
     <div class="card">
       <div class="card-title">🏢 ค้นหาผู้ชนะ (egp-winner)</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="winner-kw" type="text" placeholder="เช่น RMN, ตักสิลา, รักดี" style="flex:1">
+      <div class="flex-g8 flex-wrap">
+        <input id="winner-kw" type="text" placeholder="เช่น RMN, ตักสิลา, รักดี" class="flex-1">
         <button class="btn btn-api" id="btn-winner" onclick="App.doWinnerLookup()">🔍 ค้นหา</button>
       </div>
       <div id="winner-result" style="margin-top:.8rem"><div class="empty">ค้นหาจาก egp-winner API</div></div>
@@ -1276,14 +1305,14 @@ const UI = (() => {
   function contractTable(results) {
     const rows = results.map(r => `
       <tr>
-        <td style="font-family:monospace;font-size:10px">${esc(r.project_id)   || '-'}</td>
+        <td class="fmono">${esc(r.project_id)   || '-'}</td>
         <td class="proj-name">${esc(r.project_name) || '-'}</td>
-        <td style="font-size:11px">${esc(r.dept_name)     || '-'}</td>
-        <td style="font-size:11px;white-space:nowrap">${esc(r.province)      || '-'}</td>
-        <td style="text-align:right;white-space:nowrap">฿${UI.fmt(r.project_money)}</td>
-        <td style="text-align:right;white-space:nowrap;color:#155724;font-weight:600">฿${UI.fmt(r.sum_price_agree)}</td>
-        <td style="white-space:nowrap;font-size:11px">${esc(r.announce_date)  || '-'}</td>
-        <td style="font-size:11px">${esc(r.project_status) || '-'}</td>
+        <td class="f11">${esc(r.dept_name)     || '-'}</td>
+        <td class="f11 nowrap">${esc(r.province)      || '-'}</td>
+        <td class="trw">฿${UI.fmt(r.project_money)}</td>
+        <td class="trw" style="color:#155724;font-weight:600">฿${UI.fmt(r.sum_price_agree)}</td>
+        <td class="f11 nowrap">${esc(r.announce_date)  || '-'}</td>
+        <td class="f11">${esc(r.project_status) || '-'}</td>
       </tr>`).join('');
     return `<div class="table-wrap"><table>
       <thead><tr>
@@ -1355,9 +1384,9 @@ const App = (() => {
           : 'รอผล';
         return `<tr>
           <td>${UI.esc(b.seq??'')}</td>
-          <td style="font-size:10px;color:var(--muted)">${UI.esc(b.agency||'')}</td>
-          <td style="font-size:10px;color:var(--muted)">${UI.esc(b.date||'')}</td>
-          <td style="text-align:right">${UI.fmt(amt)}</td>
+          <td class="lbl-xs">${UI.esc(b.agency||'')}</td>
+          <td class="lbl-xs">${UI.esc(b.date||'')}</td>
+          <td class="tr">${UI.fmt(amt)}</td>
           <td><span class="badge ${b.status===STATUS.CONTRACT?'b-contract':b.status===STATUS.WINNER?'b-winner':'b-pending'}">${typeLabel}</span></td>
         </tr>`;
       }).join('');
@@ -1374,18 +1403,18 @@ const App = (() => {
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:12px">
           <thead><tr style="color:var(--muted);border-bottom:1px solid var(--card-border)">
-            <th style="text-align:left;padding:4px 6px">#</th>
-            <th style="text-align:left;padding:4px 6px">หน่วยงาน</th>
-            <th style="text-align:left;padding:4px 6px">วันที่</th>
-            <th style="text-align:right;padding:4px 6px">ราคา</th>
-            <th style="padding:4px 6px">สถานะ</th>
+            <th class="th-l">#</th>
+            <th class="th-l">หน่วยงาน</th>
+            <th class="th-l">วันที่</th>
+            <th class="th-r">ราคา</th>
+            <th class="th-c">สถานะ</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>`;
     }).join('');
 
-    const note = `<div class="api-note" style="margin-bottom:1rem">
+    const note = `<div class="api-note">
       💼 นับเฉพาะโครงการที่ <strong>รอผล/ชนะ/มีสัญญา</strong> — วงเงิน SME per entity = 300,000,000 บาท
     </div>`;
 
@@ -1579,9 +1608,9 @@ const App = (() => {
       const {text,bg} = statusMeta(b.status);
       let divider = '';
       if(monthKey !== lastMonthKey && monthKey !== '-') {
-        divider = `<div style="display:flex;align-items:center;gap:8px;margin:4px 0 2px">
+        divider = `<div class="tl-divider">
           <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">${monFull} ${d[0]}</span>
-          <div style="flex:1;height:1px;background:var(--card-border)"></div>
+          <div class="tl-hr"></div>
         </div>`;
         lastMonthKey = monthKey;
       }
@@ -1611,10 +1640,7 @@ const App = (() => {
           โหลดเพิ่ม (${recent.length - visible.length} รายการ) ▾
         </button>` : '';
     UI.setHTML(targetId, `
-      <div style="display:flex;flex-direction:column;gap:6px">
-        ${rows}
-        ${loadMoreBtn}
-      </div>`);
+      <div style="display:flex;flex-direction:column;gap:6px">${rows}${loadMoreBtn}</div>`);
   }
 
   function renderLoseTimeline(lose) {
@@ -1635,10 +1661,10 @@ const App = (() => {
         return `
           <div class="win-tl-item">
             <div class="win-tl-date">
-              <span class="win-tl-date-day" style="color:#dc2626">${day}</span>
+              <span class="win-tl-date-day red">${day}</span>
               ${UI.esc(month)} ${UI.esc(d[0])}
             </div>
-            <div class="win-tl-bullet" style="background:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.15)"></div>
+            <div class="win-tl-bullet red"></div>
             <div class="win-tl-content">
               <div class="win-tl-name">${UI.esc(b.name || b.agency)}</div>
               <div class="win-tl-meta">
@@ -1684,7 +1710,7 @@ const App = (() => {
         : active            ? 'background:var(--surface);border:2px solid #1d4ed8;color:#1d4ed8;font-weight:700'
         :                     'background:var(--bg);border:1px solid var(--card-border,#cbd5e1);color:var(--muted)';
       const lStyle = done ? 'background:#16a34a' : 'background:var(--card-border,#e2e8f0)';
-      return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1">
+      return `<div class="pstep-item">
         <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;${dStyle}">${done?'✓':(i+1)}</div>
         <div class="pstep-lbl" style="font-size:9px;color:var(--muted);text-align:center;white-space:nowrap;font-family:${FONT}">${s}</div>
       </div>${i<steps.length-1?`<div style="height:2px;flex:1;margin:0 -2px;align-self:start;margin-top:9px;${lStyle}"></div>`:''}`;
@@ -1700,7 +1726,7 @@ const App = (() => {
     const uid = 'pc-' + (b.id||'') + '-' + idx;
     const metaCell = (lbl, val) => val ? `
       <div style="padding:7px 12px;border-right:1px solid var(--card-border,#e2e8f0);border-bottom:1px solid var(--card-border,#e2e8f0)">
-        <div style="font-size:10px;color:var(--muted)">${lbl}</div>
+        <div class="lbl-xs">${lbl}</div>
         <div style="font-size:13px;font-weight:600;color:var(--text);font-family:${FONT}">${UI.esc(String(val))}</div>
       </div>` : '';
     const metaItems =
@@ -1713,49 +1739,49 @@ const App = (() => {
       (isLose     ? metaCell('ผู้เสนอราคาต่ำสุด', b.competitor||'—') : '');
     return `
       <div class="pipe-card-c" id="${uid}" style="background:${cardBg};border:1px solid var(--card-border,#e2e8f0);border-radius:8px;overflow:hidden;font-family:${FONT}">
-        <div style="display:flex;align-items:stretch">
-          <div style="width:56px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 4px;border-right:1px solid var(--card-border,#e2e8f0);background:var(--bg)">
+        <div class="pipe-outer-row">
+          <div class="pipe-date-col">
             <span style="font-size:26px;font-weight:700;color:var(--text);line-height:1;font-family:${FONT}">${d[2]||'—'}</span>
             <span style="font-size:11px;color:var(--muted);margin-top:3px;font-family:${FONT}">${mon} ${yr}</span>
           </div>
-          <div style="flex:1;min-width:0;padding:10px 14px">
+          <div class="pipe-body">
             <!-- Row 1: agency + ID + expand button -->
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <div class="pipe-body-hdr">
               <span style="font-size:16px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.esc(b.agency)}</span>
               <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
               <button onclick="(function(btn){var det=document.getElementById('${uid}').querySelector('.pipe-det');var open=det.style.display!=='none';det.style.display=open?'none':'block';btn.textContent=open?'รายละเอียด ▽':'△ ซ่อน';})(this)" style="margin-left:auto;background:none;border:none;padding:3px 6px;font-size:11.5px;cursor:pointer;color:#6a9bcc;white-space:nowrap;font-family:${FONT};font-weight:500;opacity:.85">รายละเอียด ▽</button>
             </div>
             <!-- Row 2: badge ชิดซ้าย -->
-            <div style="margin-bottom:5px">
+            <div class="mb-5">
               <span style="display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;color:#fff;background:${tagBg};font-family:${FONT}">${tagText}</span>
             </div>
             <!-- Project name -->
             <div style="font-size:15px;color:var(--text);line-height:1.55;font-family:${FONT};font-weight:500">${UI.esc(b.name||b.agency)}</div>
           </div>
         </div>
-        <div class="pipe-fin" style="display:flex;border-top:1px solid var(--card-border,#e2e8f0)">
-          <div style="flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
-            <div style="font-size:10px;color:var(--muted)">งบประมาณ</div>
+        <div class="pipe-fin">
+          <div class="pipe-fin-cell">
+            <div class="lbl-xs">งบประมาณ</div>
             <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.fmt(b.budget)}</div>
           </div>
-          <div style="flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
-            <div style="font-size:10px;color:var(--muted)">ราคายื่น (เรา)</div>
+          <div class="pipe-fin-cell">
+            <div class="lbl-xs">ราคายื่น (เรา)</div>
             <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.fmt(b.bid)}</div>
           </div>
-          <div style="flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)">
-            <div style="font-size:10px;color:var(--muted)">${isLose?'ราคาที่คู่แข่งชนะ':'% ต่ำกว่าราคางาน'}</div>
+          <div class="pipe-fin-cell">
+            <div class="lbl-xs">${isLose?'ราคาที่คู่แข่งชนะ':'% ต่ำกว่าราคางาน'}</div>
             <div style="font-size:13px;font-weight:700;color:${isLose?'var(--text)':'#16a34a'};font-family:${FONT}">${isLose?(b.lowest?'฿'+UI.fmt(b.lowest):'—'):pctStr}</div>
           </div>
-          <div style="flex:1;padding:6px 12px">
-            <div style="font-size:10px;color:var(--muted)">${isLose?'คู่แข่งที่ได้งาน':'ราคากลาง'}</div>
+          <div class="pipe-fin-last">
+            <div class="lbl-xs">${isLose?'คู่แข่งที่ได้งาน':'ราคากลาง'}</div>
             <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${isLose?(b.competitor?UI.esc(b.competitor):'—'):(b.midPrice?UI.fmt(b.midPrice):'—')}</div>
           </div>
         </div>
-        <div class="pipe-det" style="display:none;border-top:1px solid var(--card-border,#e2e8f0);background:var(--bg)">
-          <div style="display:grid;grid-template-columns:repeat(2,1fr)">
+        <div class="pipe-det">
+          <div class="pipe-det-grid">
             ${metaItems}
           </div>
-          <div style="display:flex;align-items:center;padding:10px 16px;gap:0">${tl}</div>
+          <div class="pipe-tl-row">${tl}</div>
         </div>
       </div>`;
   }
@@ -1792,21 +1818,21 @@ const App = (() => {
     return `
       <div class="proj-card">
         <div class="proj-card-header">
-          <div style="display:flex;flex-direction:column;gap:1px">
+          <div class="flex-col-1">
             <span class="proj-id-label">เลขที่โครงการ</span>
             <span class="proj-id-value">${UI.esc(b.id)}</span>
           </div>
-          <div style="display:flex;flex-direction:column;gap:1px">
+          <div class="flex-col-1">
             <span class="proj-id-label">🏢 หน่วยงาน</span>
             <span class="proj-id-value" style="font-family:inherit">${UI.esc(b.agency)}</span>
           </div>
-          <div style="display:flex;flex-direction:column;gap:1px">
+          <div class="flex-col-1">
             <span class="proj-id-label">📅 วันที่ประมูล</span>
             <span class="proj-id-value" style="font-family:inherit">${UI.fmtDate(b.date)}</span>
           </div>
           ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
           <span class="proj-status-tag ${tagClass}" style="margin-left:auto;flex-shrink:0;font-size:10px;padding:3px 10px;min-height:unset;min-width:unset;line-height:1.4">${tagText}${subLabel}</span>
-          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)" style="background:none;border:none;padding:3px 6px;font-size:11.5px;cursor:pointer;color:#6a9bcc;white-space:nowrap;font-family:inherit;font-weight:500;opacity:.85">รายละเอียด &#9661;</button>
+          <button class="expand-btn" onclick="(function(btn){var detail=btn.closest('.proj-card').querySelector('.proj-card-detail');var open=detail.style.display!=='none';detail.style.display=open?'none':'block';btn.innerHTML=open?'รายละเอียด &#9661;':'&#9651; ซ่อน';})(this)">รายละเอียด &#9661;</button>
         </div>
         <div class="proj-card-body">
           <div class="proj-card-name">${UI.esc(b.name || b.agency)}</div>
@@ -1933,7 +1959,7 @@ const App = (() => {
         <div class="kpi-value">${winRate}%</div>
         <div class="kpi-unit">${won}/${decided} โครงการที่รู้ผล</div>
       </div></div>
-      <div class="kpi-card" style="border-top:2px solid #d9a057"><div class="kpi-card-inner">
+      <div class="kpi-card gold"><div class="kpi-card-inner">
         <div class="kpi-icon">📉</div>
         <div class="kpi-label">% ลดราคาเฉลี่ย</div>
         <div class="kpi-value">${avgDrop}%</div>
@@ -1977,7 +2003,7 @@ const App = (() => {
     UI.setHTML('province-bars', Object.entries(provMap)
       .sort(([, a], [, b]) => b - a)
       .map(([p, c]) => `
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px">
+        <div class="bar-row">
           <span style="width:90px;color:rgba(250,249,245,.8)">${p}</span>
           <div class="bar" style="flex:1;background:rgba(255,255,255,.1)"><div class="bar-fill" style="width:${Math.round(c / maxProv * 100)}%;background:#788c5d"></div></div>
           <span style="font-weight:700;width:20px;color:#faf9f5">${c}</span>
@@ -2024,13 +2050,13 @@ const App = (() => {
     const maxComp = compEntries.length ? compEntries[0][1] : 1;
     UI.setHTML('competitor-bars', compEntries.length
       ? compEntries.map(([name, c], i) => `
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
+          <div class="bar-row">
             <span style="width:16px;font-weight:700;color:#d97757;text-align:right">${i+1}.</span>
             <span style="flex:1;color:rgba(250,249,245,.85)">${name}</span>
             <div class="bar" style="width:100px;background:rgba(255,255,255,.1)"><div class="bar-fill" style="width:${Math.round(c / maxComp * 100)}%;background:#d97757"></div></div>
             <span style="font-weight:700;width:24px;text-align:right;color:#faf9f5">${c}</span>
           </div>`).join('')
-      : `<div style="color:rgba(250,249,245,.35);font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูลคู่แข่ง</div>`);
+      : `<div class="dark-empty">ยังไม่มีข้อมูลคู่แข่ง</div>`);
 
     // Top agency leaderboard (by bid count)
     const agencyMap = {};
@@ -2044,13 +2070,13 @@ const App = (() => {
     const maxAgency = agencyEntries.length ? agencyEntries[0][1] : 1;
     UI.setHTML('agency-bars', agencyEntries.length
       ? agencyEntries.map(([name, c], i) => `
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px">
+          <div class="bar-row">
             <span style="width:16px;font-weight:700;color:#6a9bcc;text-align:right">${i+1}.</span>
             <span style="flex:1;color:rgba(250,249,245,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${name}">${name}</span>
             <div class="bar" style="width:100px;background:rgba(255,255,255,.1)"><div class="bar-fill" style="width:${Math.round(c / maxAgency * 100)}%;background:#6a9bcc"></div></div>
             <span style="font-weight:700;width:24px;text-align:right;color:#faf9f5">${c}</span>
           </div>`).join('')
-      : `<div style="color:rgba(250,249,245,.35);font-size:12px;padding:.5rem 0">ยังไม่มีข้อมูล</div>`);
+      : `<div class="dark-empty">ยังไม่มีข้อมูล</div>`);
   }
 
   function metric(label, value, sub = '', color = '', fontSize = '24px') {
