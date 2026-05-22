@@ -1183,6 +1183,9 @@ const Store = (() => {
         'ห้างขอยกเลิกเอง':                             'ห้างขอยกเลิกสัญญา',
       };
       parsed.forEach(b => { if (b.status && STATUS_MIGRATE[b.status]) b.status = STATUS_MIGRATE[b.status]; });
+      // Merge seed_bids → localStorage: seed is authoritative for records it contains
+      const _sm = new Map(SEED_BIDS.map(s => [s.id, s]));
+      parsed.forEach(b => { const s = _sm.get(b.id); if (s) { const _id = b._id; Object.assign(b, s); b._id = _id; b.agency = expandAgency(b.agency); } });
       return parsed;
     } catch (_) { return null; }
   })() ?? SEED_BIDS.map((b, i) => ({ ...b, _id: `x${i}`, agency: expandAgency(b.agency) }));
