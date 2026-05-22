@@ -549,6 +549,16 @@ body.view-mode .sc-n               { font-size:20px }
 .logo-area>img{height:52px;width:auto}
 .topbar-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 #wins-timeline-dash{max-height:420px;overflow-y:auto;padding-right:4px}
+#status-updated-dash,#status-updated-rec{max-height:284px;overflow-y:auto;padding-right:4px}
+#status-updated-dash::-webkit-scrollbar,#status-updated-rec::-webkit-scrollbar{width:4px}
+#status-updated-dash::-webkit-scrollbar-track,#status-updated-rec::-webkit-scrollbar-track{background:transparent}
+#status-updated-dash::-webkit-scrollbar-thumb,#status-updated-rec::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:99px}
+#status-updated-dash::-webkit-scrollbar-thumb:hover,#status-updated-rec::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.35)}
+html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #status-updated-rec::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15)}
+#status-updated-dash,#status-updated-rec{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.su-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;color:#fff;white-space:nowrap;flex-shrink:0;max-width:240px}
+.su-prev{opacity:.7;text-decoration:line-through;font-weight:500;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+.su-arr{opacity:.65;font-size:9px;flex-shrink:0}.su-cur{overflow:hidden;text-overflow:ellipsis;max-width:105px}
 .progress-label{font-size:12px;color:var(--blue);font-weight:600}
 .mt-0{margin-top:0}.mt-15{margin-top:1.5rem}.mb-1{margin-bottom:1rem}.mb-5{margin-bottom:5px}
 .mla{margin-left:auto}.flex-1{flex:1}.flex-g8{display:flex;gap:8px}.flex-wrap{flex-wrap:wrap}
@@ -636,6 +646,10 @@ body.view-mode .sc-n               { font-size:20px }
         <div class="card-title ct-orange">📍 จังหวัดที่ตั้งโครงการ</div><div id="province-bars"></div></div>
     </div>
     <div class="glass g-black mt-0">
+      <div class="card-title ct-dim">🔔 โครงการที่อัพเดทสถานะล่าสุด</div>
+      <div id="status-updated-dash"></div>
+    </div>
+    <div class="glass g-black mt-0">
       <div class="card-title ct-dim">📋 Timeline การประมูลโครงการล่าสุด</div>
       <div id="wins-timeline-dash"></div>
     </div>
@@ -701,6 +715,7 @@ body.view-mode .sc-n               { font-size:20px }
   <!-- Records -->
   <div id="tab-records" class="section">
     <div id="pending-banner"></div>
+    <div id="status-updated-rec-wrap" style="margin-bottom:12px"></div>
     <div class="progress-wrap" id="progress-wrap">
       <div class="progress-label" id="progress-label"></div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
@@ -1216,7 +1231,10 @@ const Store = (() => {
 
     updateStatus(id, status) {
       const bid = this.findById(id);
-      if (bid) { bid.status = status; persist(); }
+      if (bid) {
+        if (bid.status !== status) { bid.prevStatus = bid.status; bid.statusUpdatedAt = new Date().toISOString(); }
+        bid.status = status; persist();
+      }
     },
 
     patch(id, key, value) {
@@ -1228,7 +1246,7 @@ const Store = (() => {
     updateApiData(id, { status, midPrice, contractPrice, name }) {
       const bid = this.findById(id);
       if (!bid) return;
-      if (status)                    bid.status        = status;
+      if (status && bid.status !== status) { bid.prevStatus = bid.status; bid.statusUpdatedAt = new Date().toISOString(); bid.status = status; } else if (status) { bid.status = status; }
       if (midPrice)                  bid.midPrice      = midPrice;
       if (contractPrice)             bid.contractPrice = contractPrice;
       if (name && !bid.name)         bid.name          = name;   // fill empty names from API
@@ -1649,6 +1667,64 @@ const App = (() => {
       <div style="display:flex;flex-direction:column;gap:6px">${rows}${loadMoreBtn}</div>`);
   }
 
+  /** Status-updated timeline: sorts by statusUpdatedAt desc, shows all in scrollable container */
+  function renderStatusUpdatedTimeline(targetId) {
+    const bids = Store.getAll();
+    const { STATUS } = CONFIG;
+    const sMeta = s => {
+      if(s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)  return {t:'รอผล (ต่ำสุด)',    bg:'#1d4ed8'};
+      if(s===STATUS.LOSE_PENDING||s===STATUS.LOSE_PRICE)                    return {t:'รอผล (ไม่ต่ำสุด)',bg:'#d97706'};
+      if(s===STATUS.CONTRACT)    return {t:'จัดทำสัญญา',    bg:'#065f46'};
+      if(s===STATUS.WINNER)      return {t:'อนุมัติสั่งจ้าง',bg:'#16a34a'};
+      if(s===STATUS.LOSE)        return {t:'แพ้ (ราคา)',    bg:'#dc2626'};
+      if(s===STATUS.DISQUALIFIED)return {t:'แพ้ (ตัดสิทธิ์)',bg:'#dc2626'};
+      if(s===STATUS.CANCELLED)   return {t:'ยกเลิกโครงการ', bg:'#6b7280'};
+      if(s===STATUS.WITHDRAWN)   return {t:'ห้างขอยกเลิก',  bg:'#6b7280'};
+      return {t:s||'—',bg:'#6b7280'};
+    };
+    const MS = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const sorted = [...bids]
+      .filter(b => b.statusUpdatedAt || b.date)
+      .sort((a,b) => {
+        const ta = a.statusUpdatedAt || (a.date ? a.date+'T00:00:00' : '');
+        const tb = b.statusUpdatedAt || (b.date ? b.date+'T00:00:00' : '');
+        return tb.localeCompare(ta);
+      });
+    if (!sorted.length) { UI.setHTML(targetId,'<div class="empty">ยังไม่มีข้อมูล</div>'); return; }
+    const html = sorted.map(b => {
+      let dayStr='—', monStr='', timeStr='';
+      if (b.statusUpdatedAt) {
+        const ts = new Date(b.statusUpdatedAt);
+        dayStr  = ts.getDate();
+        monStr  = MS[ts.getMonth()+1];
+        timeStr = `${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
+      } else if (b.date) {
+        const d = b.date.split('-');
+        dayStr = d[2]||'—'; monStr = MS[Number(d[1])||0];
+      }
+      const cur  = sMeta(b.status);
+      const prev = b.prevStatus ? sMeta(b.prevStatus) : null;
+      const badge = prev
+        ? `<span class="su-badge" style="background:${cur.bg}"><span class="su-prev">${prev.t}</span><span class="su-arr">→</span><span class="su-cur">${cur.t}</span></span>`
+        : `<span class="su-badge" style="background:${cur.bg}"><span class="su-cur">${cur.t}</span></span>`;
+      return `<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
+        <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border-right:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04)">
+          <span style="font-size:19px;font-weight:700;color:var(--accent);line-height:1">${dayStr}</span>
+          <span style="font-size:10px;color:var(--text);opacity:.6;margin-top:1px;text-align:center;line-height:1.3">${monStr}${timeStr?`<br>${timeStr}`:''}</span>
+        </div>
+        <div style="flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:3px;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:3px">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">${UI.esc(b.agency)}</span>
+            <span style="font-size:11px;color:var(--muted)">${UI.esc(b.id||'')}</span>
+            <span style="margin-left:auto">${badge}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text);opacity:.7;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${UI.esc(b.name||b.agency)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    UI.setHTML(targetId, `<div style="display:flex;flex-direction:column;gap:5px">${html}</div>`);
+  }
+
   function renderLoseTimeline(lose) {
     const title = document.getElementById('lose-section-title');
     if (!lose.length) {
@@ -2041,6 +2117,8 @@ const App = (() => {
       </div>`;
     }).join('') : '<div class="empty" style="font-size:11px">ยังไม่มีข้อมูล</div>');
 
+    // Status-updated timeline (above bid timeline)
+    renderStatusUpdatedTimeline('status-updated-dash');
     // Recent Wins Timeline
     renderBidTimeline(bids, 'wins-timeline-dash');
 
@@ -2113,6 +2191,9 @@ const App = (() => {
       ? `<div class="refresh-banner">⏳ มี <strong>${pending} โครงการ</strong>รอพิจารณาผล
            <button class="btn btn-green btn-sm" onclick="App.bulkRefresh()">🔄 Refresh ทั้งหมด</button>
          </div>` : '');
+    // Status-updated panel below refresh bar
+    UI.setHTML('status-updated-rec-wrap', `<div class="glass g-black" style="padding:14px 16px;margin-top:0"><div class="card-title ct-dim" style="margin-bottom:8px">🔔 โครงการที่อัพเดทสถานะล่าสุด</div><div id="status-updated-rec"></div></div>`);
+    renderStatusUpdatedTimeline('status-updated-rec');
 
     const filtered = bids.filter(b => {
       if (q && !b.name?.toLowerCase().includes(q)
@@ -2432,169 +2513,4 @@ const App = (() => {
     _setField('f-name',     b.name     ?? '');
     _setField('f-date',     b.date     ?? '');
     _setField('f-agency',   b.agency   ?? '');
-    _setField('f-province', b.province ?? '');
-    _setField('f-budget',   b.budget   ?? 0);
-    _setField('f-midprice',   b.midPrice   ?? 0);
-    _setField('f-bid',        b.bid        ?? 0);
-    _setField('f-lowest',     b.lowest     ?? '');
-    _setField('f-competitor', b.competitor ?? '');
-    _setField('f-worktype',   b.workType   ?? '');
-    _setField('f-plant',      b.plant      ?? '');
-    _setField('f-plantdist',  b.plantDist  ?? '');
-    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
-    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
-    navigate('add');
-  }
-
-  function deleteBid(id) {
-    const b = Store.findById(id);
-    if (!confirm(`ลบโครงการ #${b?.seq}: "${(b?.name ?? '').substring(0, 40)}..."?`)) return;
-    Store.remove(id);
-    renderTable();
-    UI.toast('🗑 ลบแล้ว');
-  }
-
-  function clearForm() {
-    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-competitor','f-worktype','f-plant','f-plantdist']
-      .forEach(id => { document.getElementById(id).value = ''; });
-    UI.setHTML('autofill-result', '');
-    document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
-    document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
-    document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
-    _editId = null;
-  }
-
-  /* ── Save + Export for Push ─────────────────────────────── */
-  function saveBidAndExport() {
-    saveBid();
-    const bids = Store.getAll().sort((a, b) => a.seq - b.seq).map(b => {
-      const clean = { ...b };
-      delete clean._id;
-      return clean;
-    });
-    const json = JSON.stringify(bids, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement('a'), {
-      href: url, download: `seed_update_${new Date().toISOString().slice(0,10)}.json`,
-    });
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-    UI.toast('💾 บันทึกแล้ว + Export JSON สำหรับ Push');
-  }
-
-  function exportAllForPush() {
-    const bids = Store.getAll().sort((a, b) => a.seq - b.seq).map(b => {
-      const clean = { ...b };
-      delete clean._id;
-      return clean;
-    });
-    const json = JSON.stringify(bids, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement('a'), {
-      href: url, download: `seed_export_${new Date().toISOString().slice(0,10)}.json`,
-    });
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-    UI.toast('📤 Export JSON ทั้งหมดแล้ว — ส่งให้ Claude push ได้เลย');
-  }
-
-  /* ── CSV export ──────────────────────────────────────────── */
-  function exportCSV() {
-    const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest\n';
-    const rows = Store.getAll().sort((a,b)=>a.seq-b.seq).map(b => [
-      b.seq, b.id,
-      esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
-      b.budget, b.bid, b.pct,
-      esc(b.entity), esc(b.status), b.date,
-      b.midPrice ?? '', b.contractPrice ?? '',
-      esc(b.workType ?? ''), esc(b.plant ?? ''), b.plantDist ?? '', b.lowest ?? '',
-    ].join(',')).join('\n');
-
-    const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });
-    const blobUrl = URL.createObjectURL(blob);
-    const a       = Object.assign(document.createElement('a'), {
-      href: blobUrl, download: 'rmn_ebidding_2569.csv',
-    });
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // FIX 7: Revoke blob URL immediately to prevent memory leak
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-    UI.toast('⬇ Export CSV แล้ว');
-  }
-
-  /* ── Private helpers ─────────────────────────────────────── */
-  const _setField = (id, val) => { document.getElementById(id).value = val; };
-
-  function _setReportFilter(filter) {
-    _reportFilter = filter;
-    renderReport();
-  }
-
-  /* ── Public API ──────────────────────────────────────────── */
-  return {
-    navigate, renderDash, renderReport, renderTable, renderSme,
-    timelineLoadMore: (targetId) => {
-      const page = (_timelinePage[targetId] || 1) + 1;
-      renderBidTimeline(Store.getAll(), targetId, page);
-    },
-    checkOne, bulkRefresh,
-    doLookup, doWinnerLookup, autofillFromAPI,
-    saveBid, saveBidAndExport, exportAllForPush, editBid, deleteBid, clearForm, exportCSV,
-    _setReportFilter,
-  };
-})();
-
-/* Boot — pill filter for report tab */
-document.querySelector('.report-pills').addEventListener('click', e => {
-  const pill = e.target.closest('.pill');
-  if (!pill || !pill.dataset.filter) return;
-  App._setReportFilter(pill.dataset.filter);
-});
-
-/* Boot — delegated listener on records-list for card action buttons */
-document.getElementById('records-list').addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]');
-  if (!btn) return;
-  const { action, id } = btn.dataset;
-  if (action === 'check')  App.checkOne(id);
-  if (action === 'edit')   App.editBid(id);
-  if (action === 'delete') App.deleteBid(id);
-});
-
-document.getElementById('records-list').addEventListener('change', e => {
-  const sel = e.target.closest('[data-action="quickstatus"]');
-  if (!sel || !sel.value) return;
-  Store.updateStatus(sel.dataset.id, sel.value);
-  App.renderTable();
-  // rAF guard — dedup renderDash; one repaint per status change
-  if (!_dashRafPending) {
-    _dashRafPending = true;
-    requestAnimationFrame(() => { _dashRafPending = false; App.renderDash(); });
-  }
-});
-let _dashRafPending = false;
-
-App.renderDash();
-
-function copyViewLink() {
-  const url = new URL(window.location.href);
-  url.searchParams.set('view', '1');
-  navigator.clipboard.writeText(url.toString()).catch(() => {});
-  const toast = document.getElementById('toast');
-  if (toast) {
-    toast.textContent = '🔗 คัดลอก Share Link แล้ว!';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-}
-</script>
-</body>
-</html>
+    _setFi
