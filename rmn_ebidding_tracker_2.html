@@ -1683,8 +1683,9 @@ const App = (() => {
       return {t:s||'—',bg:'#6b7280'};
     };
     const MS = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const _decided = new Set([STATUS.CONTRACT,STATUS.WINNER,STATUS.LOSE,STATUS.DISQUALIFIED,STATUS.CANCELLED,STATUS.WITHDRAWN]);
     const sorted = [...bids]
-      .filter(b => b.statusUpdatedAt || b.date)
+      .filter(b => _decided.has(b.status) && (b.statusUpdatedAt || b.date))
       .sort((a,b) => {
         const ta = a.statusUpdatedAt || (a.date ? a.date+'T00:00:00' : '');
         const tb = b.statusUpdatedAt || (b.date ? b.date+'T00:00:00' : '');
