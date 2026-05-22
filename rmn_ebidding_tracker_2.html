@@ -2512,5 +2512,169 @@ const App = (() => {
     _setField('f-id',       b.id       ?? '');
     _setField('f-name',     b.name     ?? '');
     _setField('f-date',     b.date     ?? '');
-    _setField('f-agency',   b.agency   ?? '');
-    _setFi
+    _setField('f-province', b.province ?? '');
+    _setField('f-budget',   b.budget   ?? 0);
+    _setField('f-midprice',   b.midPrice   ?? 0);
+    _setField('f-bid',        b.bid        ?? 0);
+    _setField('f-lowest',     b.lowest     ?? '');
+    _setField('f-competitor', b.competitor ?? '');
+    _setField('f-worktype',   b.workType   ?? '');
+    _setField('f-plant',      b.plant      ?? '');
+    _setField('f-plantdist',  b.plantDist  ?? '');
+    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
+    navigate('add');
+  }
+
+  function deleteBid(id) {
+    const b = Store.findById(id);
+    if (!confirm(`ลบโครงการ #${b?.seq}: "${(b?.name ?? '').substring(0, 40)}..."?`)) return;
+    Store.remove(id);
+    renderTable();
+    UI.toast('🗑 ลบแล้ว');
+  }
+
+  function clearForm() {
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-competitor','f-worktype','f-plant','f-plantdist']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    UI.setHTML('autofill-result', '');
+    document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
+    document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
+    document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
+    _editId = null;
+  }
+
+  /* ── Save + Export for Push ─────────────────────────────── */
+  function saveBidAndExport() {
+    saveBid();
+    const bids = Store.getAll().sort((a, b) => a.seq - b.seq).map(b => {
+      const clean = { ...b };
+      delete clean._id;
+      return clean;
+    });
+    const json = JSON.stringify(bids, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url, download: `seed_update_${new Date().toISOString().slice(0,10)}.json`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+    UI.toast('💾 บันทึกแล้ว + Export JSON สำหรับ Push');
+  }
+
+  function exportAllForPush() {
+    const bids = Store.getAll().sort((a, b) => a.seq - b.seq).map(b => {
+      const clean = { ...b };
+      delete clean._id;
+      return clean;
+    });
+    const json = JSON.stringify(bids, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url, download: `seed_export_${new Date().toISOString().slice(0,10)}.json`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+    UI.toast('📤 Export JSON ทั้งหมดแล้ว — ส่งให้ Claude push ได้เลย');
+  }
+
+  /* ── CSV export ──────────────────────────────────────────── */
+  function exportCSV() {
+    const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
+    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest\n';
+    const rows = Store.getAll().sort((a,b)=>a.seq-b.seq).map(b => [
+      b.seq, b.id,
+      esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
+      b.budget, b.bid, b.pct,
+      esc(b.entity), esc(b.status), b.date,
+      b.midPrice ?? '', b.contractPrice ?? '',
+      esc(b.workType ?? ''), esc(b.plant ?? ''), b.plantDist ?? '', b.lowest ?? '',
+    ].join(',')).join('\n');
+
+    const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a       = Object.assign(document.createElement('a'), {
+      href: blobUrl, download: 'rmn_ebidding_2569.csv',
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // FIX 7: Revoke blob URL immediately to prevent memory leak
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    UI.toast('⬇ Export CSV แล้ว');
+  }
+
+  /* ── Private helpers ─────────────────────────────────────── */
+  const _setField = (id, val) => { document.getElementById(id).value = val; };
+
+  function _setReportFilter(filter) {
+    _reportFilter = filter;
+    renderReport();
+  }
+
+  /* ── Public API ──────────────────────────────────────────── */
+  return {
+    navigate, renderDash, renderReport, renderTable, renderSme,
+    timelineLoadMore: (targetId) => {
+      const page = (_timelinePage[targetId] || 1) + 1;
+      renderBidTimeline(Store.getAll(), targetId, page);
+    },
+    checkOne, bulkRefresh,
+    doLookup, doWinnerLookup, autofillFromAPI,
+    saveBid, saveBidAndExport, exportAllForPush, editBid, deleteBid, clearForm, exportCSV,
+    _setReportFilter,
+  };
+})();
+
+/* Boot — pill filter for report tab */
+document.querySelector('.report-pills').addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (!pill || !pill.dataset.filter) return;
+  App._setReportFilter(pill.dataset.filter);
+});
+
+/* Boot — delegated listener on records-list for card action buttons */
+document.getElementById('records-list').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const { action, id } = btn.dataset;
+  if (action === 'check')  App.checkOne(id);
+  if (action === 'edit')   App.editBid(id);
+  if (action === 'delete') App.deleteBid(id);
+});
+
+document.getElementById('records-list').addEventListener('change', e => {
+  const sel = e.target.closest('[data-action="quickstatus"]');
+  if (!sel || !sel.value) return;
+  Store.updateStatus(sel.dataset.id, sel.value);
+  App.renderTable();
+  // rAF guard — dedup renderDash; one repaint per status change
+  if (!_dashRafPending) {
+    _dashRafPending = true;
+    requestAnimationFrame(() => { _dashRafPending = false; App.renderDash(); });
+  }
+});
+let _dashRafPending = false;
+
+App.renderDash();
+
+function copyViewLink() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('view', '1');
+  navigator.clipboard.writeText(url.toString()).catch(() => {});
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = '🔗 คัดลอก Share Link แล้ว!';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+}
+</script>
+</body>
+</html>
