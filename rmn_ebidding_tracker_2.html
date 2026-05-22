@@ -1708,7 +1708,7 @@ const App = (() => {
       const badge = prev
         ? `<span class="su-badge" style="background:${cur.bg}"><span class="su-prev">${prev.t}</span><span class="su-arr">→</span><span class="su-cur">${cur.t}</span></span>`
         : `<span class="su-badge" style="background:${cur.bg}"><span class="su-cur">${cur.t}</span></span>`;
-      return `<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
+      return `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
         <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border-right:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04)">
           <span style="font-size:19px;font-weight:700;color:var(--accent);line-height:1">${dayStr}</span>
           <span style="font-size:10px;color:var(--text);opacity:.6;margin-top:1px;text-align:center;line-height:1.3">${monStr}${timeStr?`<br>${timeStr}`:''}</span>
