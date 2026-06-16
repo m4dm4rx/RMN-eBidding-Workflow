@@ -590,7 +590,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
       <img src="assets/logo.png">
       <div>
         <h1>R.M.N GROUP : E-BIDDING DATABASE</h1>
-        <p>ระบบติดตามการประมูล ปีงบประมาณ 2569</p>
+        <p>ระบบติดตามการประมูล</p>
       </div>
     </div>
     <div class="topbar-actions">
@@ -625,7 +625,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
       <div class="dash-header-inner">
         <div>
           <div class="dash-title">📊 ภาพรวมการประมูล</div>
-          <div class="dash-subtitle">ห้างหุ้นส่วน RMN · ปีงบประมาณ 2569</div>
+          <div class="dash-subtitle">ห้างหุ้นส่วน RMN · สรุปทุกปีงบประมาณ</div>
         </div>
         <div class="dash-meta" id="dash-updated"></div>
       </div>
@@ -1105,6 +1105,9 @@ const App = (() => {
       document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
       document.querySelectorAll('.tab')[i].classList.toggle('active', t === name);
     });
+    // ซ่อน year-tabs บน Dashboard (รวมทุกปี), แสดงบน tab อื่น
+    const yt = document.getElementById('year-tabs');
+    if (yt) yt.style.display = name === 'dashboard' ? 'none' : 'flex';
     if (name === 'dashboard') renderDash();
     if (name === 'report')    renderReport();
     if (name === 'records')   renderTable();
@@ -1733,7 +1736,7 @@ const App = (() => {
 
   /* ── Dashboard ───────────────────────────────────────────── */
   function renderDash() {
-    const bids = _yearBids().sort(_byDateDesc);
+    const bids = Store.getAll().sort(_byDateDesc);
     const { STATUS } = CONFIG;
 
     if (!bids.length) {
@@ -1769,7 +1772,7 @@ const App = (() => {
         <div class="kpi-icon">📋</div>
         <div class="kpi-label">โครงการทั้งหมด</div>
         <div class="kpi-value">${UI.fmt(total)}</div>
-        <div class="kpi-unit">โครงการ ปี 2569</div>
+        <div class="kpi-unit">โครงการ (ทุกปีงบ)</div>
       </div></div>
       <div class="kpi-card green"><div class="kpi-card-inner">
         <div class="kpi-icon">💰</div>
@@ -2191,6 +2194,8 @@ document.getElementById('records-list').addEventListener('change', e => {
 let _dashRafPending = false;
 
 App.renderDash();
+// ซ่อน year-tabs บน Dashboard ตอน boot
+(function(){ const yt = document.getElementById('year-tabs'); if (yt) yt.style.display = 'none'; })();
 
 function copyViewLink() {
   const url = new URL(window.location.href);
