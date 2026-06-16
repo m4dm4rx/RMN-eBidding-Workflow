@@ -1125,79 +1125,69 @@ const App = (() => {
     if (name === 'sme')       renderSme();
   }
 
-  /* ── SME Capacity Tracker ───────────────────────────────── */
+  /* ── SME — จำนวนโครงการต่อห้าง ─────────────────────────── */
   function renderSme() {
     const { STATUS } = CONFIG;
-    const SME_LIMIT = 300_000_000;
     const bids = _yearBids();
 
-    // Statuses ที่นับ (ยังไม่แพ้/ยกเลิก)
-    const activeStatuses = new Set([
-      STATUS.WIN_PENDING, STATUS.WIN_PRICE, STATUS.PENDING,
-      STATUS.WINNER, STATUS.CONTRACT,
-    ]);
-
-    // สะสมต่อ entity
-    const totals = {};
-    const projects = {};
+    // จัดกลุ่มทุก status ต่อ entity
+    const groups = {};
     for (const b of bids) {
-      if (!activeStatuses.has(b.status)) continue;
       const e = b.entity || CONFIG.DEFAULT_ENTITY;
-      const amt = b.contractPrice || b.bid || 0;
-      totals[e]   = (totals[e]   || 0) + amt;
-      projects[e] = (projects[e] || []);
-      projects[e].push(b);
+      if (!groups[e]) groups[e] = [];
+      groups[e].push(b);
     }
+    const entities = Object.keys(groups).sort((a,b) => groups[b].length - groups[a].length);
+    if (!entities.length) {
+      document.getElementById('sme-content').innerHTML = '<div class="empty">ไม่มีข้อมูล</div>';
+      return;
+    }
+    const maxCount = groups[entities[0]].length;
 
-    const entities = Object.keys(totals).sort((a, b) => totals[b] - totals[a]);
+    const statusBadge = s => {
+      if (s===STATUS.CONTRACT)    return `<span class="badge b-contract">สัญญา</span>`;
+      if (s===STATUS.WINNER)      return `<span class="badge b-winner">ชนะ</span>`;
+      if (s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)
+                                  return `<span class="badge b-pending">รอผล</span>`;
+      if (s===STATUS.LOSE||s===STATUS.DISQUALIFIED) return `<span class="badge b-lose">แพ้</span>`;
+      return `<span class="badge">${UI.esc(s)}</span>`;
+    };
 
-    const bars = entities.map(e => {
-      const used  = totals[e];
-      const pct   = Math.min(used / SME_LIMIT * 100, 100);
-      const left  = SME_LIMIT - used;
-      const color = pct >= 95 ? 'var(--red)' : pct >= 80 ? '#f59e0b' : '#d97757';
-      const rows  = projects[e].sort((a,b)=>(b.date??'').localeCompare(a.date??'')).map(b => {
-        const amt = b.contractPrice || b.bid || 0;
-        const typeLabel = b.status === STATUS.CONTRACT ? 'สัญญา'
-          : b.status === STATUS.WINNER ? 'ผู้ชนะ'
-          : 'รอผล';
-        return `<tr>
-          <td>${UI.esc(b.seq??'')}</td>
-          <td class="lbl-xs">${UI.esc(b.agency||'')}</td>
-          <td class="lbl-xs">${UI.esc(b.date||'')}</td>
-          <td class="tr">${UI.fmt(amt)}</td>
-          <td><span class="badge ${b.status===STATUS.CONTRACT?'b-contract':b.status===STATUS.WINNER?'b-winner':'b-pending'}">${typeLabel}</span></td>
-        </tr>`;
-      }).join('');
+    const cards = entities.map(e => {
+      const list = groups[e].sort((a,b)=>(b.date??'').localeCompare(a.date??''));
+      const cnt  = list.length;
+      const pct  = Math.round(cnt / maxCount * 100);
+      const won  = list.filter(b=>b.status===STATUS.CONTRACT||b.status===STATUS.WINNER).length;
+      const rows = list.map(b => `<tr>
+        <td>${UI.esc(b.seq??'')}</td>
+        <td class="lbl-xs">${UI.esc((b.agency||'').substring(0,28))}</td>
+        <td class="lbl-xs">${UI.esc(b.date||'')}</td>
+        <td class="tr">${UI.fmt(b.bid||0)}</td>
+        <td>${statusBadge(b.status)}</td>
+      </tr>`).join('');
 
-      return `
-      <div class="card" style="margin-bottom:1.2rem">
-        <div class="card-title">${UI.esc(e)}</div>
-        <div style="margin:0.6rem 0 0.3rem;font-size:12px;color:var(--muted)">
-          ใช้ไปแล้ว <strong style="color:${color}">${UI.fmt(used)}</strong>
-          จาก ${UI.fmt(SME_LIMIT)} — เหลือ <strong>${UI.fmt(Math.max(left,0))}</strong>
+      return `<div class="card" style="margin-bottom:1.2rem">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <div class="card-title">${UI.esc(e)}</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">${cnt} <span style="font-size:12px;font-weight:400;color:var(--muted)">โครงการ</span></div>
         </div>
-        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;overflow:hidden;height:14px;margin-bottom:1rem">
-          <div style="height:100%;width:${pct.toFixed(1)}%;background:${color};transition:width 0.4s"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <div style="flex:1;background:var(--card-bg);border:1px solid var(--card-border);border-radius:4px;overflow:hidden;height:8px">
+            <div style="height:100%;width:${pct}%;background:#d97757;transition:width .4s"></div>
+          </div>
+          <span style="font-size:11px;color:var(--muted);white-space:nowrap">ชนะ ${won}/${cnt}</span>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:12px">
           <thead><tr style="color:var(--muted);border-bottom:1px solid var(--card-border)">
-            <th class="th-l">#</th>
-            <th class="th-l">หน่วยงาน</th>
-            <th class="th-l">วันที่</th>
-            <th class="th-r">ราคา</th>
-            <th class="th-c">สถานะ</th>
+            <th class="th-l">#</th><th class="th-l">หน่วยงาน</th>
+            <th class="th-l">วันที่</th><th class="th-r">ราคา</th><th class="th-c">สถานะ</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>`;
     }).join('');
 
-    const note = `<div style="background:var(--pipe-alt);border:1px solid var(--card-border);border-radius:6px;padding:.6rem .9rem;font-size:11px;color:var(--muted);margin-bottom:1rem">
-      💼 นับเฉพาะโครงการที่ <strong>รอผล/ชนะ/มีสัญญา</strong> — วงเงิน SME per entity = 300,000,000 บาท
-    </div>`;
-
-    document.getElementById('sme-content').innerHTML = note + (bars || '<div class="empty">ไม่มีข้อมูล</div>');
+    document.getElementById('sme-content').innerHTML = cards;
   }
 
   /* ── Report (G-Lead BI dashboard for RMN) ───────────────── */
@@ -2184,7 +2174,6 @@ const App = (() => {
     renderReport();
   }
 
-
   /* ── Year filter ─────────────────────────────────────────── */
   function setYear(y) {
     _activeYear = y;
@@ -2211,14 +2200,13 @@ const App = (() => {
   };
 })();
 
-/* Boot — pill filter for report tab */
+/* Boot */
 document.querySelector('.report-pills').addEventListener('click', e => {
   const pill = e.target.closest('.pill');
   if (!pill || !pill.dataset.filter) return;
   App._setReportFilter(pill.dataset.filter);
 });
 
-/* Boot — delegated listener on records-list for card action buttons */
 document.getElementById('records-list').addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
