@@ -580,7 +580,18 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
 .win-tl-bullet.red{background:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.15)}
 .win-tl-date-day.red{color:#dc2626}
 .kpi-card.gold{border-top:2px solid #d9a057}
+/* KPI 2-col main grid */
+.kpi-main-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:14px;margin-bottom:1.2rem;align-items:stretch}
+.kpi-chart-card{grid-row:span 2;display:flex;flex-direction:column}
+.kpi-chart-card .kpi-card-inner{flex:1;display:flex;flex-direction:column}
+.kpi-chart-wrap{flex:1;position:relative;min-height:180px;margin-top:10px}
+.kpi-chart-legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.kpi-chart-legend span{font-size:11px;color:#8a8880;display:flex;align-items:center;gap:4px}
+.kpi-chart-legend i{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
+@media(max-width:600px){.kpi-main-grid{grid-template-columns:1fr}.kpi-chart-card{grid-row:span 1}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -630,7 +641,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
         <div class="dash-meta" id="dash-updated"></div>
       </div>
     </div>
-    <div class="kpi-grid" id="dash-kpi"></div>
+    <div class="kpi-main-grid" id="dash-kpi"></div>
     <div class="dash-status-row" id="dash-status"></div>
     <div class="two-col">
       <div class="glass g-green">
@@ -1766,8 +1777,17 @@ const App = (() => {
     const now = new Date();
     UI.setHTML('dash-updated', `อัพเดทล่าสุด<strong>${now.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'})} เวลา ${now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} น.</strong>`);
 
-    // KPI cards
+    // KPI cards — Growth chart (left, rowspan 2) + 2 small cards (right)
     UI.setHTML('dash-kpi', `
+      <div class="kpi-card kpi-chart-card"><div class="kpi-card-inner">
+        <div class="kpi-label" style="text-transform:uppercase;letter-spacing:.04em;font-size:12px;font-weight:500;color:#7a7872;margin-bottom:2px">📈 GROWTH รายปีงบประมาณ</div>
+        <div style="font-size:11px;color:#8a8880;margin-bottom:4px">ยอดเงินยื่น (ล้านบาท) · จำนวนโครงการ</div>
+        <div class="kpi-chart-legend">
+          <span><i style="background:#6a9bcc"></i>ยอดเงิน (ล้านบาท)</span>
+          <span><i style="background:#d97757"></i>จำนวนโครงการ</span>
+        </div>
+        <div class="kpi-chart-wrap"><canvas id="growth-chart"></canvas></div>
+      </div></div>
       <div class="kpi-card blue"><div class="kpi-card-inner">
         <div class="kpi-icon">📋</div>
         <div class="kpi-label">โครงการทั้งหมด</div>
@@ -1780,19 +1800,8 @@ const App = (() => {
         <div class="kpi-value">${UI.fmt(income)}</div>
         <div class="kpi-unit">บาท · ${won} โครงการ</div>
       </div></div>
-      <div class="kpi-card purple"><div class="kpi-card-inner">
-        <div class="kpi-icon">🏆</div>
-        <div class="kpi-label">อัตราการชนะ</div>
-        <div class="kpi-value">${winRate}%</div>
-        <div class="kpi-unit">${won}/${decided} โครงการที่รู้ผล</div>
-      </div></div>
-      <div class="kpi-card gold"><div class="kpi-card-inner">
-        <div class="kpi-icon">📉</div>
-        <div class="kpi-label">% ลดราคาเฉลี่ย</div>
-        <div class="kpi-value">${avgDrop}%</div>
-        <div class="kpi-unit">เฉลี่ยจาก ${total} โครงการ</div>
-      </div></div>
-      `);
+    `);
+    renderGrowthChart();
 
     // Status cards
     const scRow = (dotCls, label, n) =>
@@ -1825,7 +1834,7 @@ const App = (() => {
     // Province bars
     const _dk = document.documentElement.classList.contains('dark');
     const provMap = {};
-    bids.forEach(b => { const p = (b.province || '?').trim(); provMap[p] = (provMap[p] ?? 0) + 1; });
+    bids.forEach(b => { const p = (b.province || '').trim(); if (!p) return; provMap[p] = (provMap[p] ?? 0) + 1; });
     const maxProv = Math.max(...Object.values(provMap), 1);
     UI.setHTML('province-bars', Object.entries(provMap)
       .sort(([, a], [, b]) => b - a)
@@ -2128,6 +2137,45 @@ const App = (() => {
     UI.toast('⬇ Export CSV แล้ว');
   }
 
+  /* ── Growth chart ───────────────────────────────────────── */
+  function renderGrowthChart() {
+    const canvas = document.getElementById('growth-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (window._growthChart) { window._growthChart.destroy(); window._growthChart = null; }
+    const allBids = Store.getAll();
+    const years = [2565, 2566, 2567, 2568, 2569];
+    const amounts = years.map(y =>
+      Math.round(allBids.filter(b=>(b.fiscalYear||_getFiscalYear(b.date))===y)
+        .reduce((s,b)=>s+(b.bid||0),0)/1_000_000));
+    const counts = years.map(y =>
+      allBids.filter(b=>(b.fiscalYear||_getFiscalYear(b.date))===y).length);
+    const dk = document.documentElement.classList.contains('dark');
+    const gridC = dk?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)';
+    const textC = dk?'rgba(250,249,245,.55)':'#8a8880';
+    window._growthChart = new Chart(canvas,{
+      type:'bar',
+      data:{
+        labels:years.map(String),
+        datasets:[
+          {label:'ยอดเงิน (ล้านบาท)',data:amounts,backgroundColor:'#6a9bcc',borderRadius:4,yAxisID:'y'},
+          {label:'จำนวนโครงการ',data:counts,backgroundColor:'#d97757',borderRadius:4,yAxisID:'y2'}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:textC,font:{size:10}}},
+          y:{position:'left',grid:{color:gridC},ticks:{color:textC,font:{size:9}},
+             title:{display:true,text:'ล้านบาท',color:textC,font:{size:9}}},
+          y2:{position:'right',grid:{drawOnChartArea:false},
+              ticks:{color:'#d97757',font:{size:9}},
+              title:{display:true,text:'โครงการ',color:'#d97757',font:{size:9}}}
+        }
+      }
+    });
+  }
+
   /* ── Private helpers ─────────────────────────────────────── */
   const _setField = (id, val) => { document.getElementById(id).value = val; };
 
@@ -2145,7 +2193,6 @@ const App = (() => {
       t.textContent = t.textContent.replace(' ▾','');
       if (parseInt(t.textContent) === y) t.textContent += ' ▾';
     });
-    // Re-render current tab
     if (_activeTab === 'dashboard') renderDash();
     else if (_activeTab === 'report')    renderReport();
     else if (_activeTab === 'records')   renderTable();
@@ -2185,7 +2232,6 @@ document.getElementById('records-list').addEventListener('change', e => {
   if (!sel || !sel.value) return;
   Store.updateStatus(sel.dataset.id, sel.value);
   App.renderTable();
-  // rAF guard — dedup renderDash; one repaint per status change
   if (!_dashRafPending) {
     _dashRafPending = true;
     requestAnimationFrame(() => { _dashRafPending = false; App.renderDash(); });
@@ -2194,7 +2240,6 @@ document.getElementById('records-list').addEventListener('change', e => {
 let _dashRafPending = false;
 
 App.renderDash();
-// ซ่อน year-tabs บน Dashboard ตอน boot
 (function(){ const yt = document.getElementById('year-tabs'); if (yt) yt.style.display = 'none'; })();
 
 function copyViewLink() {
