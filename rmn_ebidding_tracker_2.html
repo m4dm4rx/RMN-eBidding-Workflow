@@ -53,9 +53,6 @@ html.dark .b-new{background:#2e2c28;color:var(--muted)}
 html.dark .bar{background:#2e2c28}
 html.dark .spinner{border-color:#3a3733;border-top-color:var(--accent)}
 html.dark .refresh-banner{background:#2a2010;border-color:#d97757;color:#faf9f5}
-html.dark .progress-wrap{background:#252320;border:1px solid #3a3733}
-html.dark .progress-bar{background:#2e2c28}
-html.dark .api-note{background:#1a2035;border-color:#6a9bcc;color:#6a9bcc}
 html.dark .proj-card{background:#252320;border-color:#3a3733}
 html.dark .proj-card:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(0,0,0,.5)}
 html.dark .proj-card-header{background:#1f1e1b;border-bottom-color:#3a3733}
@@ -159,7 +156,6 @@ html.dark .card,html.dark .glass{
 .btn:hover{background:var(--pipe-alt)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-primary:hover{background:var(--accent-dk)}
-.btn-api{background:var(--blue);color:var(--surface);border-color:var(--blue)}.btn-api:hover{background:var(--blue-dk)}
 .btn-green{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-green:hover{background:var(--accent-dk)}
 .btn-sm{padding:4px 10px;font-size:11px}
 .btn-row{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
@@ -223,12 +219,12 @@ textarea{resize:vertical;min-height:60px}
   border-radius:9px;padding:.75rem 1rem;margin-bottom:1rem;
   display:flex;align-items:center;justify-content:space-between;
   gap:8px;font-size:13px;flex-wrap:wrap}
-.progress-wrap{margin-bottom:1rem;padding:.75rem 1rem;
-  background:#f0f7ff;border-radius:9px;display:none}
-.progress-bar{height:5px;background:#dde;border-radius:3px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
-.api-note{background:#e8f4fd;border:1px solid #bee3f8;border-radius:var(--radius-sm);
-  padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-bottom:1rem}
+
+.year-tabs{display:flex;gap:4px;padding:8px 0 0;border-bottom:2px solid var(--card-border);margin-bottom:1rem}
+.ytab{padding:4px 16px;border:1px solid var(--card-border);border-bottom:none;border-radius:6px 6px 0 0;background:var(--surface);cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);transition:all .15s}
+.ytab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ytab:hover:not(.active){background:var(--pipe-alt)}
+html.dark .ytab{border-color:#3a3733}
 /* ── Dashboard header ──────────────────────────────────────────── */
 .dash-header{
   background:linear-gradient(135deg,#1a1917 0%,#2c2018 100%);
@@ -594,7 +590,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
       <img src="assets/logo.png">
       <div>
         <h1>R.M.N GROUP : E-BIDDING DATABASE</h1>
-        <p>ระบบติดตามการประมูล ปีงบประมาณ 2569 · govspending API</p>
+        <p>ระบบติดตามการประมูล ปีงบประมาณ 2569</p>
       </div>
     </div>
     <div class="topbar-actions">
@@ -602,7 +598,6 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
       <button class="btn" onclick="copyViewLink()" data-edit-only title="คัดลอก Link สำหรับแชร์ (view-only)">🔗 Share Link</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
       <button class="btn btn-green" onclick="App.exportAllForPush()" data-edit-only title="Export ข้อมูลทั้งหมดเป็น JSON สำหรับส่งให้ Claude push">📤 Export สำหรับ Push</button>
-      <button class="btn btn-green" id="btn-bulk" onclick="App.bulkRefresh()" data-edit-only>🔄 Refresh Pending</button>
     </div>
   </div>
 
@@ -613,7 +608,15 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
     <button class="tab" data-edit-only onclick="App.navigate('records')">📋 Records</button>
     <button class="tab" onclick="App.navigate('sme')">💼 รายงานแบ่งตามยอด SME</button>
     <button class="tab" onclick="App.navigate('add')" data-edit-only>➕ Add Bid</button>
-    <button class="tab" onclick="App.navigate('lookup')" data-edit-only>🔍 API Lookup</button>
+  </div>
+
+  <!-- Year Tabs -->
+  <div class="year-tabs" id="year-tabs">
+    <button class="ytab" onclick="App.setYear(2565)">2565</button>
+    <button class="ytab" onclick="App.setYear(2566)">2566</button>
+    <button class="ytab" onclick="App.setYear(2567)">2567</button>
+    <button class="ytab" onclick="App.setYear(2568)">2568</button>
+    <button class="ytab active" onclick="App.setYear(2569)">2569 ▾</button>
   </div>
 
   <!-- Dashboard -->
@@ -714,12 +717,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
 
   <!-- Records -->
   <div id="tab-records" class="section">
-    <div id="pending-banner"></div>
     <div id="status-updated-rec-wrap" style="margin-bottom:12px"></div>
-    <div class="progress-wrap" id="progress-wrap">
-      <div class="progress-label" id="progress-label"></div>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-    </div>
     <div class="filter-row">
       <input id="fsearch" type="text" placeholder="🔍 ค้นหา..." oninput="_debouncedTable()">
       <select id="fstatus" onchange="App.renderTable()">
@@ -756,10 +754,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
       <div class="form-grid">
         <div class="form-group full">
           <label>เลขที่โครงการ (Project ID)</label>
-          <div class="flex-g8">
-            <input id="f-id" type="text" placeholder="เช่น 69039516906" class="flex-1">
-            <button class="btn btn-api" id="btn-autofill" onclick="App.autofillFromAPI()">⚡ ดึงจาก API</button>
-          </div>
+          <input id="f-id" type="text" placeholder="เช่น 69039516906" class="flex-1">
         </div>
         <div class="form-group full"><label>ชื่อโครงการ</label><textarea id="f-name" placeholder="ชื่อเต็มของโครงการ"></textarea></div>
         <div class="form-group"><label>วันที่ประมูล</label><input id="f-date" type="date"></div>
@@ -805,7 +800,6 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
           </select>
         </div>
       </div>
-      <div id="autofill-result"></div>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="App.saveBid()">💾 บันทึก</button>
         <button class="btn btn-green" onclick="App.saveBidAndExport()" title="บันทึกแล้ว export JSON สำหรับให้ Claude push">💾 บันทึก + Export สำหรับ Push</button>
@@ -815,26 +809,7 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
     </div>
   </div>
 
-  <!-- Lookup -->
-  <div id="tab-lookup" class="section">
-    <div class="api-note">⚡ หากใช้ corsproxy ไม่ได้ ให้รันผ่าน <strong>python -m http.server 8080</strong> แล้วเปิดใน Chrome</div>
-    <div class="card">
-      <div class="card-title">🔍 ค้นหาโครงการ (egp-contract)</div>
-      <div class="flex-g8 flex-wrap mb-1">
-        <input id="lookup-id" type="text" placeholder="เลขที่โครงการ เช่น 68109441956" class="flex-1">
-        <button class="btn btn-api" id="btn-lookup" onclick="App.doLookup()">🔍 ค้นหา</button>
-      </div>
-      <div id="lookup-result"><div class="empty">ใส่เลขโครงการแล้วกดค้นหา</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">🏢 ค้นหาผู้ชนะ (egp-winner)</div>
-      <div class="flex-g8 flex-wrap">
-        <input id="winner-kw" type="text" placeholder="เช่น RMN, ตักสิลา, รักดี" class="flex-1">
-        <button class="btn btn-api" id="btn-winner" onclick="App.doWinnerLookup()">🔍 ค้นหา</button>
-      </div>
-      <div id="winner-result" style="margin-top:.8rem"><div class="empty">ค้นหาจาก egp-winner API</div></div>
-    </div>
-  </div>
+
 </div>
 <div class="toast" id="toast"></div>
 
@@ -883,13 +858,7 @@ if (VIEW_MODE) {
 }
 
 const CONFIG = Object.freeze({
-EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
-  EGP_BASE:      'https://opend.data.go.th/govspending',
-  CORS_PROXY:    'https://corsproxy.io/?url=',
   STORAGE_KEY:   'rmn_v6',
-  TIMEOUT_DIRECT: 8_000,
-  TIMEOUT_PROXY:  15_000,
-  BULK_DELAY:     800,
   STATUS: Object.freeze({
     PENDING:      'อยู่ระหว่างพิจารณาผล',   // legacy
     WIN_PRICE:    'ราคาต่ำสุด',               // legacy
@@ -904,26 +873,6 @@ EGP_KEY:       'H7zk35ZAtVdGCa2hPhKQKnqPuE1v3HQO',
     WITHDRAWN:    'ห้างขอยกเลิกสัญญา',
   }),
   DEFAULT_ENTITY: 'ห้างหุ้นส่วน RMN',
-  // เลขผู้เสียภาษี (winner_tin) ของแต่ละนิติบุคคลในกลุ่ม RMN (ครบทุกห้าง)
-  ENTITY_TIN: Object.freeze({
-    'ห้างหุ้นส่วนจำกัด อาร์เอ็มเอ็น เอ็นเตอร์ไพส์': '0443561001307',
-    'ห้างหุ้นส่วน RMN':                               '0443561001307',
-    'กิจการร่วมค้า RMN':                              '0993000469275',
-    'กิจการร่วมค้า อาร์เอ็มเอ็น':                    '0993000469275',
-    'บริษัท ตักสิลา อาร์เอ็มเอ็น จำกัด':             '0105551027685',
-    'กิจการร่วมค้า ตักสิลา':                          '0993000529367',
-    'กิจการร่วมค้า รักดี':                            '0993000516095',
-    'ห้างหุ้นส่วนจำกัด รักดีการโยธา':                '0443567000931',
-  }),
-  // TIN ทั้งหมดของกลุ่ม (ใช้ค้นแบบ bulk)
-  ALL_TINS: Object.freeze([
-    '0443561001307',  // อาร์เอ็มเอ็น เอ็นเตอร์ไพส์
-    '0993000469275',  // กิจการร่วมค้า อาร์เอ็มเอ็น
-    '0105551027685',  // ตักสิลา อาร์เอ็มเอ็น
-    '0993000516095',  // กิจการร่วมค้า รักดี
-    '0443567000931',  // รักดีการโยธา
-    '0993000529367',  // กิจการร่วมค้า ตักสิลา
-  ]),
 });
 
 /* ── Debounce helpers ───────────────────────────────────────── */
@@ -935,228 +884,7 @@ const _debouncedTable  = _debounce(() => typeof App !== 'undefined' && App.rende
 <script src="seed_bids.js"></script>
 <script>
 
-/* ═══════════════════════════════════════════════════════════════
-   API LAYER  — single responsibility: fetch + CORS fallback
-═══════════════════════════════════════════════════════════════ */
-const GovAPI = (() => {
-  /** Parse money values — new API returns numeric directly, old returned comma strings. Handle both. */
-  const parseMoney = val => typeof val === 'number' ? val : Number(String(val ?? '').replace(/,/g, '')) || 0;
 
-  /**
-   * Fetch a govspending endpoint.
-   * Strategy: try direct first (works on local http server),
-   * fall back to corsproxy.io which adds CORS headers server-side.
-   */
-  /**
-   * Create a manually-driven AbortSignal via AbortController + setTimeout.
-   *
-   * ROOT CAUSE FIX: AbortSignal.timeout() produces a non-cloneable signal.
-   * When the browser tries to transfer fetch internals across contexts (e.g.
-   * Service Worker, corsproxy redirect), it calls postMessage/structuredClone
-   * on the signal and throws:
-   *   "Failed to execute 'postMessage' on 'Window':
-   *    AbortSignal object could not be cloned."
-   * AbortController's .signal IS structured-cloneable. Using it instead
-   * eliminates the error while preserving identical timeout behaviour.
-   */
-  function _makeSignal(ms) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(new DOMException('Timeout', 'TimeoutError')), ms);
-    // Clean up the timer if the signal is used before timeout fires
-    ctrl.signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
-    return ctrl.signal;
-  }
-
-  async function get(endpoint, params) {
-    const url      = `${CONFIG.EGP_BASE}/${endpoint}?api-key=${CONFIG.EGP_KEY}&${params}`;
-    const proxyUrl = `${CONFIG.CORS_PROXY}${encodeURIComponent(url)}`;
-
-    try {
-      // Send api-key as header (new DGA requirement) AND keep in URL as fallback.
-      // If server rejects CORS preflight the TypeError falls through to proxy.
-      const res = await fetch(url, {
-        headers: { 'api-key': CONFIG.EGP_KEY },
-        signal: _makeSignal(CONFIG.TIMEOUT_DIRECT),
-      });
-      if (res.ok) return await res.json();
-      if (res.status >= 400) throw new Error(`API error ${res.status}`);
-    } catch (err) {
-      // DOMException 'TimeoutError' or TypeError (CORS/network) → fall through to proxy
-      const isNetworkOrTimeout = err instanceof TypeError
-        || (err instanceof DOMException && err.name === 'TimeoutError');
-      if (!isNetworkOrTimeout) throw err;
-    }
-
-    // Primary proxy — Netlify function (works when deployed)
-    if (location.hostname !== 'localhost' && location.protocol !== 'file:') try {
-      const netlifyUrl = `/.netlify/functions/proxy?url=${encodeURIComponent(url)}`;
-      const res2 = await fetch(netlifyUrl, { signal: _makeSignal(8_000) });
-      if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
-      return await res2.json();
-    } catch (_) { /* fall through */ }
-
-    // Local proxy — server.py (localhost dev)
-    if (location.hostname === 'localhost') try {
-      const localUrl = `/proxy?url=${encodeURIComponent(url)}`;
-      const res2b = await fetch(localUrl, { signal: _makeSignal(3_000) });
-      if (!res2b.ok) throw new Error(`HTTP ${res2b.status}`);
-      return await res2b.json();
-    } catch (_) { /* local proxy not running, fall through */ }
-
-    // Backup proxy — allorigins /get
-    try {
-      const alloriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-      const res3 = await fetch(alloriginsUrl, { signal: _makeSignal(CONFIG.TIMEOUT_PROXY) });
-      if (!res3.ok) throw new Error(`HTTP ${res3.status}`);
-      const wrapper = await res3.json();
-      const text = wrapper.contents ?? '';
-      if (!text || text.trimStart().startsWith('<')) throw new Error('HTML response');
-      return JSON.parse(text);
-    } catch (_) { /* fall through */ }
-
-    // Last resort — corsproxy.io
-    try {
-      const res4 = await fetch(proxyUrl, { signal: _makeSignal(CONFIG.TIMEOUT_PROXY) });
-      if (!res4.ok) throw new Error(`HTTP ${res4.status}`);
-      const text = await res4.text();
-      if (text.trimStart().startsWith('<')) throw new Error('HTML response');
-      return JSON.parse(text);
-    } catch (err) {
-      throw new Error(`API unreachable — proxy ทั้งหมดล้มเหลว (${err.message})`);
-    }
-  }
-
-  /**
-   * Derive Thai fiscal year (e.g. 2568) from project ID prefix.
-   * All IDs start with 2-digit year: "68..." = 2568, "69..." = 2569.
-   */
-  function _yearFromId(projectId) {
-    const prefix = String(projectId ?? '').substring(0, 2);
-    if (!prefix) return 2569;
-    const d = new Date(), be = d.getFullYear() + 543;
-    const currentFY = d.getMonth() >= 9 ? be + 1 : be; // Oct-Dec → next FY
-    return Math.min(Number('25' + prefix) + 1, currentFY);
-  }
-
-  /**
-   * Get winner_tin for a bid's entity name.
-   * Falls back to searching all TINs if entity not in map.
-   */
-  function _tinForEntity(entityName) {
-    return CONFIG.ENTITY_TIN[entityName ?? ''] ?? null;
-  }
-
-  /**
-   * Fetch contract status for a specific bid.
-   * Strategy: query winner_tin (exact company match) + year,
-   * then find the project_id in returned results.
-   * This is the only reliable method — keyword search does NOT
-   * support project ID lookup and returns empty results.
-   */
-  async function fetchContract(projectId, entityName) {
-    const year = _yearFromId(projectId);
-    const tin  = _tinForEntity(entityName);
-
-    // Build param string — use winner_tin if we have it, else fall back to keyword
-    const params = tin
-      ? `year=${year}&winner_tin=${tin}&offset=0&limit=100`
-      : `year=${year}&keyword=${encodeURIComponent(entityName ?? '')}&offset=0&limit=20`;
-
-    const data    = await get('service/egp-contract', params);
-    const results = data.data ?? data.result ?? [];
-
-    // Find exact project_id match in the returned batch
-    const match = results.find(r => String(r.project_id) === String(projectId)) ?? null;
-    const amount = parseMoney(match?.sum_price_agree);
-    const apiStatus = match?.project_status ?? null;
-
-    return {
-      hasContract: match !== null,
-      amount,
-      raw:         results,
-      projectName: match?.project_name ?? '',
-      agency:      match?.dept_name    ?? '',
-      province:    match?.province     ?? '',
-      budget:      parseMoney(match?.project_money),
-      apiStatus,
-    };
-  }
-
-  /** Fetch winner record for a project ID. Returns { hasWinner, raw } */
-  async function fetchWinner(projectId) {
-    const year = _yearFromId(projectId);
-    const data = await get('service/egp-winner', `year=${year}&project_id=${projectId}&offset=0&limit=3`);
-    const results = data.data ?? data.result ?? []; // new API uses data.data
-    return { hasWinner: results.length > 0, raw: results };
-  }
-
-  /** Fetch winner records by company keyword. Returns { results, total } */
-  async function searchWinner(keyword, year=2569) {
-    const data = await get('service/egp-winner', `year=${year}&winner=${encodeURIComponent(keyword)}&offset=0&limit=20`);
-    const results = data.data ?? data.result ?? []; // new API uses data.data
-    return { results, total: data.total ?? data.summary?.total ?? results.length };
-  }
-
-  /**
-   * Resolve the latest status for a bid.
-   * Returns a STATUS constant if an upgrade is available, or null if no change.
-   *
-   * BUG 3 FIX: wrapped in try/catch so a thrown error from fetchContract/fetchWinner
-   * (e.g. network timeout on one record) returns null instead of propagating up and
-   * being silently swallowed by the bulk-refresh loop — which previously masked all
-   * real errors as "no update found."
-   */
-  /**
-   * Map Thai API project_status string → our internal STATUS constant.
-   * "ระหว่างดำเนินการ" = contract signed, work in progress → CONTRACT
-   * "สิ้นสุดสัญญา"     = contract complete                  → CONTRACT
-   * "รอทำสัญญา"        = winner announced, awaiting signing → WINNER
-   * null / unknown     = still pending                      → null
-   */
-  function _mapApiStatus(apiStatus) {
-    const { STATUS } = CONFIG;
-    if (!apiStatus) return null;
-    if (apiStatus.includes('ดำเนินการ') || apiStatus.includes('สิ้นสุด')) return STATUS.CONTRACT;
-    if (apiStatus.includes('รอทำสัญญา') || apiStatus.includes('อนุมัติ'))  return STATUS.WINNER;
-    return null;
-  }
-
-  async function resolveStatus(bid) {
-    const { STATUS } = CONFIG;
-    try {
-      // Pass entity name so fetchContract can use the correct winner_tin
-      const contract = await fetchContract(bid.id, bid.entity);
-      if (contract.hasContract) {
-        return _mapApiStatus(contract.apiStatus) ?? STATUS.CONTRACT;
-      }
-      const winner = await fetchWinner(bid.id);
-      if (winner.hasWinner) return STATUS.WINNER;
-      return null;
-    } catch (err) {
-      throw new Error(`resolveStatus(${bid.id}): ${err.message}`);
-    }
-  }
-
-  /** Fetch ALL contracts for a given TIN + year. Returns raw results array. */
-  async function fetchContractBatch(tin, year, entityFallback) {
-    const params = tin
-      ? `year=${year}&winner_tin=${tin}&offset=0&limit=100`
-      : `year=${year}&keyword=${encodeURIComponent(entityFallback ?? '')}&offset=0&limit=100`;
-    const data = await get('service/egp-contract', params);
-    return data.data ?? data.result ?? [];
-  }
-
-  /** Fetch winner records by TIN (preferred) or keyword + year. Returns raw results array. */
-  async function fetchWinnerBatch(keyword, year, tin) {
-    const params = tin
-      ? `winner_tin=${tin}&year=${year}&offset=0&limit=100`
-      : `winner=${encodeURIComponent(keyword)}&year=${year}&offset=0&limit=100`;
-    const data = await get('service/egp-winner', params);
-    return data.data ?? data.result ?? [];
-  }
-
-  return { get, fetchContract, fetchContractBatch, fetchWinner, fetchWinnerBatch, searchWinner, resolveStatus, yearFromId: _yearFromId, mapApiStatus: _mapApiStatus };
-})();
 
 /* ═══════════════════════════════════════════════════════════════
    AGENCY NAME HELPER — expand Thai gov abbreviations to full names
@@ -1352,7 +1080,7 @@ const UI = (() => {
    APP  — view logic, event handlers, navigation
 ═══════════════════════════════════════════════════════════════ */
 const App = (() => {
-  const TABS = ['dashboard', 'report', 'records', 'sme', 'add', 'lookup'];
+  const TABS = ['dashboard', 'report', 'records', 'sme', 'add'];
   let _editId    = null;       // null = new record, string = editing existing
   let _activeTab = 'dashboard'; // FIX 8: track current tab
 
@@ -1374,7 +1102,7 @@ const App = (() => {
   function renderSme() {
     const { STATUS } = CONFIG;
     const SME_LIMIT = 300_000_000;
-    const bids = Store.getAll();
+    const bids = _yearBids();
 
     // Statuses ที่นับ (ยังไม่แพ้/ยกเลิก)
     const activeStatuses = new Set([
@@ -1438,7 +1166,7 @@ const App = (() => {
       </div>`;
     }).join('');
 
-    const note = `<div class="api-note">
+    const note = `<div style="background:var(--pipe-alt);border:1px solid var(--card-border);border-radius:6px;padding:.6rem .9rem;font-size:11px;color:var(--muted);margin-bottom:1rem">
       💼 นับเฉพาะโครงการที่ <strong>รอผล/ชนะ/มีสัญญา</strong> — วงเงิน SME per entity = 300,000,000 บาท
     </div>`;
 
@@ -1451,7 +1179,7 @@ const App = (() => {
   const _byDateDesc = (a,b) => (b.date??'').localeCompare(a.date??'') || (b.seq??0)-(a.seq??0);
 
   function renderReport() {
-    const allBids = Store.getAll().sort(_byDateDesc);
+    const allBids = _yearBids().sort(_byDateDesc);
     const { STATUS } = CONFIG;
 
     // Populate entity dropdown
@@ -1669,7 +1397,7 @@ const App = (() => {
 
   /** Status-updated timeline: sorts by statusUpdatedAt desc, shows all in scrollable container */
   function renderStatusUpdatedTimeline(targetId) {
-    const bids = Store.getAll();
+    const bids = _yearBids();
     const { STATUS } = CONFIG;
     const sMeta = s => {
       if(s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)  return {t:'รอผล (ต่ำสุด)',    bg:'#1d4ed8'};
@@ -1992,7 +1720,7 @@ const App = (() => {
 
   /* ── Dashboard ───────────────────────────────────────────── */
   function renderDash() {
-    const bids = Store.getAll().sort(_byDateDesc);
+    const bids = _yearBids().sort(_byDateDesc);
     const { STATUS } = CONFIG;
 
     if (!bids.length) {
@@ -2176,22 +1904,12 @@ const App = (() => {
   function renderTable() {
     _syncEntityFilter();
 
-    const bids    = Store.getAll().sort(_byDateDesc);
+    const bids    = _yearBids().sort(_byDateDesc);
     const q       = document.getElementById('fsearch').value.toLowerCase();
     const fStatus = document.getElementById('fstatus').value;
     const fEntity = document.getElementById('fentity').value;
     const fSort   = document.getElementById('fsort')?.value ?? 'date-desc';
     const { STATUS } = CONFIG;
-    const pending = bids.filter(b =>
-      b.status === STATUS.WIN_PENDING || b.status === STATUS.LOSE_PENDING ||
-      b.status === STATUS.WIN_PRICE   || b.status === STATUS.LOSE_PRICE   ||
-      b.status === STATUS.PENDING
-    ).length;
-
-    UI.setHTML('pending-banner', pending
-      ? `<div class="refresh-banner">⏳ มี <strong>${pending} โครงการ</strong>รอพิจารณาผล
-           <button class="btn btn-green btn-sm" onclick="App.bulkRefresh()">🔄 Refresh ทั้งหมด</button>
-         </div>` : '');
     // Status-updated panel below refresh bar
     UI.setHTML('status-updated-rec-wrap', `<div class="glass g-black" style="padding:14px 16px;margin-top:0"><div class="card-title ct-dim" style="margin-bottom:8px">🔔 โครงการที่อัพเดทสถานะล่าสุด</div><div id="status-updated-rec"></div></div>`);
     renderStatusUpdatedTimeline('status-updated-rec');
@@ -2232,8 +1950,7 @@ const App = (() => {
         : 'win-pending'; // safe fallback
       const id = UI.esc(b._id);
       const actionsHtml = VIEW_MODE ? '' : `
-        <button class="btn btn-sm btn-api" data-action="check" data-id="${id}">🔍</button>
-        <button class="btn btn-sm" data-action="edit" data-id="${id}">✏️ แก้ไข</button>
+<button class="btn btn-sm" data-action="edit" data-id="${id}">✏️ แก้ไข</button>
         <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" data-action="delete" data-id="${id}">✕</button>
         <select class="btn btn-sm" style="font-size:11px;padding:2px 4px;cursor:pointer" data-action="quickstatus" data-id="${id}" title="เปลี่ยนสถานะ">
           <option value="">⚡ สถานะ</option>
@@ -2253,292 +1970,14 @@ const App = (() => {
   function _syncEntityFilter() {
     const sel     = document.getElementById('fentity');
     const current = sel.value;
-    const entities = [...new Set(Store.getAll().map(b => b.entity ?? '').filter(Boolean))].sort();
+    const entities = [...new Set(_yearBids().map(b => b.entity ?? '').filter(Boolean))].sort();
     sel.innerHTML = '<option value="">ทุกห้าง</option>'
       + entities.map(e => `<option${e === current ? ' selected' : ''}>${e}</option>`).join('');
-  }
-
-  /* ── Single record status check ─────────────────────────── */
-  async function checkOne(id) {
-    const bid = Store.findById(id);
-    if (!bid?.id) return;
-    UI.toast('⏳ กำลังตรวจสอบ...', 6000);
-    try {
-      const newStatus = await GovAPI.resolveStatus(bid);
-      if (newStatus && newStatus !== bid.status) {
-        Store.updateStatus(id, newStatus);
-        UI.toast(`✅ อัปเดตเป็น: ${newStatus}`);
-        renderTable();
-      } else {
-        UI.toast(`ℹ️ สถานะเดิม: ${bid.status}`);
-      }
-    } catch (e) {
-      UI.toast(`❌ ${e.message}`, 4000);
-    }
-  }
-
-  /* ── Bulk refresh all pending ────────────────────────────── */
-  async function bulkRefresh() {
-    // Include win-pending, lose-pending bids (not yet finalized)
-    // Also include any record missing price data. Exclude only LOSE and CONTRACT.
-    const { STATUS } = CONFIG;
-    const pending = Store.getAll().filter(b => b.id
-      && b.status !== STATUS.LOSE
-      && b.status !== STATUS.CONTRACT
-      && (b.status === STATUS.WIN_PENDING
-        || b.status === STATUS.LOSE_PENDING
-        || !b.midPrice || !b.contractPrice)
-    );
-    if (!pending.length) { UI.toast('ข้อมูลครบแล้ว ไม่มีอะไรต้อง Refresh'); return; }
-
-    const pw    = document.getElementById('progress-wrap');
-    const label = document.getElementById('progress-label');
-    const fill  = document.getElementById('progress-fill');
-    pw.style.display = 'none';
-    fill.style.width = '0%';
-    label.textContent = '';
-
-    const restore = UI.setLoading('btn-bulk', ' กำลัง Refresh...');
-    pw.style.display = 'block';
-    let updated = 0;
-    try {
-
-    // Group pending bids by (tin, year) → 1 API call per group instead of 1 per bid
-    const groups = new Map();
-    for (const b of pending) {
-      const tin  = CONFIG.ENTITY_TIN[b.entity] ?? null;
-      const year = GovAPI.yearFromId(b.id);
-      const key  = `${tin ?? b.entity}|${year}`;
-      if (!groups.has(key)) groups.set(key, { tin, year, entity: b.entity, bids: [] });
-      groups.get(key).bids.push(b);
-    }
-
-    const groupList = [...groups.values()];
-    label.textContent = `กำลังโหลด ${groupList.length} กลุ่ม (${pending.length} โครงการ)...`;
-    fill.style.width = '10%';
-
-    // Fetch groups in batches of 3 to avoid rate limiting
-    const settled = [];
-    for (let i = 0; i < groupList.length; i += 3) {
-      const batch = groupList.slice(i, i + 3);
-      const results = await Promise.allSettled(
-        batch.map(g => GovAPI.fetchContractBatch(g.tin, g.year, g.entity))
-      );
-      settled.push(...results);
-      fill.style.width = `${10 + Math.round(60 * (i + batch.length) / groupList.length)}%`;
-    }
-
-    fill.style.width = '70%';
-    label.textContent = 'กำลังจับคู่ผลลัพธ์...';
-
-    for (let gi = 0; gi < groupList.length; gi++) {
-      const group = groupList[gi];
-      if (settled[gi].status === 'rejected') {
-        console.warn(`[bulkRefresh] group ${group.entity}/${group.year}: ${settled[gi].reason?.message}`);
-        continue;
-      }
-      const contractMap = new Map(
-        settled[gi].value.map(r => [String(r.project_id), r])
-      );
-      for (const b of group.bids) {
-        const match = contractMap.get(String(b.id));
-        if (!match) continue;
-        const newStatus = GovAPI.mapApiStatus(match.project_status) ?? CONFIG.STATUS.CONTRACT;
-        const midPrice      = Number(match.price_build)      || 0;
-        const contractPrice = Number(match.sum_price_agree)  || 0;
-        const apiName       = (match.project_name || '').trim();
-        const changed = newStatus !== b.status || midPrice !== b.midPrice || contractPrice !== b.contractPrice || (apiName && !b.name);
-        if (changed) {
-          Store.updateApiData(b._id, { status: newStatus, midPrice, contractPrice, name: apiName });
-          updated++;
-        }
-      }
-    }
-
-      // ── Pass 2: fetch winner records to populate missing project names ──
-    const missingName = Store.getAll().filter(b => !b.name);
-    if (missingName.length) {
-      fill.style.width = '75%';
-      label.textContent = `ดึงชื่อโครงการสำหรับ ${missingName.length} รายการ...`;
-
-      // Group by (tin, year) for batched winner API calls — mirrors Pass 1 contract batch
-      const wGroups = new Map();
-      for (const b of missingName) {
-        const tin     = CONFIG.ENTITY_TIN[b.entity] ?? null;
-        const keyword = b.entity || '';
-        const year    = GovAPI.yearFromId(b.id);
-        const key     = `${tin ?? keyword}|${year}`;
-        if (!wGroups.has(key)) wGroups.set(key, { tin, keyword, year, bids: [] });
-        wGroups.get(key).bids.push(b);
-      }
-      const wGroupList = [...wGroups.values()];
-      const wSettled = [];
-      for (let i = 0; i < wGroupList.length; i += 3) {
-        const batch = wGroupList.slice(i, i + 3);
-        const results = await Promise.allSettled(
-          batch.map(g => GovAPI.fetchWinnerBatch(g.keyword, g.year, g.tin))
-        );
-        wSettled.push(...results);
-        fill.style.width = `${75 + Math.round(20 * (i + batch.length) / wGroupList.length)}%`;
-      }
-      for (let gi = 0; gi < wGroupList.length; gi++) {
-        if (wSettled[gi].status === 'rejected') continue;
-        const winnerMap = new Map(wSettled[gi].value.map(r => [String(r.project_id), r]));
-        for (const b of wGroupList[gi].bids) {
-          const w = winnerMap.get(String(b.id));
-          if (!w) continue;
-          const wName = (w.project_name || w.name_th || '').trim();
-          if (wName) { Store.updateApiData(b._id, { name: wName }); updated++; }
-        }
-      }
-    }
-
-      fill.style.width = '100%';
-      label.textContent = `✅ เสร็จแล้ว! อัปเดต ${updated} โครงการ`;
-      setTimeout(() => { pw.style.display = 'none'; }, 4000);
-      restore('🔄 Refresh Pending');
-      UI.toast(`✅ อัปเดต ${updated}/${pending.length} โครงการ`);
-      renderTable();
-      renderDash();
-    } catch (err) {
-      pw.style.display = 'none';
-      restore('🔄 Refresh Pending');
-      UI.toast(`❌ Refresh ล้มเหลว: ${err.message}`);
-      console.error('[bulkRefresh]', err);
-    }
-  }
-
-  /* ── Lookup tab ──────────────────────────────────────────── */
-  async function doLookup() {
-    const id = document.getElementById('lookup-id').value.trim();
-    if (!id) { UI.toast('กรุณาใส่เลขโครงการ'); return; }
-
-    const restore = UI.setLoading('btn-lookup', 'กำลังโหลด...');
-    UI.setHTML('lookup-result', '<div class="empty"><span class="spinner"></span> กำลังดึงข้อมูล...</div>');
-    try {
-      const { raw } = await GovAPI.fetchContract(id);
-      UI.setHTML('lookup-result', raw.length ? UI.contractTable(raw) : '<div class="empty">ไม่พบข้อมูลโครงการนี้</div>');
-    } catch (e) {
-      UI.setHTML('lookup-result', `<div class="empty" style="color:var(--red)">❌ ${e.message}</div>`);
-    }
-    restore('🔍 ค้นหา');
-  }
-
-  async function doWinnerLookup() {
-    const kw = document.getElementById('winner-kw').value.trim();
-    if (!kw) { UI.toast('กรุณาใส่คำค้นหา'); return; }
-
-    const restore = UI.setLoading('btn-winner', '');
-    UI.setHTML('winner-result', '<div class="empty"><span class="spinner"></span></div>');
-    try {
-      const { results, total } = await GovAPI.searchWinner(kw);
-      UI.setHTML('winner-result', results.length
-        ? `<div style="font-size:12px;padding:.5rem;color:#888">พบ ${total} รายการ</div>`
-          + results.map(r => `<div style="padding:.6rem;border-bottom:1px solid #f0f0f0;font-size:12px">
-              <strong>${r.winner ?? '-'}</strong> — TIN: ${r.winner_tin ?? '-'}
-             </div>`).join('')
-        : '<div class="empty">ไม่พบข้อมูล</div>');
-    } catch (e) {
-      UI.setHTML('winner-result', `<div class="empty" style="color:var(--red)">❌ ${e.message}</div>`);
-    }
-    restore('🔍 ค้นหา');
-  }
-
-  /* ── Add / Edit form ─────────────────────────────────────── */
-  async function autofillFromAPI() {
-    const id = document.getElementById('f-id').value.trim();
-    if (!id) { UI.toast('กรุณาใส่เลขโครงการก่อน'); return; }
-
-    const restore = UI.setLoading('btn-autofill', 'กำลังดึง...');
-    try {
-      const c = await GovAPI.fetchContract(id, document.getElementById('f-entity').value);
-      if (c.projectName) {
-        _setField('f-name',     c.projectName);
-        _setField('f-agency',   c.agency);
-        _setField('f-province', c.province);
-        _setField('f-budget',   c.budget || 0);
-        _setField('f-bid',      c.amount || 0);
-        UI.setHTML('autofill-result',
-          `<div style="background:#e8f4fd;border:1px solid #bee3f8;border-radius:7px;padding:.6rem .9rem;font-size:11px;color:var(--blue);margin-top:.8rem">
-            ✅ ดึงข้อมูลสำเร็จ: <strong>${c.projectName.substring(0, 80)}</strong>
-           </div>`);
-        UI.toast('✅ กรอกข้อมูลแล้ว');
-      } else {
-        UI.toast('⚠️ ไม่พบโครงการนี้ใน API');
-      }
-    } catch (e) { UI.toast(`❌ ${e.message}`, 4000); }
-    restore('⚡ ดึงจาก API');
-  }
-
-  function saveBid() {
-    const name = document.getElementById('f-name').value.trim();
-    if (!name) { UI.toast('กรุณาใส่ชื่อโครงการ'); return; }
-
-    const budget   = Number(document.getElementById('f-budget').value)   || 0;
-    const midPrice = Number(document.getElementById('f-midprice').value) || 0;
-    const bid      = Number(document.getElementById('f-bid').value)      || 0;
-    const existing = _editId ? Store.findById(_editId) : null;
-
-    Store.upsert({
-      _id:      _editId ?? `n${Date.now()}`,
-      id:       document.getElementById('f-id').value.trim(),
-      name,
-      date:     document.getElementById('f-date').value,
-      agency:   document.getElementById('f-agency').value.trim(),
-      province: document.getElementById('f-province').value.trim(),
-      budget,
-      midPrice,
-      bid,
-      pct:      (()=>{ const base=Math.max(budget||0,midPrice||0); return base>0?Math.round((base-bid)/base*10_000)/100:0; })(),
-      entity:     document.getElementById('f-entity').value,
-      status:     document.getElementById('f-status').value,
-      lowest:     Number(document.getElementById('f-lowest').value)     || undefined,
-      competitor: document.getElementById('f-competitor').value.trim() || undefined,
-      workType:   document.getElementById('f-worktype').value.trim()   || undefined,
-      plant:      document.getElementById('f-plant').value.trim()      || undefined,
-      plantDist:  Number(document.getElementById('f-plantdist').value) || undefined,
-      seq:        existing?.seq ?? Store.getAll().length + 1,
-    });
-
-    clearForm();
-    UI.toast('💾 บันทึกแล้ว!');
-    navigate('records');
-  }
-
-  function editBid(id) {
-    const b = Store.findById(id);
-    if (!b) return;
-    _editId = id;
-    document.getElementById('form-title').textContent = `แก้ไข #${b.seq}`;
-    _setField('f-id',       b.id       ?? '');
-    _setField('f-name',     b.name     ?? '');
-    _setField('f-date',     b.date     ?? '');
-    _setField('f-province', b.province ?? '');
-    _setField('f-budget',   b.budget   ?? 0);
-    _setField('f-midprice',   b.midPrice   ?? 0);
-    _setField('f-bid',        b.bid        ?? 0);
-    _setField('f-lowest',     b.lowest     ?? '');
-    _setField('f-competitor', b.competitor ?? '');
-    _setField('f-worktype',   b.workType   ?? '');
-    _setField('f-plant',      b.plant      ?? '');
-    _setField('f-plantdist',  b.plantDist  ?? '');
-    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
-    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
-    navigate('add');
-  }
-
-  function deleteBid(id) {
-    const b = Store.findById(id);
-    if (!confirm(`ลบโครงการ #${b?.seq}: "${(b?.name ?? '').substring(0, 40)}..."?`)) return;
-    Store.remove(id);
-    renderTable();
-    UI.toast('🗑 ลบแล้ว');
   }
 
   function clearForm() {
     ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-competitor','f-worktype','f-plant','f-plantdist']
       .forEach(id => { document.getElementById(id).value = ''; });
-    UI.setHTML('autofill-result', '');
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
     document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
@@ -2619,15 +2058,29 @@ const App = (() => {
     renderReport();
   }
 
+
+  /* ── Year filter ─────────────────────────────────────────── */
+  function setYear(y) {
+    _activeYear = y;
+    document.querySelectorAll('.ytab').forEach(t => {
+      t.classList.toggle('active', parseInt(t.textContent) === y);
+      t.textContent = t.textContent.replace(' ▾','');
+      if (parseInt(t.textContent) === y) t.textContent += ' ▾';
+    });
+    // Re-render current tab
+    if (_activeTab === 'dashboard') renderDash();
+    else if (_activeTab === 'report')    renderReport();
+    else if (_activeTab === 'records')   renderTable();
+    else if (_activeTab === 'sme')       renderSme();
+  }
+
   /* ── Public API ──────────────────────────────────────────── */
   return {
-    navigate, renderDash, renderReport, renderTable, renderSme,
+    navigate, renderDash, renderReport, renderTable, renderSme, setYear,
     timelineLoadMore: (targetId) => {
       const page = (_timelinePage[targetId] || 1) + 1;
-      renderBidTimeline(Store.getAll(), targetId, page);
+      renderBidTimeline(_yearBids(), targetId, page);
     },
-    checkOne, bulkRefresh,
-    doLookup, doWinnerLookup, autofillFromAPI,
     saveBid, saveBidAndExport, exportAllForPush, editBid, deleteBid, clearForm, exportCSV,
     _setReportFilter,
   };
@@ -2645,7 +2098,6 @@ document.getElementById('records-list').addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
   const { action, id } = btn.dataset;
-  if (action === 'check')  App.checkOne(id);
   if (action === 'edit')   App.editBid(id);
   if (action === 'delete') App.deleteBid(id);
 });
