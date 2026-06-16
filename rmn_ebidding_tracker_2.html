@@ -875,6 +875,19 @@ const CONFIG = Object.freeze({
   DEFAULT_ENTITY: 'ห้างหุ้นส่วน RMN',
 });
 
+
+/* ── Year Filter ────────────────────────────────────────── */
+let _activeYear = 2569;
+function _getFiscalYear(dateStr) {
+  if (!dateStr) return 0;
+  const y = parseInt(dateStr.slice(0,4));
+  const m = parseInt(dateStr.slice(5,7));
+  return m >= 10 ? y+1 : y;
+}
+function _yearBids() {
+  return Store.getAll().filter(b => (b.fiscalYear || _getFiscalYear(b.date)) === _activeYear);
+}
+
 /* ── Debounce helpers ───────────────────────────────────────── */
 function _debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 const _debouncedReport = _debounce(() => typeof App !== 'undefined' && App.renderReport(), 200);
