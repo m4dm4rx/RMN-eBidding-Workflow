@@ -1988,6 +1988,68 @@ const App = (() => {
       + entities.map(e => `<option${e === current ? ' selected' : ''}>${e}</option>`).join('');
   }
 
+  function saveBid() {
+    const name = document.getElementById('f-name').value.trim();
+    if (!name) { UI.toast('กรุณาใส่ชื่อโครงการ'); return; }
+    const budget   = Number(document.getElementById('f-budget').value)   || 0;
+    const midPrice = Number(document.getElementById('f-midprice').value) || 0;
+    const bid      = Number(document.getElementById('f-bid').value)      || 0;
+    const existing = _editId ? Store.findById(_editId) : null;
+    Store.upsert({
+      _id:      _editId ?? `n${Date.now()}`,
+      id:       document.getElementById('f-id').value.trim(),
+      name,
+      date:     document.getElementById('f-date').value,
+      agency:   document.getElementById('f-agency').value.trim(),
+      province: document.getElementById('f-province').value.trim(),
+      budget,
+      midPrice,
+      bid,
+      pct:      (()=>{ const base=Math.max(budget||0,midPrice||0); return base>0?Math.round((base-bid)/base*10_000)/100:0; })(),
+      entity:     document.getElementById('f-entity').value,
+      status:     document.getElementById('f-status').value,
+      lowest:     Number(document.getElementById('f-lowest').value)     || undefined,
+      competitor: document.getElementById('f-competitor').value.trim() || undefined,
+      workType:   document.getElementById('f-worktype').value.trim()   || undefined,
+      plant:      document.getElementById('f-plant').value.trim()      || undefined,
+      plantDist:  Number(document.getElementById('f-plantdist').value) || undefined,
+      seq:        existing?.seq ?? Store.getAll().length + 1,
+    });
+    clearForm();
+    UI.toast('💾 บันทึกแล้ว!');
+    navigate('records');
+  }
+
+  function editBid(id) {
+    const b = Store.findById(id);
+    if (!b) return;
+    _editId = id;
+    document.getElementById('form-title').textContent = `แก้ไข #${b.seq}`;
+    _setField('f-id',       b.id       ?? '');
+    _setField('f-name',     b.name     ?? '');
+    _setField('f-date',     b.date     ?? '');
+    _setField('f-province', b.province ?? '');
+    _setField('f-budget',   b.budget   ?? 0);
+    _setField('f-midprice',   b.midPrice   ?? 0);
+    _setField('f-bid',        b.bid        ?? 0);
+    _setField('f-lowest',     b.lowest     ?? '');
+    _setField('f-competitor', b.competitor ?? '');
+    _setField('f-worktype',   b.workType   ?? '');
+    _setField('f-plant',      b.plant      ?? '');
+    _setField('f-plantdist',  b.plantDist  ?? '');
+    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
+    navigate('add');
+  }
+
+  function deleteBid(id) {
+    const b = Store.findById(id);
+    if (!confirm(`ลบโครงการ #${b?.seq}: "${(b?.name ?? '').substring(0, 40)}..."?`)) return;
+    Store.remove(id);
+    renderTable();
+    UI.toast('🗑 ลบแล้ว');
+  }
+
   function clearForm() {
     ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-competitor','f-worktype','f-plant','f-plantdist']
       .forEach(id => { document.getElementById(id).value = ''; });
