@@ -121,3 +121,26 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 - light mode toggle full implementation (dev agent)
 - FIX 7 phase 2: one-off structural styles (dev agent)
 - Map Maker: ทต_แวงน่าง / อบต_ยางใหญ่ / ทม_สกลนคร / อบต_ทรายมูล
+
+## 🔄 Session State (2026-06-25 — E-Bidding Operating Agent)
+### ✅ Done (session นี้)
+- seq 127 อบต.เมืองเสือ มค. bid 796,000 ✅ ต่ำสุด
+- seq 128 ทต.ปาฝา รอ. bid 598,000 ✅ ต่ำสุด
+- seq 129 ทต.ศรีโคตร รอ. bid 568,000 ✅ ต่ำสุด
+- seq 130 อบต.ม่วงลาย สน. bid 1,078,000 ✅ ต่ำสุด
+- seq 131 อบต.หนองบัว หบ. bid 758,000 ✅ ต่ำสุด
+- seq 132 อบต.โนนข่า ขก. bid 4,898,000 ❌ ไม่ต่ำสุด (-53,000) lowest 4,845,000
+- seq 133 รพ.สุวรรณคูหา หบ. bid 1,558,000 ✅ ต่ำสุด
+- seq 134 ทต.โคกพระ มค. bid 378,000 ✅ ต่ำสุด
+- seq 135 ทต.ธัญญา กส. bid 598,000 ✅ ต่ำสุด
+- seq 136 อบต.ปางกู่ หบ. bid 1,748,000 ✅ ต่ำสุด
+- Lock format: SEQ summary line + 5-col table (เลขที่/หน่วยงาน/ที่ตั้งหน่วยงาน/ราคายื่น/Plant)
+
+### 📋 Rules confirmed this session
+- plantDist = เลขในวงเล็บ (เช่น "(สารคาม55)") — ไม่ใช่คอลัมน์ขวาสุด
+- ชื่อหน่วยงาน: ถ้า PDF ≠ ตาราง → ใช้ PDF เสมอ (เช่น โนนข่า ≠ โนนซ่า, ปาฝา ≠ ปาฬา)
+- ม่วงลาย วันยื่น 24 มิ.ย. (ตารางผิด บอก 22)
+
+### ⏳ Pending
+- (none)
+push doc_fees.json (user ต้องรันเอง)
