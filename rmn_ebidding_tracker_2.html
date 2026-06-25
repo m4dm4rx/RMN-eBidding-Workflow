@@ -517,6 +517,26 @@ body.view-mode [data-edit-only] { display: none !important; }
 
 /* ── View Mode: Mobile-first, Low-tech UX ───────────────────── */
 body.view-mode #theme-btn          { display:none !important }
+/* View-mode dark/light toggle switch */
+#view-theme-toggle                 { display:none }
+body.view-mode #view-theme-toggle  { display:flex;align-items:center;gap:6px }
+.vt-label { font-size:11px;color:var(--muted);font-family:var(--font-sans);user-select:none }
+.vt-switch { position:relative;width:40px;height:22px;flex-shrink:0 }
+.vt-switch input { opacity:0;width:0;height:0 }
+.vt-track {
+  position:absolute;inset:0;border-radius:11px;
+  background:#d1d5db;cursor:pointer;transition:background .25s;
+  border:1.5px solid #b8bcc4;
+}
+.vt-track:before {
+  content:'';position:absolute;width:16px;height:16px;border-radius:50%;
+  background:#fff;top:1px;left:1px;transition:transform .25s;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.vt-switch input:checked + .vt-track { background:#3b82f6;border-color:#2563eb }
+.vt-switch input:checked + .vt-track:before { transform:translateX(18px) }
+html.dark .vt-track { background:#374151;border-color:#4b5563 }
+html.dark .vt-switch input:checked + .vt-track { background:#3b82f6;border-color:#2563eb }
 body.view-mode .topbar             { padding:.65rem 1rem }
 body.view-mode .logo-area p        { font-size:12px }
 body.view-mode .tabs               { padding:.4rem .6rem 0 }
@@ -615,6 +635,14 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       </div>
     </div>
     <div class="topbar-actions">
+      <div id="view-theme-toggle">
+        <span class="vt-label" id="vt-lbl">☀️</span>
+        <label class="vt-switch">
+          <input type="checkbox" id="vt-chk" onchange="toggleTheme()">
+          <span class="vt-track"></span>
+        </label>
+        <span class="vt-label">🌙</span>
+      </div>
       <button class="btn btn-sm" id="theme-btn" onclick="toggleTheme()" title="สลับธีม">🌙 โหมดมืด</button>
       <button class="btn" onclick="copyViewLink()" data-edit-only title="คัดลอก Link สำหรับแชร์ (view-only)">🔗 Share Link</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
@@ -851,18 +879,19 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
 function toggleTheme() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('rmn_theme', isDark ? 'dark' : 'light');
-  document.getElementById('theme-btn').textContent = isDark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = isDark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
+  const chk = document.getElementById('vt-chk');
+  if (chk) chk.checked = isDark;
 }
 (function initTheme() {
   const saved = localStorage.getItem('rmn_theme') ?? 'light';
-  if (saved === 'dark') {
-    document.documentElement.classList.add('dark');
-    const btn = document.getElementById('theme-btn');
-    if (btn) btn.textContent = '☀️ โหมดสว่าง';  // in dark mode → btn says "switch to light"
-  } else {
-    const btn = document.getElementById('theme-btn');
-    if (btn) btn.textContent = '🌙 โหมดมืด';    // in light mode → btn says "switch to dark"
-  }
+  const isDark = saved === 'dark';
+  if (isDark) document.documentElement.classList.add('dark');
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = isDark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
+  const chk = document.getElementById('vt-chk');
+  if (chk) chk.checked = isDark;
 })();
 
 /* ═══════════════════════════════════════════════════════════════
