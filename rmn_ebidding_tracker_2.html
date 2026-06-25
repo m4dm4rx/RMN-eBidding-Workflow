@@ -580,6 +580,8 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
 .win-tl-bullet.red{background:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.15)}
 .win-tl-date-day.red{color:#dc2626}
 .kpi-card.gold{border-top:2px solid #d9a057}
+.docfee-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:#fef9c3;color:#a16207;border:1px solid #fde68a;margin-top:4px}
+html.dark .docfee-badge{background:#422006;color:#fbbf24;border-color:#78350f}
 /* KPI 2-col main grid */
 .kpi-main-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:14px;margin-bottom:1.2rem;align-items:stretch}
 .kpi-chart-card{grid-row:span 2;display:flex;flex-direction:column}
@@ -775,6 +777,11 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
         <div class="form-group"><label>ราคากลาง (บาท)</label><input id="f-midprice" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคาที่ยื่น (บาท)</label><input id="f-bid" type="number" placeholder="0"></div>
         <div class="form-group"><label>ราคาต่ำสุด คู่แข่ง (บาท)</label><input id="f-lowest" type="number" placeholder="0"></div>
+        <div class="form-group"><label>💴 ค่าเอกสารประมูล (บาท)</label><input id="f-docfee" type="number" placeholder="0" min="0"></div>
+        <div class="form-group"><label>วันที่ชำระค่าเอกสาร</label><input id="f-docfee-date" type="date"></div>
+        <div class="form-group"><label>วิธีชำระค่าเอกสาร</label><select id="f-docfee-method"><option value="">-- ไม่ระบุ --</option><option>โอนเงิน</option><option>เงินสด</option><option>Bill Payment</option></select></div>
+        <div class="form-group"><label>ธนาคาร</label><input id="f-docfee-bank" type="text" placeholder="ธ.ก.ส. / กรุงไทย ฯลฯ"></div>
+        <div class="form-group"><label>📧 สถานะ Email ยืนยัน</label><select id="f-docfee-email"><option value="">— ไม่ระบุ —</option><option value="true">✓ ส่ง email แล้ว</option><option value="false">⏳ ยังไม่ส่ง email</option></select></div>
         <div class="form-group"><label>คู่แข่งที่ได้งาน (กรณีแพ้)</label><input id="f-competitor" type="text" placeholder="ชื่อบริษัท/ห้างที่ชนะ"></div>
         <div class="form-group"><label>ประเภทงาน</label><input id="f-worktype" type="text" placeholder="เสริมผิว, OVERLAY, Pavement Recycling ฯลฯ"></div>
         <div class="form-group"><label>Plant ที่ใช้ยื่น</label><select id="f-plant">
@@ -1099,6 +1106,82 @@ const UI = (() => {
 
   return { toast, setLoading, setHTML, esc, fmt, fmtDate, badgeClass, statusDisplay, bar, contractTable };
 })();
+
+/* ═══════════════════════════════════════════════════════════════
+   DOC FEE REGISTRY — sync from Fee Payment Agent
+   อัปเดตเมื่อ Fee Payment Agent สร้าง PDF ใหม่
+═══════════════════════════════════════════════════════════════ */
+// Schema: {id, amount, agency, payMethod, bank, paidDate, emailSent}
+const DOC_FEES = [
+  {id:'69049306591', amount:1000 , agency:'อบต.ขัวก่าย', payMethod:"โอนเงิน", bank:"ธ.ก.ส.", paidDate:null, emailSent:null},
+  {id:'69049233820', amount:2000 , agency:'อบต.หนองน้ำใส', payMethod:"เงินสด", bank:"กรุงไทย", paidDate:null, emailSent:null},
+  {id:'69059185784', amount:600  , agency:'อบต.เหล่าอ้อย', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69059186084', amount:500  , agency:'อบต.เหล่าอ้อย', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69059185990', amount:500  , agency:'อบต.เหล่าอ้อย', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69059077331', amount:1000 , agency:'อบต.ดงลาน', payMethod:"เงินสด", bank:"กรุงไทย", paidDate:null, emailSent:null},
+  {id:'69059276112', amount:500  , agency:'อบต.ธัญญา', payMethod:"โอนเงิน", bank:"กรุงไทย", paidDate:"2569-06-11", emailSent:true},
+  {id:'69059380588', amount:1000 , agency:'อบต.กุดโดน', payMethod:"โอนเงิน", bank:"กรุงไทย", paidDate:"2569-06-17", emailSent:false},
+  {id:'69059487346', amount:500  , agency:'อบต.ท่าสองคอน', payMethod:"โอนเงิน", bank:"กรุงไทย", paidDate:"2569-06-17", emailSent:false},
+  {id:'69069175798', amount:500  , agency:'อบต.นาสีนวล', payMethod:null, bank:"กรุงไทย", paidDate:null, emailSent:null},
+  {id:'69059282722', amount:600  , agency:'ทต.ปาฬา', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69069181680', amount:500  , agency:'อบต.ม่วงลาย', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69069033324', amount:5000 , agency:'อบต.ปางกู่', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69049434962', amount:null , agency:'อบต.โพนงาม', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69049308583', amount:null , agency:'อบต.โคกสง่า', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69049434789', amount:null , agency:'แขวงทางหลวงชนบทร้อยเอ็ด', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69049284210', amount:null , agency:'ทม.หนองบัวลำภู', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'69059046112', amount:null , agency:'ทต.หนองพอก', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'68119122365', amount:null , agency:'อบจ.สกลนคร', payMethod:null, bank:null, paidDate:null, emailSent:null},
+  {id:'68119122408', amount:null , agency:'อบจ.สกลนคร', payMethod:null, bank:null, paidDate:null, emailSent:null},
+];
+const _docFeeMap = new Map(DOC_FEES.map(f => [String(f.id).trim(), f]));
+function getDocFee(b) {
+  const reg = _docFeeMap.get(String(b.id || '').trim());
+  if (b.docFee || b.docFeeDate || b.docFeeMethod || b.docFeeEmailSent != null || reg) {
+    return {
+      amount:    b.docFee       ?? reg?.amount    ?? null,
+      payMethod: b.docFeeMethod ?? reg?.payMethod ?? null,
+      bank:      b.docFeeBank   ?? reg?.bank      ?? null,
+      paidDate:  b.docFeeDate   ?? reg?.paidDate  ?? null,
+      emailSent: b.docFeeEmailSent != null ? b.docFeeEmailSent : (reg?.emailSent ?? null),
+      paid:      !!(b.docFee || reg),
+    };
+  }
+  return null;
+}
+function renderDocFeeBlock(b) {
+  const f = getDocFee(b);
+  if (!f) {
+    return \`<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:5px;background:var(--bg);border:1px solid var(--card-border);font-size:11px;color:var(--muted);margin-top:6px">
+      <span>📄</span><span>ไม่ต้องจ่ายค่าเอกสาร</span></div>\`;
+  }
+  // paid badge — distinguish paid-unknown-amount
+  const paidLabel = f.paid
+    ? (f.amount ? '✓ จ่ายแล้ว' : '✓ จ่ายแล้ว (ยังไม่ทราบยอด)')
+    : '⏳ ยังไม่จ่าย';
+  const paidBg = f.paid ? '#dcfce7' : '#fef9c3';
+  const paidCol = f.paid ? '#166534' : '#a16207';
+  const paidBdr = f.paid ? '#86efac' : '#fde68a';
+  const paidBadge = \`<span style="background:\${paidBg};color:\${paidCol};border:1px solid \${paidBdr};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700">\${paidLabel}</span>\`;
+  // email toggle button (3-state: null → true → false → null)
+  const eBg  = f.emailSent===true?'#dbeafe':f.emailSent===false?'#fee2e2':'var(--bg)';
+  const eCol = f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)';
+  const eBdr = f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)';
+  const eTxt = f.emailSent===true?'📧 ส่ง email แล้ว':f.emailSent===false?'📧 ยังไม่ส่ง email':'📧 คลิกอัปเดต email';
+  const emailToggle = \`<button onclick="App.toggleDocFeeEmail('\${b._id}')" style="background:\${eBg};color:\${eCol};border:1px solid \${eBdr};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">\${eTxt}</button>\`;
+  const rows = [
+    f.amount   ? \`<div><span style="color:var(--muted);font-size:10px">ยอดเงิน · </span><strong>฿\${f.amount.toLocaleString()}</strong></div>\` : '',
+    (f.payMethod||f.bank) ? \`<div><span style="color:var(--muted);font-size:10px">รายละเอียดการจ่าย · </span>\${[f.payMethod,f.bank].filter(Boolean).join(' — ')}</div>\` : '',
+    f.paidDate ? \`<div><span style="color:var(--muted);font-size:10px">วันที่ชำระ · </span>\${f.paidDate}</div>\` : '',
+  ].filter(Boolean).join('');
+  return \`<div style="padding:8px 10px;border-radius:6px;background:var(--bg);border:1px solid var(--card-border);margin-top:6px;font-size:12px;font-family:inherit">
+    <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:\${rows?'6px':'0'}">
+      <span style="font-size:11px;font-weight:700;color:var(--text)">📄 ค่าเอกสารประมูล</span>
+      \${paidBadge}\${emailToggle}
+    </div>
+    \${rows ? \`<div style="display:flex;flex-direction:column;gap:3px;color:var(--text)">\${rows}</div>\` : ''}
+  </div>\`;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    APP  — view logic, event handlers, navigation
@@ -1609,6 +1692,7 @@ const App = (() => {
           <div class="pipe-det-grid">
             ${metaItems}
           </div>
+          <div style="padding:0 10px 6px">${renderDocFeeBlock(b)}</div>
           <div class="pipe-tl-row">${tl}</div>
         </div>
       </div>`;
@@ -1697,6 +1781,7 @@ const App = (() => {
                 <span class="proj-meta-item-val">${UI.esc(b.plant)}${b.plantDist ? ` · ${b.plantDist} km` : ''}</span></div>
               </div>` : ''}
             </div>
+            <div style="padding:0 0 6px">${renderDocFeeBlock(b)}</div>
             <div class="proj-timeline">${tl}</div>
           </div>
           <div class="proj-fin-grid">
@@ -1762,6 +1847,9 @@ const App = (() => {
     const winRate    = decided ? Math.round(won / decided * 100) : 0;
     const income     = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
     const avgDrop    = Math.round(bids.reduce((s,b)=>{const base=Math.max(b.budget||0,b.midPrice||0);return s+(base>0?(base-b.bid)/base*100:b.pct);},0)/total);
+    const totalDocFee = bids.reduce((s,b)=>{ const f=getDocFee(b); return s+(f?.amount||0); },0);
+    const paidDocCnt  = bids.filter(b=>getDocFee(b)?.paid).length;
+    const unsentEmail = bids.filter(b=>{ const f=getDocFee(b); return f?.paid && f.emailSent !== true; }).length;
 
     // Timestamp
     const now = new Date();
@@ -1789,6 +1877,16 @@ const App = (() => {
         <div class="kpi-label">มูลค่าที่ชนะแล้ว</div>
         <div class="kpi-value">${UI.fmt(income)}</div>
         <div class="kpi-unit">บาท · ${won} โครงการ</div>
+      </div></div>
+      <div class="kpi-card orange" style="grid-column:1/-1"><div class="kpi-card-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="kpi-icon">📄</div>
+            <div class="kpi-label">ค่าเอกสารประมูลรวม</div>
+            <div class="kpi-value" style="font-size:22px">${totalDocFee ? '฿'+UI.fmt(totalDocFee) : '—'}</div>
+            <div class="kpi-unit">${paidDocCnt} โครงการที่มีค่าเอกสาร${unsentEmail ? \` · ⚠️ ยังไม่ส่ง email \${unsentEmail} โครงการ\` : ''}</div>
+          </div>
+        </div>
       </div></div>
     `);
     renderGrowthChart();
@@ -2008,7 +2106,12 @@ const App = (() => {
       pct:      (()=>{ const base=Math.max(budget||0,midPrice||0); return base>0?Math.round((base-bid)/base*10_000)/100:0; })(),
       entity:     document.getElementById('f-entity').value,
       status:     document.getElementById('f-status').value,
-      lowest:     Number(document.getElementById('f-lowest').value)     || undefined,
+      lowest:          Number(document.getElementById('f-lowest').value)     || undefined,
+      docFee:          Number(document.getElementById('f-docfee').value)     || undefined,
+      docFeeDate:      document.getElementById('f-docfee-date').value        || undefined,
+      docFeeMethod:    document.getElementById('f-docfee-method').value      || undefined,
+      docFeeBank:      document.getElementById('f-docfee-bank').value.trim() || undefined,
+      docFeeEmailSent: (v=>v===''?undefined:v==='true')(document.getElementById('f-docfee-email').value),
       competitor: document.getElementById('f-competitor').value.trim() || undefined,
       workType:   document.getElementById('f-worktype').value.trim()   || undefined,
       plant:      document.getElementById('f-plant').value.trim()      || undefined,
@@ -2032,7 +2135,12 @@ const App = (() => {
     _setField('f-budget',   b.budget   ?? 0);
     _setField('f-midprice',   b.midPrice   ?? 0);
     _setField('f-bid',        b.bid        ?? 0);
-    _setField('f-lowest',     b.lowest     ?? '');
+    _setField('f-lowest',        b.lowest        ?? '');
+    _setField('f-docfee',        b.docFee        ?? '');
+    _setField('f-docfee-date',   b.docFeeDate    ?? '');
+    _setField('f-docfee-bank',   b.docFeeBank    ?? '');
+    document.getElementById('f-docfee-method').value = b.docFeeMethod ?? '';
+    document.getElementById('f-docfee-email').value = b.docFeeEmailSent===true?'true':b.docFeeEmailSent===false?'false':'';
     _setField('f-competitor', b.competitor ?? '');
     _setField('f-worktype',   b.workType   ?? '');
     _setField('f-plant',      b.plant      ?? '');
@@ -2051,8 +2159,10 @@ const App = (() => {
   }
 
   function clearForm() {
-    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-competitor','f-worktype','f-plant','f-plantdist']
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-docfee','f-docfee-date','f-docfee-bank','f-competitor','f-worktype','f-plant','f-plantdist']
       .forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('f-docfee-method').value = '';
+    document.getElementById('f-docfee-email').value = '';
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
     document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
@@ -2186,6 +2296,20 @@ const App = (() => {
     else if (_activeTab === 'sme')       renderSme();
   }
 
+  /* ── Doc Fee Email Toggle ───────────────────────────────── */
+  function toggleDocFeeEmail(bidId) {
+    const b = Store.findById(bidId);
+    if (!b) return;
+    // cycle: undefined/null → true → false → undefined
+    const cur = b.docFeeEmailSent;
+    const next = cur === true ? false : cur === false ? undefined : true;
+    Store.upsert({ ...b, docFeeEmailSent: next });
+    if      (_activeTab === 'dashboard') renderDash();
+    else if (_activeTab === 'records')   renderTable();
+    else if (_activeTab === 'report')    renderReport();
+    UI.toast(next===true?'📧 ส่ง email แล้ว':next===false?'📧 ยังไม่ส่ง email':'📧 ล้างสถานะ email');
+  }
+
   /* ── Public API ──────────────────────────────────────────── */
   return {
     navigate, renderDash, renderReport, renderTable, renderSme, setYear,
@@ -2194,6 +2318,7 @@ const App = (() => {
       renderBidTimeline(_yearBids(), targetId, page);
     },
     saveBid, saveBidAndExport, exportAllForPush, editBid, deleteBid, clearForm, exportCSV,
+    toggleDocFeeEmail,
     _setReportFilter,
   };
 })();
@@ -2226,6 +2351,17 @@ document.getElementById('records-list').addEventListener('change', e => {
 let _dashRafPending = false;
 
 App.renderDash();
+// Sync doc_fees.json from Fee Payment Agent (GitHub Pages / same origin)
+(async () => {
+  try {
+    const r = await fetch('./doc_fees.json', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const data = await r.json();
+    let updated = 0;
+    data.forEach(f => { if (f.id) { _docFeeMap.set(String(f.id).trim(), f); updated++; } });
+    if (updated) App.renderDash();
+  } catch(e) { /* offline or file:// — use embedded DOC_FEES const */ }
+})();
 (function(){ const yt = document.getElementById('year-tabs'); if (yt) yt.style.display = 'none'; })();
 
 function copyViewLink() {
