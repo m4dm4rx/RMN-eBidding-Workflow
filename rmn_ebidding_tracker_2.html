@@ -1963,25 +1963,37 @@ const App = (() => {
     const unpaid  = fees.filter(x=>!x.f.paid);
     const unsent  = fees.filter(x=>x.f.paid && x.f.emailSent!==true);
     const done    = fees.filter(x=>x.f.paid && x.f.emailSent===true);
-    const row = ({b,f}, showBid=false) => `
+    const row = ({b,f}) => {
+      const paidBg  = f.paid ? '#dcfce7' : '#fef9c3';
+      const paidCol = f.paid ? '#166534' : '#a16207';
+      const paidTxt = f.paid ? '✓ จ่ายแล้ว' : '⏳ ยังไม่จ่าย';
+      const eBg  = f.emailSent===true?'#dbeafe':f.emailSent===false?'#fee2e2':'var(--bg)';
+      const eCol = f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)';
+      const eBdr = f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)';
+      const eTxt = f.emailSent===true?'📧 ส่งแล้ว':f.emailSent===false?'📧 ยังไม่ส่ง':'📧 ไม่ระบุ';
+      return `
       <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--card-border,#e2e8f0);flex-wrap:wrap">
         <span style="font-size:11px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-family:monospace;flex-shrink:0">${UI.esc(b.id||f.id||'')}</span>
         <span style="font-size:12px;color:var(--text);flex:1;min-width:80px">${UI.esc(b.agency||f.agency||'')}</span>
         <span style="font-size:12px;font-weight:700;color:var(--text);flex-shrink:0">${f.amount?'฿'+f.amount.toLocaleString():'—'}</span>
         ${f.payMethod||f.bank?`<span style="font-size:10px;color:var(--muted)">${[f.payMethod,f.bank].filter(Boolean).join(' · ')}</span>`:''}
         ${f.paidDate?`<span style="font-size:10px;color:var(--muted)">${f.paidDate}</span>`:''}
-        <button onclick="App.toggleDocFeeEmail('${b._id}')" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;cursor:pointer;border:1px solid ${f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)'};background:${f.emailSent===true?'#dbeafe':f.emailSent===false?'#fee2e2':'var(--bg)'};color:${f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)'}">${f.emailSent===true?'📧 ส่งแล้ว':f.emailSent===false?'📧 ยังไม่ส่ง':'📧 ไม่ระบุ'}</button>
+        <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;background:${paidBg};color:${paidCol};flex-shrink:0">${paidTxt}</span>
+        <button onclick="App.toggleDocFeeEmail('${b._id}')" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;cursor:pointer;border:1px solid ${eBdr};background:${eBg};color:${eCol};font-family:inherit">${eTxt}</button>
       </div>`;
+    };
     const block = (title, color, items, emptyTxt) => `
       <div style="margin-bottom:14px">
         <div style="font-size:11px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${title} (${items.length})</div>
         ${items.length ? items.map(x=>row(x)).join('') : `<div style="font-size:12px;color:var(--muted);padding:6px 0">${emptyTxt}</div>`}
       </div>`;
+    const pendingTotal = unpaid.length + unsent.length;
     const html = !fees.length
       ? '<div style="font-size:13px;color:var(--muted);padding:8px 0">ยังไม่มีโครงการที่มีค่าเอกสาร</div>'
-      : block('⏳ รอจ่าย','#d97706',unpaid,'ทุกโครงการจ่ายแล้ว ✓')
-      + block('📧 จ่ายแล้ว — รอส่ง email','#1d4ed8',unsent,'ส่ง email ครบแล้ว ✓')
-      + block('✅ เรียบร้อย','#16a34a',done,'—');
+      : !pendingTotal
+        ? '<div style="font-size:13px;color:#16a34a;padding:8px 0">✅ ทุกโครงการเรียบร้อยแล้ว</div>'
+        : block('⏳ รอจ่าย','#d97706',unpaid,'ทุกโครงการจ่ายแล้ว ✓')
+        + block('📧 จ่ายแล้ว — รอส่ง email','#1d4ed8',unsent,'ส่ง email ครบแล้ว ✓');
     UI.setHTML('dash-docfee', html);
   }
 
@@ -2013,6 +2025,7 @@ const App = (() => {
     const thead = `<thead><tr>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0);white-space:nowrap">เลขที่โครงการ</th>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">หน่วยงาน</th>
+      <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0);white-space:nowrap">วันที่ประกาศ</th>
       <th style="text-align:right;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">ยอดเงิน</th>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">วิธีจ่าย · ธนาคาร</th>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">วันที่ชำระ</th>
@@ -2027,11 +2040,14 @@ const App = (() => {
       const eCol = f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)';
       const eBdr = f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)';
       const eTxt = f.emailSent===true?'📧 ส่งแล้ว':f.emailSent===false?'📧 ยังไม่ส่ง':'📧 ไม่ระบุ';
-      const rowBg = i%2===0?'var(--bg)':'var(--surface)';
-      return `<tr style="background:${rowBg}">
+      const noAmt = !f.amount;
+      const rowBg = noAmt ? 'var(--surface)' : i%2===0?'var(--bg)':'var(--surface)';
+      const rowOpacity = noAmt ? 'opacity:.65' : '';
+      return `<tr style="background:${rowBg};${rowOpacity}">
         <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:11px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-family:monospace">${UI.esc(b.id||'')}</span></td>
         <td style="padding:7px 10px;font-size:12px;color:var(--text)">${UI.esc(b.agency||'')}</td>
-        <td style="padding:7px 10px;font-size:12px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap">${f.amount?'฿'+f.amount.toLocaleString():'—'}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--muted);white-space:nowrap">${b.date||'—'}</td>
+        <td style="padding:7px 10px;font-size:12px;font-weight:700;text-align:right;white-space:nowrap;color:${noAmt?'var(--muted)':'var(--text)'}">${f.amount?'฿'+f.amount.toLocaleString():'ยังไม่ระบุ'}</td>
         <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${[f.payMethod,f.bank].filter(Boolean).join(' · ')||'—'}</td>
         <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${f.paidDate||'—'}</td>
         <td style="padding:7px 10px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${paidBg};color:${paidCol}">${paidTxt}</span></td>
