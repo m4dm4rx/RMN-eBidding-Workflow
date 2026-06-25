@@ -1256,7 +1256,7 @@ const App = (() => {
   function renderSme() {
     const { STATUS } = CONFIG;
     const SME_LIMIT = 300000000;
-    const bids = Store.getAll(); // ทุกปีงบ
+    const bids = _yearBids(); // reset ทุกปีงบ
     const groups = {};
     for (const b of bids) {
       const e = b.entity || CONFIG.DEFAULT_ENTITY;
