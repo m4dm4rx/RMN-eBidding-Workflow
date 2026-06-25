@@ -683,7 +683,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
     <div class="dash-status-row" id="dash-status"></div>
     <div class="two-col">
       <div class="glass g-green">
-        <div class="card-title ct-orange">💼 โครงการต่อห้าง</div><div id="dash-sme"></div></div>
+        <div class="card-title ct-orange">💼 วงเงิน SME ต่อห้าง (limit 300M)</div><div id="dash-sme"></div></div>
       <div class="glass g-orange">
         <div class="card-title ct-orange">🏛️ Top หน่วยงาน (จำนวนโครงการ)</div>
         <div id="agency-bars"></div>
@@ -1186,6 +1186,9 @@ function getDocFee(b) {
       paidDate:  b.docFeeDate   ?? reg?.paidDate  ?? null,
       emailSent: b.docFeeEmailSent != null ? b.docFeeEmailSent : (reg?.emailSent ?? null),
       paid:      b.docFeePaid === true ? true : b.docFeePaid === false ? false : !!(b.docFee || reg?.payMethod || reg?.paidDate || b.docFeeMethod || b.docFeeDate),
+      feeStart:  b.docFeeStart  ?? reg?.feeStartDate ?? null,
+      feeEnd:    b.docFeeEnd    ?? reg?.feeEndDate   ?? null,
+      emailTo:   b.docFeeEmailTo ?? reg?.emailTo     ?? null,
     };
   }
   return null;
@@ -1242,7 +1245,7 @@ const App = (() => {
     });
     // ซ่อน year-tabs บน Dashboard (รวมทุกปี), แสดงบน tab อื่น
     const yt = document.getElementById('year-tabs');
-    if (yt) yt.style.display = name === 'dashboard' ? 'none' : 'flex';
+    if (yt) yt.style.display = (name === 'dashboard' || name === 'docfee') ? 'none' : 'flex';
     if (name === 'dashboard') renderDash();
     if (name === 'report')    renderReport();
     if (name === 'records')   renderTable();
@@ -1252,34 +1255,47 @@ const App = (() => {
   /* ── SME — จำนวนโครงการต่อห้าง ─────────────────────────── */
   function renderSme() {
     const { STATUS } = CONFIG;
-    const bids = _yearBids();
+    const SME_LIMIT = 300000000;
+    const bids = Store.getAll(); // ทุกปีงบ
     const groups = {};
     for (const b of bids) {
       const e = b.entity || CONFIG.DEFAULT_ENTITY;
       if (!groups[e]) groups[e] = [];
       groups[e].push(b);
     }
-    const entities = Object.keys(groups).sort((a,b) => groups[b].length - groups[a].length);
+    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT]);
+    const entities = Object.keys(groups).sort((a,b) => {
+      const wA = groups[a].filter(x=>winSet.has(x.status)).reduce((s,x)=>s+(x.contractPrice||x.bid||0),0);
+      const wB = groups[b].filter(x=>winSet.has(x.status)).reduce((s,x)=>s+(x.contractPrice||x.bid||0),0);
+      return wB - wA;
+    });
     if (!entities.length) {
       UI.setHTML('dash-sme', '<div class="empty" style="font-size:11px">ไม่มีข้อมูล</div>');
       return;
     }
-    const maxCount = groups[entities[0]].length;
-    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT]);
     const html = entities.map(e => {
-      const list = groups[e];
-      const cnt  = list.length;
-      const won  = list.filter(b => winSet.has(b.status)).length;
-      const wonAmt = list.filter(b => winSet.has(b.status)).reduce((s,b) => s + (b.contractPrice||b.bid||0), 0);
-      const pct  = Math.round(cnt / maxCount * 100);
-      return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:3px">
+      const list   = groups[e];
+      const cnt    = list.length;
+      const won    = list.filter(b => winSet.has(b.status)).length;
+      const wonAmt = list.filter(b => winSet.has(b.status)).reduce((s,b)=>s+(b.contractPrice||b.bid||0),0);
+      const pct    = Math.min(wonAmt / SME_LIMIT * 100, 100);
+      const near   = pct >= 80;
+      const over   = pct >= 100;
+      const barColor = over ? '#ef4444' : near ? '#f59e0b' : '#22c55e';
+      const remain = Math.max(SME_LIMIT - wonAmt, 0);
+      return `<div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:2px">
           <span style="font-weight:700;color:var(--text)">${UI.esc(e)}</span>
-          <span style="color:var(--muted);font-size:11px">ชนะ <strong style="color:#22c55e">${won}/${cnt}</strong> · ${UI.fmt(wonAmt)}</span>
+          <span style="color:var(--muted);font-size:11px">ชนะ <strong style="color:${barColor}">${won}/${cnt}</strong></span>
         </div>
-        <div style="background:var(--card-border);border-radius:4px;overflow:hidden;height:7px">
-          <div style="height:100%;width:${pct}%;background:#d97757;transition:width .4s"></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
+          <span>วงเงินสะสม <strong style="color:${barColor}">${UI.fmt(wonAmt)}</strong></span>
+          <span>เหลือ ${UI.fmt(remain)} / 300M</span>
         </div>
+        <div style="background:var(--card-border);border-radius:4px;overflow:hidden;height:9px;position:relative">
+          <div style="height:100%;width:${pct.toFixed(1)}%;background:${barColor};transition:width .4s;border-radius:4px"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right">${pct.toFixed(1)}% ของวงเงิน SME</div>
       </div>`;
     }).join('');
     UI.setHTML('dash-sme', html);
@@ -1849,16 +1865,7 @@ const App = (() => {
         <div class="kpi-value">${UI.fmt(income)}</div>
         <div class="kpi-unit">บาท · ${won} โครงการ</div>
       </div></div>
-      <div class="kpi-card orange" style="grid-column:1/-1"><div class="kpi-card-inner">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          <div>
-            <div class="kpi-icon">📄</div>
-            <div class="kpi-label">ค่าเอกสารประมูลรวม</div>
-            <div class="kpi-value" style="font-size:22px">${totalDocFee ? '฿'+UI.fmt(totalDocFee) : '—'}</div>
-            <div class="kpi-unit">${paidDocCnt} โครงการที่มีค่าเอกสาร${unsentEmail ? ` · ⚠️ ยังไม่ส่ง email ${unsentEmail} โครงการ` : ''}</div>
-          </div>
-        </div>
-      </div></div>
+
     `);
     renderGrowthChart();
 
@@ -1975,7 +1982,7 @@ const App = (() => {
       <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--card-border,#e2e8f0);flex-wrap:wrap">
         <span style="font-size:11px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-family:monospace;flex-shrink:0">${UI.esc(b.id||f.id||'')}</span>
         <span style="font-size:12px;color:var(--text);flex:1;min-width:80px">${UI.esc(b.agency||f.agency||'')}</span>
-        <span style="font-size:12px;font-weight:700;color:var(--text);flex-shrink:0">${f.amount?'฿'+f.amount.toLocaleString():'—'}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--text);flex-shrink:0">${f.amount?f.amount.toLocaleString():'—'}</span>
         ${f.payMethod||f.bank?`<span style="font-size:10px;color:var(--muted)">${[f.payMethod,f.bank].filter(Boolean).join(' · ')}</span>`:''}
         ${f.paidDate?`<span style="font-size:10px;color:var(--muted)">${f.paidDate}</span>`:''}
         <button onclick="App.toggleDocFeePaid('${b._id}')" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;cursor:pointer;border:1px solid ${f.paid?'#86efac':'#fde68a'};background:${paidBg};color:${paidCol};flex-shrink:0;font-family:inherit">${paidTxt}</button>
@@ -1997,8 +2004,15 @@ const App = (() => {
     UI.setHTML('dash-docfee', html);
   }
 
+  function fmtThaiDate(d) {
+    if (!d) return '—';
+    const p = d.split('-');
+    if (p.length < 3) return d;
+    const mo = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${parseInt(p[2])}/${mo[parseInt(p[1])-1]}/${p[0]}`;
+  }
   function renderDocFeeTab() {
-    const allBids = Store.getAll().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const allBids = Store.getAll().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
     const rows = allBids.map(b=>({b,f:getDocFee(b)})).filter(x=>x.f);
     if (!rows.length) {
       UI.setHTML('docfee-content','<div style="padding:24px;text-align:center;color:var(--muted)">ยังไม่มีข้อมูลค่าเอกสาร</div>');
@@ -2025,9 +2039,9 @@ const App = (() => {
     const thead = `<thead><tr>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0);white-space:nowrap">เลขที่โครงการ</th>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">หน่วยงาน</th>
-      <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0);white-space:nowrap">วันที่ประกาศ</th>
+      <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0);white-space:nowrap">ช่วงเวลาการชำระเงิน</th>
       <th style="text-align:right;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">ยอดเงิน</th>
-      <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">วิธีจ่าย · ธนาคาร</th>
+      <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">e-mail</th>
       <th style="text-align:left;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">วันที่ชำระ</th>
       <th style="text-align:center;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">สถานะ</th>
       <th style="text-align:center;padding:7px 10px;font-size:11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--card-border,#e2e8f0)">Email</th>
@@ -2046,10 +2060,10 @@ const App = (() => {
       return `<tr style="background:${rowBg};${rowOpacity}">
         <td style="padding:7px 10px;white-space:nowrap"><span style="font-size:11px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-family:monospace">${UI.esc(b.id||'')}</span></td>
         <td style="padding:7px 10px;font-size:12px;color:var(--text)">${UI.esc(b.agency||'')}</td>
-        <td style="padding:7px 10px;font-size:11px;color:var(--muted);white-space:nowrap">${b.date||'—'}</td>
-        <td style="padding:7px 10px;font-size:12px;font-weight:700;text-align:right;white-space:nowrap;color:${noAmt?'var(--muted)':'var(--text)'}">${f.amount?'฿'+f.amount.toLocaleString():'ยังไม่ระบุ'}</td>
-        <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${[f.payMethod,f.bank].filter(Boolean).join(' · ')||'—'}</td>
-        <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${f.paidDate||'—'}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--muted);white-space:nowrap">${f.feeStart||f.feeEnd ? fmtThaiDate(f.feeStart)+' – '+fmtThaiDate(f.feeEnd) : '—'}</td>
+        <td style="padding:7px 10px;font-size:12px;font-weight:700;text-align:right;white-space:nowrap;color:${noAmt?'var(--muted)':'var(--text)'}">${f.amount?f.amount.toLocaleString():'ยังไม่ระบุ'}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${f.emailTo||'—'}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--muted);white-space:nowrap">${fmtThaiDate(f.paidDate)}</td>
         <td style="padding:7px 10px;text-align:center"><button onclick="App.toggleDocFeePaid('${b._id}')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid ${f.paid?'#86efac':'#fde68a'};background:${paidBg};color:${paidCol};font-family:inherit">${paidTxt}</button></td>
         <td style="padding:7px 10px;text-align:center"><button onclick="App.toggleDocFeeEmail('${b._id}')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid ${eBdr};background:${eBg};color:${eCol};font-family:inherit">${eTxt}</button></td>
       </tr>`;

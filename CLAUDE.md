@@ -89,3 +89,33 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 - ทต_แวงน่าง / อบต_ยางใหญ่ → ทำใหม่ session ใหม่
 - ทม_สกลนคร (52.3 กม.) → ทำใหม่ session ใหม่
 - อบต_ทรายมูล (62.9 กม.) → ทำใหม่ session ใหม่
+
+## 🔄 Session State (2026-06-25)
+### ✅ Done (session นี้)
+- Modal popup: click project ID → popup รายละเอียด (pipeCard + projectCard) ✅
+- Fix JS syntax error (backtick escape จาก Python heredoc) ✅
+- Fix paid flag bug (reg truthy → ขึ้น จ่ายแล้ว ผิด) ✅
+- pipeCard header redesign: ID+Agency+Status badge row + "ดูรายละเอียด ▶" ✅
+- B+D contrast: badge row bg + project name left accent bar ✅
+- Tab ค่าเอกสาร (renderDocFeeTab): ตาราง + paid/email toggle ✅
+- Dashboard section ค่าเอกสาร (renderDashDocFee): รอจ่าย/รอส่ง email เท่านั้น ✅
+- ลบ SME tab → ย้ายเป็น card ใน Dashboard ✅
+- Viewer dark/light toggle switch (#view-theme-toggle) ✅
+- Dashboard docfee: ลบ เรียบร้อย section, แสดงเฉพาะ pending ✅
+- paid badge: clickable → toggleDocFeePaid() (true/false/null cycle) ✅
+- Tab ค่าเอกสาร: col ช่วงเวลาการชำระเงิน, swap วิธีจ่าย→emailTo ✅
+- fmtThaiDate(): "2569-06-25" → "25/มิ.ย./2569" ✅
+- Tab ค่าเอกสาร: ลบ ฿, ซ่อน year-tabs, sort ใหม่สุดบน ✅
+- SME card: วงเงินสะสม vs 300M limit (🟢<80% 🟡≥80% 🔴≥100%) ✅
+
+### 📋 doc_fees.json schema ใหม่ (Doc Fee Agent ต้องเพิ่ม)
+| field | ความหมาย |
+|---|---|
+| feeStartDate | วันเริ่มจ่ายค่าเอกสาร (YYYY-MM-DD) |
+| feeEndDate | วันสิ้นสุดจ่ายค่าเอกสาร (YYYY-MM-DD) |
+| emailTo | email หน่วยงานที่ส่งหลักฐาน |
+
+### ⏳ Pending
+- light mode toggle full implementation (dev agent)
+- FIX 7 phase 2: one-off structural styles (dev agent)
+- Map Maker: ทต_แวงน่าง / อบต_ยางใหญ่ / ทม_สกลนคร / อบต_ทรายมูล
