@@ -107,6 +107,7 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 - fmtThaiDate(): "2569-06-25" → "25/มิ.ย./2569" ✅
 - Tab ค่าเอกสาร: ลบ ฿, ซ่อน year-tabs, sort ใหม่สุดบน ✅
 - SME card: วงเงินสะสม vs 300M limit (🟢<80% 🟡≥80% 🔴≥100%) ✅
+- ลบ KPI card "ค่าเอกสารประมูลรวม" (ซ้ำกับ section renderDashDocFee) ✅
 
 ### 📋 doc_fees.json schema ใหม่ (Doc Fee Agent ต้องเพิ่ม)
 | field | ความหมาย |
@@ -116,6 +117,7 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 | emailTo | email หน่วยงานที่ส่งหลักฐาน |
 
 ### ⏳ Pending
+- topbar + tabs: เปลี่ยน bg จาก backdrop-filter blur → solid (ให้เหมือน section row 3)
 - light mode toggle full implementation (dev agent)
 - FIX 7 phase 2: one-off structural styles (dev agent)
 - Map Maker: ทต_แวงน่าง / อบต_ยางใหญ่ / ทม_สกลนคร / อบต_ทรายมูล
