@@ -567,11 +567,11 @@ html:not(.dark) #status-updated-dash::-webkit-scrollbar-thumb,html:not(.dark) #s
 .pipe-fin-cell{flex:1;padding:6px 12px;border-right:1px solid var(--card-border,#e2e8f0)}
 .pipe-det{display:none;border-top:1px solid var(--card-border,#e2e8f0);background:var(--bg)}
 .pipe-det-grid{display:grid;grid-template-columns:repeat(2,1fr)}.pipe-tl-row{display:flex;align-items:center;padding:10px 16px;gap:0}
-.pipe-body-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.pipe-body-hdr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 14px;background:var(--surface);border-bottom:1px solid var(--card-border,#e2e8f0);margin-bottom:0}
 .pipe-fin-last{flex:1;padding:6px 12px}
 .th-l{text-align:left;padding:4px 6px}.th-r{text-align:right;padding:4px 6px}.th-c{padding:4px 6px}
 .pipe-date-col{width:56px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 4px;border-right:1px solid var(--card-border,#e2e8f0);background:var(--bg)}
-.pipe-body{flex:1;min-width:0;padding:10px 14px}
+.pipe-body{flex:1;min-width:0;padding:0 0 10px}
 .pipe-outer-row{display:flex;align-items:stretch}
 .pstep-item{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
@@ -1152,7 +1152,7 @@ function getDocFee(b) {
       bank:      b.docFeeBank   ?? reg?.bank      ?? null,
       paidDate:  b.docFeeDate   ?? reg?.paidDate  ?? null,
       emailSent: b.docFeeEmailSent != null ? b.docFeeEmailSent : (reg?.emailSent ?? null),
-      paid:      !!(b.docFee || reg),
+      paid:      !!(b.docFee || reg?.payMethod || reg?.paidDate || b.docFeeMethod || b.docFeeDate),
     };
   }
   return null;
@@ -1664,21 +1664,20 @@ const App = (() => {
             <span style="font-size:11px;color:var(--muted);margin-top:3px;font-family:${FONT}">${mon} ${yr}</span>
           </div>
           <div class="pipe-body">
-            <!-- Row 1: agency + ID + expand button -->
+            <!-- Row 1: ID + agency + status badge -->
             <div class="pipe-body-hdr">
-              <span style="font-size:16px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.esc(b.agency)}</span>
-              <span class="id-click" onclick="App.openProjectModal('${b._id}')" style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
-
-            </div>
-            <!-- Row 2: badge ชิดซ้าย -->
-            <div class="mb-5">
-              <span style="display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;color:#fff;background:${tagBg};font-family:${FONT}">${tagText}</span>
+              <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
+              <span style="font-size:11px;font-weight:700;color:#374151;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:2px 9px;font-family:${FONT};flex-shrink:0;white-space:nowrap">${UI.esc(b.agency)}</span>
+              <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;color:#fff;background:${tagBg};font-family:${FONT};flex-shrink:0;white-space:nowrap">${tagText}</span>
+              <span class="id-click" onclick="App.openProjectModal('${b._id}')" style="margin-left:auto;font-size:10px;font-weight:700;color:#0f172a;background:#e2e8f0;border:1px solid #94a3b8;border-radius:4px;padding:2px 9px;font-family:${FONT};flex-shrink:0;white-space:nowrap;cursor:pointer">ดูรายละเอียดโครงการ ▶</span>
             </div>
             <!-- Project name -->
-            <div style="font-size:15px;color:var(--text);line-height:1.55;font-family:${FONT};font-weight:500">${UI.esc(b.name||b.agency)}</div>
+            <div style="padding:10px 14px 2px">
+              <div style="border-left:3px solid ${tagBg};padding-left:10px;font-size:13px;color:var(--text);line-height:1.6;font-family:${FONT};font-weight:500">${UI.esc(b.name||b.agency)}</div>
+            </div>
           </div>
         </div>
-        <div class="pipe-fin">
+        <div class="pipe-fin" style="margin-top:10px">
           <div class="pipe-fin-cell">
             <div class="lbl-xs">งบประมาณ</div>
             <div style="font-size:13px;font-weight:700;color:var(--text);font-family:${FONT}">${UI.fmt(b.budget)}</div>
