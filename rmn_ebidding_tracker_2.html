@@ -1185,7 +1185,7 @@ function getDocFee(b) {
       bank:      b.docFeeBank   ?? reg?.bank      ?? null,
       paidDate:  b.docFeeDate   ?? reg?.paidDate  ?? null,
       emailSent: b.docFeeEmailSent != null ? b.docFeeEmailSent : (reg?.emailSent ?? null),
-      paid:      !!(b.docFee || reg?.payMethod || reg?.paidDate || b.docFeeMethod || b.docFeeDate),
+      paid:      b.docFeePaid === true ? true : b.docFeePaid === false ? false : !!(b.docFee || reg?.payMethod || reg?.paidDate || b.docFeeMethod || b.docFeeDate),
     };
   }
   return null;
@@ -1978,7 +1978,7 @@ const App = (() => {
         <span style="font-size:12px;font-weight:700;color:var(--text);flex-shrink:0">${f.amount?'฿'+f.amount.toLocaleString():'—'}</span>
         ${f.payMethod||f.bank?`<span style="font-size:10px;color:var(--muted)">${[f.payMethod,f.bank].filter(Boolean).join(' · ')}</span>`:''}
         ${f.paidDate?`<span style="font-size:10px;color:var(--muted)">${f.paidDate}</span>`:''}
-        <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;background:${paidBg};color:${paidCol};flex-shrink:0">${paidTxt}</span>
+        <button onclick="App.toggleDocFeePaid('${b._id}')" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;cursor:pointer;border:1px solid ${f.paid?'#86efac':'#fde68a'};background:${paidBg};color:${paidCol};flex-shrink:0;font-family:inherit">${paidTxt}</button>
         <button onclick="App.toggleDocFeeEmail('${b._id}')" style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;cursor:pointer;border:1px solid ${eBdr};background:${eBg};color:${eCol};font-family:inherit">${eTxt}</button>
       </div>`;
     };
@@ -2050,7 +2050,7 @@ const App = (() => {
         <td style="padding:7px 10px;font-size:12px;font-weight:700;text-align:right;white-space:nowrap;color:${noAmt?'var(--muted)':'var(--text)'}">${f.amount?'฿'+f.amount.toLocaleString():'ยังไม่ระบุ'}</td>
         <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${[f.payMethod,f.bank].filter(Boolean).join(' · ')||'—'}</td>
         <td style="padding:7px 10px;font-size:11px;color:var(--muted)">${f.paidDate||'—'}</td>
-        <td style="padding:7px 10px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${paidBg};color:${paidCol}">${paidTxt}</span></td>
+        <td style="padding:7px 10px;text-align:center"><button onclick="App.toggleDocFeePaid('${b._id}')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid ${f.paid?'#86efac':'#fde68a'};background:${paidBg};color:${paidCol};font-family:inherit">${paidTxt}</button></td>
         <td style="padding:7px 10px;text-align:center"><button onclick="App.toggleDocFeeEmail('${b._id}')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid ${eBdr};background:${eBg};color:${eCol};font-family:inherit">${eTxt}</button></td>
       </tr>`;
     }).join('');
@@ -2372,6 +2372,20 @@ const App = (() => {
     UI.toast(next===true?'📧 ส่ง email แล้ว':next===false?'📧 ยังไม่ส่ง email':'📧 ล้างสถานะ email');
   }
 
+  function toggleDocFeePaid(bidId) {
+    const b = Store.findById(bidId);
+    if (!b) return;
+    // toggle: null/undefined → true → false → null
+    const cur = b.docFeePaid;
+    const next = cur === true ? false : cur === false ? undefined : true;
+    Store.upsert({ ...b, docFeePaid: next });
+    if      (_activeTab === 'dashboard') renderDash();
+    else if (_activeTab === 'records')   renderTable();
+    else if (_activeTab === 'docfee')    renderDocFeeTab();
+    else if (_activeTab === 'report')    renderReport();
+    UI.toast(next===true?'✓ จ่ายแล้ว':next===false?'⏳ ยังไม่จ่าย':'↩ ล้างสถานะ');
+  }
+
   /* ── Public API ──────────────────────────────────────────── */
   return {
     navigate, renderDash, renderReport, renderTable, renderDocFeeTab, setYear,
@@ -2456,7 +2470,7 @@ const App = (() => {
       document.getElementById('proj-modal').style.display = 'none';
       document.body.style.overflow = '';
     },
-    toggleDocFeeEmail,
+    toggleDocFeeEmail, toggleDocFeePaid,
     _setReportFilter,
   };
 })();
