@@ -1160,8 +1160,8 @@ function getDocFee(b) {
 function renderDocFeeBlock(b) {
   const f = getDocFee(b);
   if (!f) {
-    return \`<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:5px;background:var(--bg);border:1px solid var(--card-border);font-size:11px;color:var(--muted);margin-top:6px">
-      <span>📄</span><span>ไม่ต้องจ่ายค่าเอกสาร</span></div>\`;
+    return `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:5px;background:var(--bg);border:1px solid var(--card-border);font-size:11px;color:var(--muted);margin-top:6px">
+      <span>📄</span><span>ไม่ต้องจ่ายค่าเอกสาร</span></div>`;
   }
   // paid badge — distinguish paid-unknown-amount
   const paidLabel = f.paid
@@ -1170,25 +1170,25 @@ function renderDocFeeBlock(b) {
   const paidBg = f.paid ? '#dcfce7' : '#fef9c3';
   const paidCol = f.paid ? '#166534' : '#a16207';
   const paidBdr = f.paid ? '#86efac' : '#fde68a';
-  const paidBadge = \`<span style="background:\${paidBg};color:\${paidCol};border:1px solid \${paidBdr};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700">\${paidLabel}</span>\`;
+  const paidBadge = `<span style="background:${paidBg};color:${paidCol};border:1px solid ${paidBdr};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700">${paidLabel}</span>`;
   // email toggle button (3-state: null → true → false → null)
   const eBg  = f.emailSent===true?'#dbeafe':f.emailSent===false?'#fee2e2':'var(--bg)';
   const eCol = f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)';
   const eBdr = f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)';
   const eTxt = f.emailSent===true?'📧 ส่ง email แล้ว':f.emailSent===false?'📧 ยังไม่ส่ง email':'📧 คลิกอัปเดต email';
-  const emailToggle = \`<button onclick="App.toggleDocFeeEmail('\${b._id}')" style="background:\${eBg};color:\${eCol};border:1px solid \${eBdr};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">\${eTxt}</button>\`;
+  const emailToggle = `<button onclick="App.toggleDocFeeEmail('${b._id}')" style="background:${eBg};color:${eCol};border:1px solid ${eBdr};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">${eTxt}</button>`;
   const rows = [
-    f.amount   ? \`<div><span style="color:var(--muted);font-size:10px">ยอดเงิน · </span><strong>฿\${f.amount.toLocaleString()}</strong></div>\` : '',
-    (f.payMethod||f.bank) ? \`<div><span style="color:var(--muted);font-size:10px">รายละเอียดการจ่าย · </span>\${[f.payMethod,f.bank].filter(Boolean).join(' — ')}</div>\` : '',
-    f.paidDate ? \`<div><span style="color:var(--muted);font-size:10px">วันที่ชำระ · </span>\${f.paidDate}</div>\` : '',
+    f.amount   ? `<div><span style="color:var(--muted);font-size:10px">ยอดเงิน · </span><strong>฿${f.amount.toLocaleString()}</strong></div>` : '',
+    (f.payMethod||f.bank) ? `<div><span style="color:var(--muted);font-size:10px">รายละเอียดการจ่าย · </span>${[f.payMethod,f.bank].filter(Boolean).join(' — ')}</div>` : '',
+    f.paidDate ? `<div><span style="color:var(--muted);font-size:10px">วันที่ชำระ · </span>${f.paidDate}</div>` : '',
   ].filter(Boolean).join('');
-  return \`<div style="padding:8px 10px;border-radius:6px;background:var(--bg);border:1px solid var(--card-border);margin-top:6px;font-size:12px;font-family:inherit">
-    <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:\${rows?'6px':'0'}">
+  return `<div style="padding:8px 10px;border-radius:6px;background:var(--bg);border:1px solid var(--card-border);margin-top:6px;font-size:12px;font-family:inherit">
+    <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:${rows?'6px':'0'}">
       <span style="font-size:11px;font-weight:700;color:var(--text)">📄 ค่าเอกสารประมูล</span>
-      \${paidBadge}\${emailToggle}
+      ${paidBadge}${emailToggle}
     </div>
-    \${rows ? \`<div style="display:flex;flex-direction:column;gap:3px;color:var(--text)">\${rows}</div>\` : ''}
-  </div>\`;
+    ${rows ? `<div style="display:flex;flex-direction:column;gap:3px;color:var(--text)">${rows}</div>` : ''}
+  </div>`;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1851,7 +1851,7 @@ const App = (() => {
             <div class="kpi-icon">📄</div>
             <div class="kpi-label">ค่าเอกสารประมูลรวม</div>
             <div class="kpi-value" style="font-size:22px">${totalDocFee ? '฿'+UI.fmt(totalDocFee) : '—'}</div>
-            <div class="kpi-unit">${paidDocCnt} โครงการที่มีค่าเอกสาร${unsentEmail ? \` · ⚠️ ยังไม่ส่ง email \${unsentEmail} โครงการ\` : ''}</div>
+            <div class="kpi-unit">${paidDocCnt} โครงการที่มีค่าเอกสาร${unsentEmail ? ` · ⚠️ ยังไม่ส่ง email ${unsentEmail} โครงการ` : ''}</div>
           </div>
         </div>
       </div></div>
