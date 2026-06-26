@@ -144,3 +144,8 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 ### ⏳ Pending
 - (none)
 push doc_fees.json (user ต้องรันเอง)
+
+## 🖥️ Multi-Machine
++ - ใช้ PowerShell เป็นหลักเสมอ — ห้ามใช้ CMD
+- CMD: ใช้ `%USERPROFILE%` เสมอ — ห้าม hardcode path
++ - PowerShell: ใช้ `$env:USERPROFILE` เสมอ — ห้าม hardcode path
