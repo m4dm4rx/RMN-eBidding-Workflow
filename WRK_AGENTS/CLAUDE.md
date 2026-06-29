@@ -47,11 +47,14 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 รอผลพิจารณา/เป็นผู้เสนอต่ำสุด · ไม่ได้เป็นผู้เสนอต่ำสุด · อนุมัติสั่งจ้าง · จัดทำสัญญา · แพ้การประมูล · แพ้/ขาดคุณสมบัติ · ยกเลิกโครงการ · ห้างขอยกเลิก
 
 ## 🤖 Agents
-| Agent | MD | หน้าที่ |
-|---|---|---|
-| E-Bidding Operating | `CLAUDE.md` (tracker) | รับข้อมูลประมูล → seed_bids → git push |
-| Map Maker | `MAPMAKER.md` | PDF แผนที่เส้นทางขนส่ง |
-| Document Fee Payment | `CLAUDE_FEE_PAYMENT.md` | PDF ใบแจ้งชำระเงิน + email |
+- Smart Convenience Assistant
++ แต่ละ agent มีหน้าที่เดียวเท่านั้น — ห้ามรับงานนอกขอบเขต
++ | Agent | หน้าที่เดียว |
++ |---|---|
++ | MAPMAKER | สร้าง PDF แผนที่เท่านั้น |
++ | E-BIDDING DOC FEE | สร้างใบแจ้งชำระ + email เท่านั้น |
++ | BIDDING OPERATING | บันทึก seed_bids.js เท่านั้น |
++ | UI/UX EDITOR | แก้ไข HTML tracker เท่านั้น |
 
 ## 🔄 Session State (2026-06-16)
 ### ✅ Done (UI/UX Agent — session นี้)
