@@ -2020,7 +2020,7 @@ const App = (() => {
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
           <span style="font-size:11px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-family:monospace;flex-shrink:0">${UI.esc(b.id||'')}</span>
           <span style="font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:100px">${UI.esc(b.agency||'')}</span>
-          <span style="font-size:13px;font-weight:700;color:${noAmt?'var(--muted)':'var(--text)');flex-shrink:0">${f.amount?'฿'+f.amount.toLocaleString():'ยังไม่ระบุ'}</span>
+          <span style="font-size:13px;font-weight:700;color:${noAmt?'var(--muted)':'var(--text)'};flex-shrink:0">${f.amount?'฿'+f.amount.toLocaleString():'ยังไม่ระบุ'}</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
           <span style="font-size:11px;color:var(--muted);flex-shrink:0">${dateRange}</span>
