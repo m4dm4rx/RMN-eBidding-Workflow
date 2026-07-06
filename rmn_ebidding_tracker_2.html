@@ -327,6 +327,12 @@ html.dark .kpi-value{color:#faf9f5}
 html.dark .kpi-unit{color:rgba(250,249,245,.55)}
 
 /* Filter pills */
+.pills-toggle-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid var(--card-border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;margin-bottom:10px;transition:background .2s}
+.pills-toggle-btn:hover{background:var(--card-border)}
+.pills-toggle-btn .arrow{font-size:10px;transition:transform .25s;display:inline-block}
+.pills-toggle-btn.open .arrow{transform:rotate(180deg)}
+#pills-wrapper{display:none;margin-bottom:.4rem}
+#pills-wrapper.open{display:block}
 .report-pills{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
 .pill{
   padding:8px 16px;border-radius:99px;
@@ -715,7 +721,11 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       </div>
     </div>
 
-    <!-- Filter pills -->
+    <!-- Filter pills toggle -->
+    <button class="pills-toggle-btn" id="pills-toggle-btn" onclick="(function(){const w=document.getElementById('pills-wrapper');const b=document.getElementById('pills-toggle-btn');const open=w.classList.toggle('open');b.classList.toggle('open',open);b.querySelector('.lbl').textContent=open?'ซ่อนตัวกรอง':'ตัวกรองค้นหา'})()">
+      <span>🔽</span><span class="lbl">ตัวกรองค้นหา</span><span class="arrow">▼</span>
+    </button>
+    <div id="pills-wrapper">
     <div class="report-pills">
       <button class="pill active" data-filter="all">ทั้งหมด</button>
       <button class="pill" data-filter="contract">จัดทำสัญญาแล้ว</button>
@@ -726,6 +736,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       <button class="pill" data-filter="disqualified">แพ้ เนื่องจากโดนปรับตก</button>
       <button class="pill" data-filter="cancelled">หน่วยงานประกาศยกเลิกโครงการ</button>
       <button class="pill" data-filter="withdrawn">ห้างขอยกเลิกสัญญา</button>
+    </div>
     </div>
 
     <!-- Filter bar -->
@@ -1478,6 +1489,7 @@ const App = (() => {
                 <span>📍 ${UI.esc(b.agency)}, ${UI.esc((b.province ?? '').trim())}</span>
                 <span><strong>฿${UI.fmt(b.bid)}</strong></span>
                 <span>${((base=>base>0?(base-b.bid)/base*100:b.pct)(Math.max(b.budget||0,b.midPrice||0))).toFixed(1)}% ต่ำกว่าราคางาน</span>
+                <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--muted);white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
               </div>
             </div>
           </div>`;
@@ -1538,6 +1550,7 @@ const App = (() => {
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:4px">
               <span style="font-size:15px;font-weight:700;color:var(--text)">${UI.esc(b.agency)}</span>
               <span style="font-size:11px;color:var(--muted);flex-shrink:0">${UI.esc(b.id||'')}</span>
+              <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--muted);flex-shrink:0;white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
               <span style="margin-left:auto;font-size:11px;font-weight:700;padding:2px 10px;border-radius:3px;color:#fff;background:${bg};white-space:nowrap;flex-shrink:0">${text}</span>
             </div>
             <div style="font-size:13px;color:var(--text);opacity:.75;line-height:1.5">${UI.esc(b.name||b.agency)}</div>
@@ -1663,6 +1676,7 @@ const App = (() => {
             <div class="pipe-body-hdr">
               <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
               <span style="font-size:11px;font-weight:700;color:#374151;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:2px 9px;font-family:${FONT};flex-shrink:0;white-space:nowrap">${UI.esc(b.agency)}</span>
+              <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--muted);font-family:${FONT};flex-shrink:0;white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
               <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;color:#fff;background:${tagBg};font-family:${FONT};flex-shrink:0;white-space:nowrap">${tagText}</span>
               <span class="id-click" onclick="App.openProjectModal('${b._id}')" style="margin-left:auto;font-size:10px;font-weight:700;color:#0f172a;background:#e2e8f0;border:1px solid #94a3b8;border-radius:4px;padding:2px 9px;font-family:${FONT};flex-shrink:0;white-space:nowrap;cursor:pointer">ดูรายละเอียดโครงการ ▶</span>
             </div>
@@ -1947,10 +1961,10 @@ const App = (() => {
       const paidBg  = f.paid ? '#dcfce7' : '#fef9c3';
       const paidCol = f.paid ? '#166534' : '#a16207';
       const paidTxt = f.paid ? '✓ จ่ายแล้ว' : '⏳ ยังไม่จ่าย';
-      const eBg  = f.emailSent===true?'#dbeafe':f.emailSent===false?'#fee2e2':'var(--bg)';
-      const eCol = f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)';
-      const eBdr = f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)';
-      const eTxt = f.emailSent===true?'📧 ส่งแล้ว':f.emailSent===false?'📧 ยังไม่ส่ง':'📧 ไม่ระบุ';
+      const eBg  = f.emailSent===true?'#dbeafe':'#fee2e2';
+      const eCol = f.emailSent===true?'#1d4ed8':'#991b1b';
+      const eBdr = f.emailSent===true?'#93c5fd':'#fca5a5';
+      const eTxt = f.emailSent===true?'📧 ส่ง E-mail ยืนยันแล้ว':'📧 ยังไม่ส่ง E-mail ยืนยัน';
       return `
       <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--card-border,#e2e8f0);flex-wrap:wrap">
         <span style="font-size:10px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-family:monospace;flex-shrink:0">${UI.esc(b.id||f.id||'')}</span>
@@ -2010,17 +2024,17 @@ const App = (() => {
       const paidBg  = f.paid?'#dcfce7':'#fef9c3';
       const paidCol = f.paid?'#166534':'#a16207';
       const paidTxt = f.paid?(f.amount?'✓ จ่ายแล้ว':'✓ จ่ายแล้ว (ไม่ทราบยอด)'):'⏳ รอจ่าย';
-      const eBg  = f.emailSent===true?'#dbeafe':f.emailSent===false?'#fee2e2':'var(--bg)';
-      const eCol = f.emailSent===true?'#1d4ed8':f.emailSent===false?'#991b1b':'var(--muted)';
-      const eBdr = f.emailSent===true?'#93c5fd':f.emailSent===false?'#fca5a5':'var(--card-border)';
-      const eTxt = f.emailSent===true?'📧 ส่งแล้ว':f.emailSent===false?'📧 ยังไม่ส่ง':'📧 ไม่ระบุ';
+      const eBg  = f.emailSent===true?'#dbeafe':'#fee2e2';
+      const eCol = f.emailSent===true?'#1d4ed8':'#991b1b';
+      const eBdr = f.emailSent===true?'#93c5fd':'#fca5a5';
+      const eTxt = f.emailSent===true?'📧 ส่ง E-mail ยืนยันแล้ว':'📧 ยังไม่ส่ง E-mail ยืนยัน';
       const noAmt = !f.amount;
       const dateRange = (f.feeStart||f.feeEnd) ? fmtThaiDate(f.feeStart)+' – '+fmtThaiDate(f.feeEnd) : '—';
       return `<div style="background:var(--surface);border:1px solid var(--card-border,#e2e8f0);border-radius:6px;padding:10px 12px;margin-bottom:8px${noAmt?';opacity:.7':''}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
           <span style="font-size:11px;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-family:monospace;flex-shrink:0">${UI.esc(b.id||'')}</span>
           <span style="font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:100px">${UI.esc(b.agency||'')}</span>
-          <span style="font-size:13px;font-weight:700;color:${noAmt?'var(--muted)':'var(--text)'};flex-shrink:0">${f.amount?'฿'+f.amount.toLocaleString():'ยังไม่ระบุ'}</span>
+          <span style="font-size:13px;font-weight:700;color:${noAmt?'var(--muted)':'var(--text)'};flex-shrink:0">${f.amount?'฿ '+f.amount.toLocaleString():'ยังไม่ระบุ'}</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
           <span style="font-size:11px;color:var(--muted);flex-shrink:0">${dateRange}</span>
