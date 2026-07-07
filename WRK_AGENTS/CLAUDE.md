@@ -55,6 +55,45 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 | BIDDING OPERATING | `seed_bids.js` เท่านั้น | tracker HTML, doc_fees.json |
 | UI/UX EDITOR | tracker HTML (UI/CSS/layout/logic) | `DOC_FEES` array, fetch URL |
 
+## 🔄 Agent Workflow Order
+```
+Operating Agent → seed_bids.js (entity บันทึกแล้ว)
+     ↓
+MapMaker
+     ↓
+Doc Fee Agent → ต้องอ่าน entity จาก seed_bids.js ก่อนเสมอ
+```
+Doc Fee Agent: รับ project ID → ค้น **local** seed_bids.js (workspace folder) หา entity
+→ ไม่ต้องรอ git push — local file มีข้อมูลล่าสุดเสมอ
+→ แสดง entity ให้ user เห็น → รอสลิป → verify ชื่อผู้จ่าย
+
+## 🔍 Slip Verification (MANDATORY — ก่อน generate PDF ทุกครั้ง)
+ต้อง output ตารางนี้และรอ user ยืนยันก่อนเสมอ — ห้าม generate PDF โดยไม่ผ่านขั้นตอนนี้
+
+| จุดตรวจ | ค่าจากสลิป | ค่าจากประกาศ | ✅/❌ |
+|---|---|---|---|
+| ธนาคาร | | | |
+| เลขบัญชี | | | |
+| ชื่อบัญชีผู้รับ | | | |
+| ยอดเงิน | | | |
+| วันที่โอน | | อยู่ในช่วง payWindow? | |
+| ชื่อผู้ฝาก/entity | | ถูก entity ที่ยื่นงาน? | |
+
+**⚠️ ชื่อผู้จ่ายในสลิป ต้องตรงกับห้างที่ยื่นงาน (ดูจาก seed_bids entity)**
+- ถ้าไม่ตรง → แจ้ง user ทันที: "ผู้จ่ายในสลิป (X) ≠ ห้างที่ยื่นงาน (Y) — หน่วยงานอาจปฏิเสธ ดำเนินการต่อ?"
+- ห้าม generate PDF โดยไม่ได้รับการยืนยัน
+
+**ถ้ามีจุดไหน ❌ → ห้าม generate PDF แจ้ง user ทันที**
+เพราะถ้าผิดตรงไหนซักจุด = email ผิด = ถือว่าไม่ได้จ่าย
+
+## ✍️ Email Signature Rules
+| นิติบุคคล | ชื่อ | ตำแหน่ง |
+|---|---|---|
+| ห้างหุ้นส่วนทุกห้าง (RMN, รักดี, ร่วมค้า ฯลฯ) | นางอนุรักษ์ บารพรม | หุ้นส่วนผู้จัดการ |
+| บจก. ตักสิลา RMN | นางอนุรักษ์ บารพรม | กรรมการผู้จัดการ |
+
+โทร. 087-223-5093 (ทุกกรณี)
+
 ## 🔒 Data Separation Rules (CRITICAL)
 - **Source of truth คือ `doc_fees.json` เท่านั้น** — ห้าม hardcode data ลงใน tracker HTML
 - `const DOC_FEES = [];` ใน tracker HTML ต้องเป็น array เปล่าเสมอ — ห้าม agent ใดเขียนข้อมูลลงไป
