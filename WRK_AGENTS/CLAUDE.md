@@ -47,14 +47,19 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 รอผลพิจารณา/เป็นผู้เสนอต่ำสุด · ไม่ได้เป็นผู้เสนอต่ำสุด · อนุมัติสั่งจ้าง · จัดทำสัญญา · แพ้การประมูล · แพ้/ขาดคุณสมบัติ · ยกเลิกโครงการ · ห้างขอยกเลิก
 
 ## 🤖 Agents
-- Smart Convenience Assistant
-+ แต่ละ agent มีหน้าที่เดียวเท่านั้น — ห้ามรับงานนอกขอบเขต
-+ | Agent | หน้าที่เดียว |
-+ |---|---|
-+ | MAPMAKER | สร้าง PDF แผนที่เท่านั้น |
-+ | E-BIDDING DOC FEE | สร้างใบแจ้งชำระ + email เท่านั้น |
-+ | BIDDING OPERATING | บันทึก seed_bids.js เท่านั้น |
-+ | UI/UX EDITOR | แก้ไข HTML tracker เท่านั้น |
+แต่ละ agent มีหน้าที่เดียวเท่านั้น — ห้ามรับงานนอกขอบเขต
+| Agent | แก้ได้ | ห้ามแตะ |
+|---|---|---|
+| MAPMAKER | PDF แผนที่ | อื่นทั้งหมด |
+| E-BIDDING DOC FEE | `doc_fees.json` เท่านั้น | tracker HTML |
+| BIDDING OPERATING | `seed_bids.js` เท่านั้น | tracker HTML, doc_fees.json |
+| UI/UX EDITOR | tracker HTML (UI/CSS/layout/logic) | `DOC_FEES` array, fetch URL |
+
+## 🔒 Data Separation Rules (CRITICAL)
+- **Source of truth คือ `doc_fees.json` เท่านั้น** — ห้าม hardcode data ลงใน tracker HTML
+- `const DOC_FEES = [];` ใน tracker HTML ต้องเป็น array เปล่าเสมอ — ห้าม agent ใดเขียนข้อมูลลงไป
+- `fetch('https://raw.githubusercontent.com/m4dm4rx/RMN-eBidding-Workflow/main/doc_fees.json')` — ห้าม uiux-editor เปลี่ยน URL นี้
+- ถ้า uiux-editor แก้ HTML แล้วเห็น DOC_FEES มีข้อมูล → ลบทิ้ง ใส่ `[]` แทนทันที
 
 ## 🔄 Session State (2026-06-16)
 ### ✅ Done (UI/UX Agent — session นี้)
