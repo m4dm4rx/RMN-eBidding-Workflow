@@ -670,7 +670,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       <div class="dash-header-inner">
         <div>
           <div class="dash-title">📊 ภาพรวมการประมูล</div>
-          <div class="dash-subtitle">ห้างหุ้นส่วน RMN · สรุปทุกปีงบประมาณ</div>
+          <div class="dash-subtitle">R.M.N GROUP · สรุปทุกปีงบประมาณ</div>
         </div>
         <div class="dash-meta" id="dash-updated"></div>
       </div>
@@ -1170,8 +1170,8 @@ function getDocFee(b) {
       payMethod: b.docFeeMethod ?? reg?.payMethod ?? null,
       bank:      b.docFeeBank   ?? reg?.bank      ?? null,
       paidDate:  b.docFeeDate   ?? reg?.paidDate  ?? null,
-      emailSent: b.docFeeEmailSent != null ? b.docFeeEmailSent : (reg?.emailSent ?? null),
-      paid:      b.docFeePaid === true ? true : b.docFeePaid === false ? false : !!(reg?.paidDate || b.docFeeDate),
+      emailSent: reg?.emailSent === true ? true : (b.docFeeEmailSent != null ? b.docFeeEmailSent : (reg?.emailSent ?? null)),
+      paid:      reg?.paidDate ? true : (b.docFeePaid === true ? true : b.docFeePaid === false ? false : !!(b.docFeeDate)),
       feeStart:  b.docFeeStart  ?? reg?.feeStartDate ?? reg?.payWindowStart ?? null,
       feeEnd:    b.docFeeEnd    ?? reg?.feeEndDate   ?? reg?.payWindowEnd   ?? null,
       emailTo:   b.docFeeEmailTo ?? reg?.emailTo ?? reg?.email ?? null,
