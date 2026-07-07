@@ -2534,7 +2534,7 @@ App.renderDash();
 // Sync doc_fees.json from Fee Payment Agent (GitHub Pages / same origin)
 (async () => {
   try {
-    const r = await fetch('./doc_fees.json', { cache: 'no-cache' });
+    const r = await fetch('https://raw.githubusercontent.com/m4dm4rx/RMN-eBidding-Workflow/main/doc_fees.json', { cache: 'no-cache' });
     if (!r.ok) return;
     const data = await r.json();
     let updated = 0;
