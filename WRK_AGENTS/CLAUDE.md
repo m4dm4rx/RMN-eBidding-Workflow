@@ -2,6 +2,11 @@
 
 ## 🚫 NEVER USE (no exceptions)
 TaskCreate · TaskUpdate · TaskList · TaskStop · TaskGet · AskUserQuestion · mcp__visualize__read_me
+
+## 📌 Session Policy (STRICT)
+- **ห้าม compact session เอง** — ถ้า context ใกล้หมด → แจ้ง "กรุณา Restart session" แทน
+- เหตุผล: context ก่อน compact จะหายไปทั้งหมด ทำให้งานค้างเสียหาย
+- **Email Check Box ต้องเป็น interactive widget** (mcp__visualize__show_widget) — ไม่ใช่ markdown ☐
 ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มีใน schema จริงๆ
 
 ## ⚙️ Core Rules
