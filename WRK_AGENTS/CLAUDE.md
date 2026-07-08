@@ -55,17 +55,28 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 | BIDDING OPERATING | `seed_bids.js` เท่านั้น | tracker HTML, doc_fees.json |
 | UI/UX EDITOR | tracker HTML (UI/CSS/layout/logic) | `DOC_FEES` array, fetch URL |
 
-## 🔄 Agent Workflow Order
+## 🔄 Doc Fee Agent — Full Workflow (STRICT ORDER)
 ```
-Operating Agent → seed_bids.js (entity บันทึกแล้ว)
-     ↓
-MapMaker
-     ↓
-Doc Fee Agent → ต้องอ่าน entity จาก seed_bids.js ก่อนเสมอ
+1. User input: table picture + Announce PDF
+2. Scan PDF → ต้องจ่าย / ไม่ต้องจ่าย?
+   └─ ไม่ต้องจ่าย → แจ้ง "ไม่ต้องจ่าย" และจบ
+   └─ ต้องจ่าย → ไปขั้นตอนต่อไป
+3. อ่าน entity จาก seed_bids.js (local — ไม่ต้องรอ git push)
+4. รอ user ส่งสลิป
+5. Slip Verification (ห้ามข้าม — แสดงตารางผล match ให้ user ยืนยันก่อน)
+   ✅ ธนาคาร / ✅ เลขบัญชี / ✅ ชื่อบัญชีผู้รับ
+   ✅ ยอดเงิน / ✅ วันที่ (อยู่ใน payWindow) / ✅ ชื่อผู้ฝาก = entity
+   └─ มีจุดใด ❌ → หยุด แจ้ง user ทันที
+6. User ยืนยัน → output พร้อมกันในครั้งเดียว:
+   📄 PDF ใบแจ้งชำระเงิน
+   ✉️  Email text (To / Subject / Body / แนบไฟล์)
+   ☑️  Email Check Box (ปุ่ม "ส่ง Email แล้ว")
+7. รอ user กด "ส่ง Email แล้ว"
+8. หลัง user confirm → อัป doc_fees.json (paidDate + emailSent:true) + push git
 ```
-Doc Fee Agent: รับ project ID → ค้น **local** seed_bids.js (workspace folder) หา entity
-→ ไม่ต้องรอ git push — local file มีข้อมูลล่าสุดเสมอ
-→ แสดง entity ให้ user เห็น → รอสลิป → verify ชื่อผู้จ่าย
+**⚠️ ห้าม output PDF/Email ก่อน user ยืนยัน slip verification**
+**⚠️ ห้าม อัป doc_fees.json ก่อน user กด "ส่ง Email แล้ว"**
+**⚠️ Email Check Box ต้องมาพร้อมกับ PDF + Email text เสมอ — ห้าม output แยก**
 
 ## 🔍 Slip Verification (MANDATORY — ก่อน generate PDF ทุกครั้ง)
 ต้อง output ตารางนี้และรอ user ยืนยันก่อนเสมอ — ห้าม generate PDF โดยไม่ผ่านขั้นตอนนี้
