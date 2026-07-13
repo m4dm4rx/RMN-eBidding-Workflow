@@ -61,10 +61,23 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 | UI/UX EDITOR | tracker HTML (UI/CSS/layout/logic) | `DOC_FEES` array, fetch URL |
 
 ## 🔄 Doc Fee Agent — Full Workflow (STRICT ORDER)
-> Step 1 (scan PDF) ถูกโอนให้ **Operating Agent** รับผิดชอบแทน
-> Doc Fee Agent รับข้อมูลสำเร็จจาก Operating Agent โดยตรง
+> Operating Agent อ่าน PDF + dispatch ลง `doc_fee_queue.json` ให้อัตโนมัติ
+> Doc Fee Agent เปิด session → อ่าน queue → เจอ pending → เริ่มงานได้เลย
+
+**เปิด session ทุกครั้ง → อ่าน queue ก่อน:**
+```python
+import json, os
+queue_path = "doc_fee_queue.json"  # ใน RMN-eBidding-Workflow/
+queue = json.load(open(queue_path)) if os.path.exists(queue_path) else []
+pending = [x for x in queue if x.get("status") == "pending"]
+print(f"Queue: {len(pending)} pending")
+for p in pending:
+    print(f"  {p['id']} {p['agency']} {p['amount']}บ window={p['payWindowStart']}~{p['payWindowEnd']}")
 ```
-1. รับจาก Operating Agent: ต้องจ่าย + ยอด/ธนาคาร/เลขบัญชี/email หน่วยงาน
+เสร็จแต่ละรายการ → mark `"status": "done"` + save + แจ้ง user push
+
+```
+1. อ่าน doc_fee_queue.json → แสดง pending ทั้งหมด
 2. อ่าน entity จาก seed_bids.js (local — ไม่ต้องรอ git push)
 3. รอ user ส่งสลิป
 4. Slip Verification (ห้ามข้าม — แสดงตารางผล match ให้ user ยืนยันก่อน)

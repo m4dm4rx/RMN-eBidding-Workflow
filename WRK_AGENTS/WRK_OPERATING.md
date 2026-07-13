@@ -15,16 +15,28 @@
 - "ดาวน์โหลดเอกสารผ่านระบบ e-GP / gprocurement.go.th"
 - ไม่มีราคาค่าซื้อเอกสาร / ไม่มีเลขบัญชี
 
-**Output ที่ต้องส่งให้ Doc Fee Agent (ถ้าต้องจ่าย):**
+**ถ้าต้องจ่าย → append ลง `doc_fee_queue.json` แล้ว git push ทันที:**
+```python
+import json, os
+queue_path = "doc_fee_queue.json"
+queue = json.load(open(queue_path)) if os.path.exists(queue_path) else []
+queue.append({
+    "id": "69XXXXXXXXX",
+    "agency": "ชื่อหน่วยงาน",
+    "amount": 500,
+    "bank": "กรุงไทย",
+    "bankAccNo": "XXX-X-XXXXX-X",
+    "email": "xxx@dla.go.th",
+    "payWindowStart": "2569-MM-DD",
+    "payWindowEnd": "2569-MM-DD",
+    "status": "pending"
+})
+with open(queue_path, "w", encoding="utf-8") as f:
+    json.dump(queue, f, ensure_ascii=False, indent=2)
 ```
-💰 ต้องจ่ายค่าเอกสาร
-- ยอด: X บาท
-- ธนาคาร: XXX
-- เลขบัญชี: XXX-X-XXXXX-X
-- ชื่อบัญชี: XXX
-- Email หน่วยงาน: xxx@dla.go.th
-- payWindow: DD/MM/YYYY ถึง DD/MM/YYYY
-```
+แล้ว `git add doc_fee_queue.json` + commit + push
+
+**ถ้าไม่ต้องจ่าย → ไม่ต้องแตะ queue**
 
 ---
 
