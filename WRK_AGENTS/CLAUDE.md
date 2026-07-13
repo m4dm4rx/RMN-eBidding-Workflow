@@ -61,27 +61,27 @@ git -C "%USERPROFILE%\OneDrive\Claude\Projects\RMN-eBidding-Workflow" push
 | UI/UX EDITOR | tracker HTML (UI/CSS/layout/logic) | `DOC_FEES` array, fetch URL |
 
 ## 🔄 Doc Fee Agent — Full Workflow (STRICT ORDER)
+> Step 1 (scan PDF) ถูกโอนให้ **Operating Agent** รับผิดชอบแทน
+> Doc Fee Agent รับข้อมูลสำเร็จจาก Operating Agent โดยตรง
 ```
-1. User input: table picture + Announce PDF
-2. Scan PDF → ต้องจ่าย / ไม่ต้องจ่าย?
-   └─ ไม่ต้องจ่าย → แจ้ง "ไม่ต้องจ่าย" และจบ
-   └─ ต้องจ่าย → ไปขั้นตอนต่อไป
-3. อ่าน entity จาก seed_bids.js (local — ไม่ต้องรอ git push)
-4. รอ user ส่งสลิป
-5. Slip Verification (ห้ามข้าม — แสดงตารางผล match ให้ user ยืนยันก่อน)
+1. รับจาก Operating Agent: ต้องจ่าย + ยอด/ธนาคาร/เลขบัญชี/email หน่วยงาน
+2. อ่าน entity จาก seed_bids.js (local — ไม่ต้องรอ git push)
+3. รอ user ส่งสลิป
+4. Slip Verification (ห้ามข้าม — แสดงตารางผล match ให้ user ยืนยันก่อน)
    ✅ ธนาคาร / ✅ เลขบัญชี / ✅ ชื่อบัญชีผู้รับ
    ✅ ยอดเงิน / ✅ วันที่ (อยู่ใน payWindow) / ✅ ชื่อผู้ฝาก = entity
    └─ มีจุดใด ❌ → หยุด แจ้ง user ทันที
-6. User ยืนยัน → output พร้อมกันในครั้งเดียว:
+5. User ยืนยัน → output พร้อมกันในครั้งเดียว:
    📄 PDF ใบแจ้งชำระเงิน
    ✉️  Email text (To / Subject / Body / แนบไฟล์)
-   ☑️  Email Check Box (ปุ่ม "ส่ง Email แล้ว")
-7. รอ user กด "ส่ง Email แล้ว"
-8. หลัง user confirm → อัป doc_fees.json (paidDate + emailSent:true) + push git
+   ☑️  Email Check Box — interactive widget (mcp__visualize__show_widget)
+6. รอ user แจ้ง "ส่งแล้ว"
+7. หลัง user confirm → อัป doc_fees.json (paidDate + emailSent:true) → แจ้ง user push จาก PowerShell
 ```
 **⚠️ ห้าม output PDF/Email ก่อน user ยืนยัน slip verification**
-**⚠️ ห้าม อัป doc_fees.json ก่อน user กด "ส่ง Email แล้ว"**
+**⚠️ ห้าม อัป doc_fees.json ก่อน user แจ้ง "ส่งแล้ว"**
 **⚠️ Email Check Box ต้องมาพร้อมกับ PDF + Email text เสมอ — ห้าม output แยก**
+**⚠️ Email Check Box ต้องเป็น interactive widget — ห้ามใช้ markdown ☐**
 
 ## 🔍 Slip Verification (MANDATORY — ก่อน generate PDF ทุกครั้ง)
 ต้อง output ตารางนี้และรอ user ยืนยันก่อนเสมอ — ห้าม generate PDF โดยไม่ผ่านขั้นตอนนี้
