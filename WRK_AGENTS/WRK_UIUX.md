@@ -20,10 +20,16 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - Fix date typo: `seed_bids.js` line 178 seq45 อบต.ภารแอ่น
   - `"5667-05-10"` → `"2567-05-10"` (timeline header แสดง "5667" ผิด)
 
+### ✅ Done (2026-07-15)
+- Verified: light mode toggle + timeline load-more were already implemented (stale pending items, no code change needed)
+- FIX 7 phase 2 — one-off structural styles (3 fixes):
+  - Added `--tag-bg` var (root L21 / dark L34): light `rgba(0,0,0,.04)`, dark `rgba(255,255,255,.06)`
+  - L1142: `color:#155724` → `var(--green)` (sum_price_agree cell, was illegible in dark mode)
+  - Entity-tag pills L1479,1532,1540,1666: `rgba(255,255,255,.06/.04/.09)` → `var(--tag-bg)` (was invisible in light mode)
+  - L1821-1822 kpi-label: `#7a7872`/`#8a8880` → `var(--muted)`
+
 ### ⏳ Pending UI tasks
-- light mode toggle (full implementation)
-- timeline load-more button
-- FIX 7 phase 2: one-off structural styles
+- (none currently open)
 
 ## 🚫 Out of Scope
 - seed_bids.js / data logic / API calls

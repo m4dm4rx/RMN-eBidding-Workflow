@@ -18,6 +18,7 @@
   --pipe-alt:#f3f1ea;
   --card-border:#eae8e2;
   --pill-bg:#eeece6; --pill-active:var(--accent);
+  --tag-bg:rgba(0,0,0,.04);
 }
 html.dark{
   --accent:#d97757; --accent-dk:#c4633e;
@@ -30,6 +31,7 @@ html.dark{
   --card-border:#3a3733;
   --pill-bg:#2e2c28;--pill-active:var(--accent);
   --pipe-alt:#1f1e1b;
+  --tag-bg:rgba(255,255,255,.06);
 }
 html.dark .metric-sub,html.dark .entity-tag{color:var(--muted)}
 html.dark .empty{color:var(--muted)}
@@ -1139,7 +1141,7 @@ const UI = (() => {
         <td class="f11">${esc(r.dept_name)     || '-'}</td>
         <td class="f11 nowrap">${esc(r.province)      || '-'}</td>
         <td class="trw">฿${UI.fmt(r.project_money)}</td>
-        <td class="trw" style="color:#155724;font-weight:600">฿${UI.fmt(r.sum_price_agree)}</td>
+        <td class="trw" style="color:var(--green);font-weight:600">฿${UI.fmt(r.sum_price_agree)}</td>
         <td class="f11 nowrap">${esc(r.announce_date)  || '-'}</td>
         <td class="f11">${esc(r.project_status) || '-'}</td>
       </tr>`).join('');
@@ -1474,7 +1476,7 @@ const App = (() => {
                 <span>📍 ${UI.esc(b.agency)}, ${UI.esc((b.province ?? '').trim())}</span>
                 <span><strong>฿${UI.fmt(b.bid)}</strong></span>
                 <span>${((base=>base>0?(base-b.bid)/base*100:b.pct)(Math.max(b.budget||0,b.midPrice||0))).toFixed(1)}% ต่ำกว่าราคางาน</span>
-                <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--muted);white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
+                <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;border:1px solid var(--card-border);background:var(--tag-bg);color:var(--muted);white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
               </div>
             </div>
           </div>`;
@@ -1527,7 +1529,7 @@ const App = (() => {
       }
       return divider + `
         <div style="background:var(--surface);border:1px solid var(--card-border);border-radius:8px;overflow:hidden;display:flex;align-items:stretch">
-          <div style="width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04)">
+          <div style="width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid var(--card-border);background:var(--tag-bg)">
             <span style="font-size:22px;font-weight:700;color:var(--accent);line-height:1">${d[2]||'—'}</span>
             <span style="font-size:11px;color:var(--text);opacity:.6;margin-top:2px">${mon} ${(d[0]||'').slice(-2)}</span>
           </div>
@@ -1535,7 +1537,7 @@ const App = (() => {
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:4px">
               <span style="font-size:15px;font-weight:700;color:var(--text)">${UI.esc(b.agency)}</span>
               <span style="font-size:11px;color:var(--muted);flex-shrink:0">${UI.esc(b.id||'')}</span>
-              <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--muted);flex-shrink:0;white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
+              <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid var(--card-border);background:var(--tag-bg);color:var(--muted);flex-shrink:0;white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
               <span style="margin-left:auto;font-size:11px;font-weight:700;padding:2px 10px;border-radius:3px;color:#fff;background:${bg};white-space:nowrap;flex-shrink:0">${text}</span>
             </div>
             <div style="font-size:13px;color:var(--text);opacity:.75;line-height:1.5">${UI.esc(b.name||b.agency)}</div>
@@ -1661,7 +1663,7 @@ const App = (() => {
             <div class="pipe-body-hdr">
               <span style="font-size:12px;font-weight:700;color:#1d4ed8;background:#dbeafe;border:1px solid #93c5fd;border-radius:4px;padding:2px 8px;font-family:monospace;flex-shrink:0;letter-spacing:.02em">${UI.esc(b.id||'')}</span>
               <span style="font-size:11px;font-weight:700;color:#374151;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:2px 9px;font-family:${FONT};flex-shrink:0;white-space:nowrap">${UI.esc(b.agency)}</span>
-              <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--muted);font-family:${FONT};flex-shrink:0;white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
+              <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid var(--card-border);background:var(--tag-bg);color:var(--muted);font-family:${FONT};flex-shrink:0;white-space:nowrap">🏢 ${UI.esc(b.entity||CONFIG.DEFAULT_ENTITY)}</span>
               <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;color:#fff;background:${tagBg};font-family:${FONT};flex-shrink:0;white-space:nowrap">${tagText}</span>
               <span class="id-click" onclick="App.openProjectModal('${b._id}')" style="margin-left:auto;font-size:10px;font-weight:700;color:#0f172a;background:#e2e8f0;border:1px solid #94a3b8;border-radius:4px;padding:2px 9px;font-family:${FONT};flex-shrink:0;white-space:nowrap;cursor:pointer">ดูรายละเอียดโครงการ ▶</span>
             </div>
@@ -1818,8 +1820,8 @@ const App = (() => {
     // KPI cards — Growth chart (left, rowspan 2) + 2 small cards (right)
     UI.setHTML('dash-kpi', `
       <div class="kpi-card kpi-chart-card"><div class="kpi-card-inner">
-        <div class="kpi-label" style="text-transform:uppercase;letter-spacing:.04em;font-size:12px;font-weight:500;color:#7a7872;margin-bottom:2px">📈 GROWTH รายปีงบประมาณ</div>
-        <div style="font-size:11px;color:#8a8880;margin-bottom:4px">ยอดเงินยื่น (ล้านบาท) · จำนวนโครงการ</div>
+        <div class="kpi-label" style="text-transform:uppercase;letter-spacing:.04em;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:2px">📈 GROWTH รายปีงบประมาณ</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">ยอดเงินยื่น (ล้านบาท) · จำนวนโครงการ</div>
         <div class="kpi-chart-legend">
           <span><i style="background:#6a9bcc"></i>ยอดเงิน (ล้านบาท)</span>
           <span><i style="background:#d97757"></i>จำนวนโครงการ</span>
