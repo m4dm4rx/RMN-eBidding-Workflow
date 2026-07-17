@@ -22,6 +22,8 @@ TaskCreate · TaskUpdate · TaskList · AskUserQuestion · mcp__visualize__read_
 - **Title**: แบบฟอร์มใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคาอิเล็กทรอนิกส์
 - **Fields**: เลขโครงการ · ชื่อห้าง · ธนาคาร · จำนวนเงิน+ตัวอักษร · ชื่อผู้ชำระ+โทร
 - **Slip image**: embed ในกล่องใต้ fields
+- **⚠️ ห้ามมีเส้นกรอบ (box/rect) ล้อมรอบส่วนรายละเอียดด้านบน (fields เลขโครงการ...เบอร์โทร) — ใช้เส้นใต้ (underline) แต่ละ field เท่านั้น ไม่ต้องมี rect ครอบทั้งกลุ่ม**
+- **⚠️ ระยะห่างระหว่างบรรทัด "หลักฐานการชำระเงิน (สลิป) :" กับกรอบรูปสลิป = 1.0cm (ไม่ใช่ 0.4cm)**
 - **Font**: Sarabun + SarabunBold จาก `/tmp/` (download google/fonts ถ้าไม่มี)
 - **Engine**: reportlab inline script + fitz (PyMuPDF) แปลง slip PDF → PNG
 - **Save**: ใช้ bytes-path `os.scandir()` เพราะ OneDrive mount มี Thai filename encoding issue
