@@ -66,6 +66,13 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - แนะนำ Supabase ไปแล้ว (Postgres+Auth+Storage, free tier พอใช้ตอนนี้, Pro $25/mo ถ้าโต) — ยังไม่ตัดสินใจ/ยังไม่เริ่มสร้าง
 - ถ้า session หน้าคุยเรื่องนี้ต่อ: นี่เป็น infra decision ข้าม repo (พาดพิง PII → ต้องเป็น DA เป็นคน design schema ก่อน ไม่ใช่ UI agent ทำเอง)
 
+### ✅ Done (2026-09-08)
+- ย้าย working copy: OneDrive → `C:\Repos\RMN-eBidding-Workflow` ตามคำตัดสิน DA · OneDrive clone = retired ห้าม commit/push จากที่นั่นอีก
+- เขียน § UI Rules + § STATUS values ลงไฟล์นี้ (commit 6afecce) — เป็น SoT ของ 2 หัวข้อนี้แล้ว (DA 2a152a0)
+- 🐛 fix quick-status ขาด `WITHDRAWN` — L2245 เพิ่ม `<option value="${STATUS.WITHDRAWN}">🟣 ห้างขอยกเลิก</option>`
+  - audit 7 จุดแล้ว: WITHDRAWN มีครบทุกจุดอยู่ก่อนแล้ว (CONFIG.STATUS L957 · STATUS_MIGRATE L1024 · `<option>` 3 ชุด L758/792/883 · badge map L1142 + L1518 · section title L1621/1724/2540 · `.b-withdrawn` L188/L53 + `.sd-withdrawn` L278) — ขาดที่ quick-status ที่เดียว
+  - ไม่แตะค่า STATUS · ไม่แตะ data logic · `node --check` ผ่าน · 2674 → 2675 บรรทัด
+
 ## 🎨 UI Rules (current — ตรวจจากโค้ดจริง 2026-09-08)
 > ของเดิมใน `EBIDDING.md` ถูกครอบ ⛔ แล้ว (M4RX-B4SE a98adeb) — ไฟล์นี้คือฉบับจริง
 
@@ -73,7 +80,10 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - Light เป็น default · persist ที่ `localStorage['rmn_theme']` (`'light'` เมื่อไม่เคยตั้ง) · dark = `html.dark`
 - Toggle 2 ตัวคุมค่าเดียวกัน: ปุ่ม `#theme-btn` (editor) + switch `#vt-chk` (viewer) — `toggleTheme()` อัปเดตทั้งคู่ ห้ามแยก state
 - ห้าม hardcode สีในคอมโพเนนต์ ใช้ CSS var — **ยกเว้น** ราคายื่น / เลขที่ / ชื่อหน่วยงาน / badge สถานะ ที่ต้อง contrast ชัดเสมอ ใช้ hex ตายตัว ห้ามพึ่ง role tint var [[feedback_widget_contrast]]
-- ⚠️ ไฟล์มี `:root` **2 บล็อก** — L10 (global) และ L280 (Report tab, G-Lead style) ที่ override `--pill-bg` `--pill-active` `--card-border` `--navy` ทับ · แก้ตัวแปรต้องเช็คว่าโดนบล็อกที่สองทับหรือเปล่า
+- ⚠️ ไฟล์มี `:root` **2 บล็อก** — L10 และ L280 · **L280 ไม่ได้ scope แค่ Report tab** ถึงจะมีคอมเมนต์ว่า "Report tab (G-Lead style)" แต่เป็น `:root` เปล่า = global · specificity เท่ากัน ตัวหลังชนะ → **light mode ใช้ค่าจาก L280 ทั้งแอป** (ตรวจแล้ว 2026-09-08)
+  - ตัวที่ประกาศซ้ำ 3 ตัว: `--pill-bg` `#eeece6`→`#f1f3f9` · `--pill-active` `var(--accent)`→`#2b3990` (navy ไม่ใช่ส้ม RMN) · `--card-border` `#eae8e2`→`#e5e9f2` (ใช้ 57 จุดทั้งไฟล์)
+  - dark mode ไม่โดน — `html.dark` specificity (0,1,1) สูงกว่า `:root` (0,1,0) ชนะทุกกรณีไม่ว่าลำดับไหน
+  - **แก้ตัวแปร 3 ตัวนี้ที่ L10 จะไม่มีผลใน light mode** ต้องแก้ที่ L280
 
 **View mode (mobile / คนดูอย่างเดียว)**
 - Editor = ไม่มี query param · Viewer = `?view=1` → `VIEW_MODE` + `body.view-mode`
@@ -86,7 +96,7 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - `<select>` ในการ์ดแต่ละใบของ tab Records (L2236) · ซ่อนอัตโนมัติใน view mode (อยู่ใน `actionsHtml` ที่เป็น `''` เมื่อ VIEW_MODE)
 - Event delegation ที่ `#records-list` `change` (L2616) → `Store.updateStatus()` → `renderTable()` + `renderDash()` ผ่าน rAF (กัน re-render ซ้อน)
 - `value` = ค่า STATUS จริง · label สั้นมีอิโมจิ (พื้นที่แคบ) — เปลี่ยน label ได้ เปลี่ยน value ไม่ได้
-- ⚠️ ตอนนี้มี **7 ตัวเลือก** — ขาด `WITHDRAWN` (ห้างขอยกเลิกสัญญา) ต้องไปเปลี่ยนที่ฟอร์มแก้ไขแทน
+- ครบ 8 สถานะแล้ว (เพิ่ม `WITHDRAWN` 2026-09-08 — เดิมมี 7 คีย์ผิดได้เงียบๆ)
 
 **Component conventions**
 - KPI card: accent เป็น `border-left:3px solid` เท่านั้น (`.kpi-card.blue/green/purple/orange` L313-316) ห้ามใช้ bg เต็มใบ
