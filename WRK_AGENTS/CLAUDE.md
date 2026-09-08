@@ -22,6 +22,8 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 
 - **09-08 · 🔐 ห้ามขยาย data boundary ของ Finance Capture เพื่อความสะดวก** (มติ Lord COMMANDER) — ⛔ **ห้าม share backend Sheet / Drive `Evidence`·`Daily Exports`·`_Trash` เข้าบัญชี Gmail ส่วนตัว หรือเข้า connector ของ Claude** แม้เพื่อให้ agent ทำงานแทน · B1+B2 ให้ King Marx ทำใน Workspace ตรงๆ · ปิด blocker ต้อง **read-back verify** เสมอ ไม่รับ inheritance/report เป็นหลักฐาน · เพิ่ม **B8 = verify permission child folder จริง**
 
+- **09-08 · 🩺 phantom dirty 22 ไฟล์ = CRLF ไม่ใช่ของจริง — แก้แล้วที่ต้นเหตุ** (DA) — `git status` ใน `device_bash` เคยโชว์ 23 ไฟล์ modified ทั้งที่ PowerShell เห็นแค่ 2 · เหตุ: Git for Windows ตั้ง `core.autocrlf=true` ที่ **system config** แต่ Linux VM ไม่มี → เทียบ CRLF worktree กับ LF blob = ต่างทั้งไฟล์ · **แก้: ตั้ง `core.autocrlf=true` ระดับ repo ทั้ง 3 ตัวแล้ว** (`.git/config` ใช้ร่วมกันทั้ง 2 ฝั่ง) · ⛔ **ห้ามใครเห็น 20+ ไฟล์ modified แล้ว commit รวม** — เช็คซ้ำจาก PowerShell ก่อนเสมอ ฝั่ง Windows คือของจริง
+
 ## ⚙️ Core Rules
 - Diff/changelog only — ห้าม output full file/table
 - grep/bash หา section ก่อน — ห้าม Read ทั้งไฟล์
