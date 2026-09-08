@@ -8,20 +8,12 @@
 > 📏 เพดานไฟล์นี้ 20 KB · เกินเมื่อไหร่ตัดท้ายเข้า archive ก่อนเริ่มงานใหม่
 
 ## 📌 Carried forward (ยกมาจาก session 09-07 ที่ย้ายเข้า archive แล้ว — ยังไม่ปิด)
+- ⏸️ **Q1 (จากบล็อก 09-08 แรก) ยังไม่มีคำตอบ**: Codex deploy GCP ได้จริงไหม — ถ้าไม่ได้ `RUNBOOK.md` ต้องเขียนให้ King Marx ทำเองครบทุกขั้น + rollback (ตอนนี้ Marx เดิน B1/B2 เองแล้ว แต่ยังไม่มีมติปิดข้อนี้)
+- ⚠️ **BOM ใน 2 commit เก่า** (`9c93cff`, `6360954`) จาก `Set-Content -Encoding UTF8` — แก้ย้อนหลังต้อง force-push **ยังไม่ทำ รอคำสั่ง** · ต่อไปใช้ `New-Object Text.UTF8Encoding $false` เท่านั้น
 - ⏸️ **pending approval — ยังไม่บันทึกลงดิสก์ ห้ามถือเป็นกฎ**: architecture Workspace/GitHub/LINE · ownership TAB 1/2/3 · ผู้รับสรุปรายวัน + ผู้มีสิทธิเขียน · guard rails ①–⑩ · ถ้อยคำเส้นแบ่ง advisor · TAB 2 `basis_amount` รอคำตอบ Top
 - 🔎 **repo ที่ยังอยู่ใน OneDrive ต้องตัดสินแยก**: `BSKNBot\` (อยู่ใต้ `OneDrive\BSKN`) · ~~`RMN e-Bidding Tracker\`~~ **หายจาก OneDrive root แล้ว ยืนยัน 09-08**
 - 📌 **Sir MM**: `WRK_MAPMAKER.md` uncommitted บนดิสก์ — ของที่เคย `git add` หายไปกับ object ที่เสีย ต้อง add ใหม่ (เจ้าของทำเอง DA แตะไม่ได้)
 - ⚠️ **บทเรียนที่ต้องไม่หาย** ① PowerShell ไม่แยกพิมพ์เล็ก/ใหญ่ — ตั้ง array เป็น `$KL/$DL/$CL` ห้ามใช้ `$K` ทับ `$k` ② commit จาก mount ต้องใส่ `-c core.autocrlf=input` ไม่งั้นไฟล์ CRLF ที่ไม่ได้แตะกลายเป็น diff ทั้งไฟล์
-
-## 🔄 Session State (2026-09-08 — DA: จัดระเบียบ path หลังย้าย repo + รับ EBIDDING.md เข้า ownership)
-- ✅ **`SKILL.md` ของ scheduled task 3 ตัวแก้ path → `C:\Repos\...`** (`doc-fee-morning-alert` ไม่ต้องแก้) · ⚠️ ไฟล์อยู่ `%USERPROFILE%\Documents\Claude\Scheduled\` **นอก git และมีแค่บนเครื่อง PC MARX** → เครื่อง `asus` ไม่มีเลย ต้องทำซ้ำเมื่อย้ายเครื่อง
-- ✅ **registry**: `KB § scheduled tasks` บันทึก path ใหม่ครบ 4 task + ความเปราะที่ผูกกับเครื่องเดียว (`M4RX-B4SE 6360954`)
-- ✅ **รับ `EBIDDING.md` เข้า Ownership Matrix + ติดป้าย ⚠️ HISTORICAL + ครอบ ⛔ 3 ส่วนที่ชี้ path ผิด** (`§ Files & URLs` · `§ Multi-Machine` · `§ Git Push`) — **ไม่ลบเนื้อหาเดิม เก็บเป็นหลักฐาน** (`M4RX-B4SE 33bc8b2`)
-- 🔴 **ผมนับผิดเอง** — รายงานว่าเจอ scheduled task "ตัวที่ 5" แต่ registry ถูกอยู่แล้วที่ 4 ตัว (นับ `doc-fee-morning-alert` ซ้ำ) · บันทึกเป็นความผิดของผมใน `DESIGN_PRINCIPLES` Decision log
-- ⚠️ **commit 2 ตัวมี BOM ในหัวข้อ** (`9c93cff`, `6360954`) เพราะ `Set-Content -Encoding UTF8` เขียน BOM → ต่อไปใช้ `New-Object Text.UTF8Encoding $false` เท่านั้น · แก้ย้อนหลังได้แต่ต้อง force-push **ยังไม่ทำ รอคำสั่ง**
-- 📌 **archive รอบนี้** ย้าย session `09-04` + `09-05` (94 บรรทัด) เข้า `WRK_ECOSYSTEM_ADMIN_ARCHIVE_2569H2.md` เพราะไฟล์ชน `20,453 / 20,480 B` เหลือ 27 B · **ตัดท้ายเข้า archive ไม่ขยายเพดาน**
-- ⏸️ **ค้างต่อ** ① Raven ให้ Sir UI/UX ยืนยัน `EBIDDING.md § UI Rules` + `§ STATUS values` ยังตรงกับ tracker ไหม (**ต้องให้ King Marx เป็นคนส่ง**) ② Q1 Codex deploy GCP ได้จริงไหม ③ Q2 แม่/Office เป็นเพื่อน OA + OA เข้ากลุ่ม (**Friends ยัง = 1**) ④ deploy Finance Capture รออนุมัติแยก ⑤ `_old_*` + `.corrupt_20260907` ครบ 7 วันแล้วลบ ⑥ `BSKN-Expense_Bot-LINE` ahead 3 + dirty 4 ไฟล์ — King Marx ย้ายเอง ⑦ `Company-Assets/` + `KB_DOC_EXPIRY.md` ยังไม่มีเจ้าของใน git
-
 
 ## 🔄 Session State (2026-09-08 ต่อ — DA: ปิด 3 สำเนา UI/STATUS + รับ infra Finance Capture เข้าทะเบียน)
 - ✅ **มติ Lord COMMANDER ทางเลือก A** → ครอบ `⛔` เหนือ `EBIDDING.md § UI Rules` + `§ STATUS values` พร้อมเหตุผลในบรรทัดถัดไป (`M4RX-B4SE a98adeb`) · **ทั้งไฟล์ = ประวัติศาสตร์ 100% ทุก section ถูกครอบครบ ไม่ลบอะไรเลย**
@@ -55,3 +47,6 @@
 - ⚖️ **คำตัดสิน `:root` = ทางเลือก A (มติ King Marx 09-08)** — รวม 2 บล็อกเป็นบล็อกเดียวที่ L10 **โดยยกค่าจาก L280 ขึ้นมาเป็นค่าที่ใช้จริง** แล้วลบบล็อก L280 → **ภาพต้องไม่เปลี่ยนแม้แต่พิกเซลเดียว** · เจ้าของงานแก้ = **Sir UI** (DA แตะ tracker ไม่ได้) · 🎨 **เรื่องสี pill active น้ำเงิน `#2b3990` ทับส้มแบรนด์ `#d97757` = คงไว้ตามเดิม** ไม่แก้ในรอบนี้ (King Marx เลือก "คงน้ำเงิน") — ถ้าจะเปลี่ยนภายหลังเป็นงานแยกใบ
 - ✅ **B1 + B2 CLOSED โดย read-back (Raven COMMANDER 09-08)** — `TRANSACTIONS!A1:O1` 15 · `PENDING!A1:G1` 7 · `ANOMALIES!A1:H1` 8 · `CATEGORIES!A1:C1` 3 ตรง SoT (`RUNBOOK.md` L98-113) ทุกช่อง · `CATEGORIES!A2:A7` = 6 ค่า (งวดรถ · เครื่องจักร · สินเชื่อ · ภาษี · พ.ร.บ. · Pending-ไม่ระบุ) · **ไม่แตะ deploy / LINE / secret / IAM** · เหลือ **B3-B8 OPEN 6 ข้อ**
 - ⚠️ **B8 ต้องตรวจ 2 ทิศ ไม่ใช่ทิศเดียว** (runbook L49-53 + L95-96) ① SA `rmn-finance-capture-runtime@` = **Editor บน 4 ชิ้น**: Sheet · `Evidence/` · `_Trash/` · `Daily Exports/` — runbook สั่งให้ grant **ทีละโฟลเดอร์** ไม่ได้สั่งให้พึ่ง inheritance ② **แม่/Office = Viewer เฉพาะ `Evidence/` + `Daily Exports/` เท่านั้น ห้ามเห็น `_Trash/` และ Sheet** 🔴 **ถ้า grant ที่ parent `RMN Finance Capture` แล้วปล่อยให้ตกทอด = คนที่ควรเห็นแค่ 2 โฟลเดอร์จะเห็น `_Trash/` + Sheet ทันที** ผิด runbook และผิดเจตนา data boundary → **ตอนตรวจต้องดูว่าสิทธิ์เป็น explicit หรือ inherited ไม่ใช่ดูแค่ว่าเข้าได้**
+- ✅ **verify งาน Sir UI `:root` (Workflow 0645136) — ผ่านเกณฑ์** selector `:root{` เหลือ **1 ตัว** · ไม่มีชื่อตัวแปรซ้ำในบล็อกเดียวกัน · ค่าที่ใช้ = ของ L280 เดิมทุกตัว (`--card-border:#e5e9f2` · `--pill-bg:#f1f3f9` · `--pill-active:#2b3990`) = **ภาพไม่เปลี่ยน ตรงทางเลือก A** · เหลือคอมเมนต์ 2 จุดชี้ที่มา (L22 · L285) ถูกต้องแล้ว · 2675→2673 บรรทัด
+- 🔴 **พบ clone เก่าค้าง 2 ตัวใน `%USERPROFILE%\Documents\GitHub\`** — `M4RX-B4SE` (`2784f59` 09-07) · `RMN-eBidding-Workflow` (`8de941c` 09-07) · **ทั้งคู่ clean ไม่มีงานหาย** แต่ **ช้ากว่าของจริง 2 วัน** = ความเสี่ยงเดียวกับที่ทำให้ 09-07 พัง (เปิดผิดสำเนาแล้วแก้) → **เสนอ: rename เป็น `_RETIRED_*` หรือลบทิ้ง รอมติ King Marx**
+- 📁 **`OneDrive\BSKN\` ว่างแล้ว** — King Marx ย้าย `BSKN-Expense_Bot-LINE` ออกจาก OneDrive แล้ว (09-08) · ⏸️ **ปลายทางยังไม่ระบุ** ไม่อยู่ใน `C:\Repos` และไม่พบใน `C:\` / `%USERPROFILE%` ระดับ 3 ชั้น → **ต้องให้ Marx บอก path ก่อนบันทึกทะเบียน ห้ามเดา**

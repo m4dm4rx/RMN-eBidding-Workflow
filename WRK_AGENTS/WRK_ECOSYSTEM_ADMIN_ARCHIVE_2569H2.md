@@ -877,3 +877,12 @@ RMN                   106,228,801.38      204,802,746.73   +98,573,945
   ④ Q2 แม่/Office เป็นเพื่อน OA + OA เข้ากลุ่มแล้วยัง — **Friends ยัง = 1** daily summary ยังส่งไม่ถึงใคร
 - 🔎 **ยังไม่ย้าย ต้องตัดสินแยก** — `BSKNBot\` และ `RMN e-Bidding Tracker\` ยังเป็น repo ใน OneDrive เสี่ยงแบบเดียวกันเป๊ะ
 - 📌 **แต่ละ Sir แก้ path ใน WRK ของตัวเอง** — DA แก้ให้ไม่ได้ตามกฎ ownership · ประกาศรายชื่อไฟล์ไว้ใน `CLAUDE.md § 📢` แล้ว · Sir MM ยังมี `WRK_MAPMAKER.md` uncommitted อยู่บนดิสก์ (ไฟล์ไม่หาย แต่ของที่เคย `git add` หายไปกับ object ที่เสีย ต้อง add ใหม่)
+
+## 🔄 Session State (2026-09-08 — DA: จัดระเบียบ path หลังย้าย repo + รับ EBIDDING.md เข้า ownership)
+- ✅ **`SKILL.md` ของ scheduled task 3 ตัวแก้ path → `C:\Repos\...`** (`doc-fee-morning-alert` ไม่ต้องแก้) · ⚠️ ไฟล์อยู่ `%USERPROFILE%\Documents\Claude\Scheduled\` **นอก git และมีแค่บนเครื่อง PC MARX** → เครื่อง `asus` ไม่มีเลย ต้องทำซ้ำเมื่อย้ายเครื่อง
+- ✅ **registry**: `KB § scheduled tasks` บันทึก path ใหม่ครบ 4 task + ความเปราะที่ผูกกับเครื่องเดียว (`M4RX-B4SE 6360954`)
+- ✅ **รับ `EBIDDING.md` เข้า Ownership Matrix + ติดป้าย ⚠️ HISTORICAL + ครอบ ⛔ 3 ส่วนที่ชี้ path ผิด** (`§ Files & URLs` · `§ Multi-Machine` · `§ Git Push`) — **ไม่ลบเนื้อหาเดิม เก็บเป็นหลักฐาน** (`M4RX-B4SE 33bc8b2`)
+- 🔴 **ผมนับผิดเอง** — รายงานว่าเจอ scheduled task "ตัวที่ 5" แต่ registry ถูกอยู่แล้วที่ 4 ตัว (นับ `doc-fee-morning-alert` ซ้ำ) · บันทึกเป็นความผิดของผมใน `DESIGN_PRINCIPLES` Decision log
+- ⚠️ **commit 2 ตัวมี BOM ในหัวข้อ** (`9c93cff`, `6360954`) เพราะ `Set-Content -Encoding UTF8` เขียน BOM → ต่อไปใช้ `New-Object Text.UTF8Encoding $false` เท่านั้น · แก้ย้อนหลังได้แต่ต้อง force-push **ยังไม่ทำ รอคำสั่ง**
+- 📌 **archive รอบนี้** ย้าย session `09-04` + `09-05` (94 บรรทัด) เข้า `WRK_ECOSYSTEM_ADMIN_ARCHIVE_2569H2.md` เพราะไฟล์ชน `20,453 / 20,480 B` เหลือ 27 B · **ตัดท้ายเข้า archive ไม่ขยายเพดาน**
+- ⏸️ **ค้างต่อ** ① Raven ให้ Sir UI/UX ยืนยัน `EBIDDING.md § UI Rules` + `§ STATUS values` ยังตรงกับ tracker ไหม (**ต้องให้ King Marx เป็นคนส่ง**) ② Q1 Codex deploy GCP ได้จริงไหม ③ Q2 แม่/Office เป็นเพื่อน OA + OA เข้ากลุ่ม (**Friends ยัง = 1**) ④ deploy Finance Capture รออนุมัติแยก ⑤ `_old_*` + `.corrupt_20260907` ครบ 7 วันแล้วลบ ⑥ `BSKN-Expense_Bot-LINE` ahead 3 + dirty 4 ไฟล์ — King Marx ย้ายเอง ⑦ `Company-Assets/` + `KB_DOC_EXPIRY.md` ยังไม่มีเจ้าของใน git
