@@ -1,0 +1,56 @@
+# 🗄️ WRK_UIUX Archive — 2569 H2
+> session log เก่าของ Sir UI · ย้ายมาจาก `WRK_UIUX.md` 2026-09-08 (เพดาน 20 KB)
+> ⛔ ไม่ต้องอ่านตอนเปิด session · § UI Rules / § STATUS values **ไม่ได้อยู่ที่นี่** (อยู่ใน WRK_UIUX.md ตัวจริง)
+
+### ✅ Done (prev sessions)
+- เพิ่ม widget "โครงการที่อัพเดทสถานะล่าสุด" (Dashboard + Records)
+  - Layout: Timeline style · Badge: prevStatus→curStatus
+  - Container: max-height 284px + scrollbar
+  - Filter: decided-only (ชนะ/มีสัญญา/แพ้/ยกเลิก) — ไม่แสดงรอผล
+- Fix card border: `rgba(255,255,255,.09)` → `var(--card-border)` (su widget + bid timeline)
+- Fix file truncation (restore 2515→2680 lines)
+
+### ✅ Done (2026-06-17)
+- SME card: เปลี่ยนจาก "วงเงิน SME / 300M" → "ยอดงานที่ชนะต่อห้าง"
+  - filter: WINNER | CONTRACT เท่านั้น · bar: relative to max winner · สีเขียว
+  - line 648 (title) + line 1838-1862 (logic)
+- Fix date typo: `seed_bids.js` line 178 seq45 อบต.ภารแอ่น
+  - `"5667-05-10"` → `"2567-05-10"` (timeline header แสดง "5667" ผิด)
+
+### ✅ Done (2026-07-15)
+- Verified: light mode toggle + timeline load-more were already implemented (stale pending items, no code change needed)
+- FIX 7 phase 2 — one-off structural styles (3 fixes):
+  - Added `--tag-bg` var (root L21 / dark L34): light `rgba(0,0,0,.04)`, dark `rgba(255,255,255,.06)`
+  - L1142: `color:#155724` → `var(--green)` (sum_price_agree cell, was illegible in dark mode)
+  - Entity-tag pills L1479,1532,1540,1666: `rgba(255,255,255,.06/.04/.09)` → `var(--tag-bg)` (was invisible in light mode)
+  - L1821-1822 kpi-label: `#7a7872`/`#8a8880` → `var(--muted)`
+
+### ✅ Done (2569-08-09)
+- ซ่อน UI เช็ค/ส่ง email ทั้งหมด (workflow เปลี่ยน: จ่ายค่าเอกสารพร้อมยื่นประมูลเลย ไม่ต้องส่ง email ยืนยันอีก) — ไม่แตะ emailSent field ใน doc_fees.json/DOC_FEES array
+  - renderDashDocFee (Dashboard widget): ลบปุ่ม toggle email + chip "รอส่ง", ยุบเหลือ filter เดียว (unpaid), ลบ dead var `_dashDocFeeFilter`, `unsentEmail`
+  - renderDocFeeTab (Doc Fee tab): ลบ stat box "รอส่ง email" + ปุ่ม toggle email ต่อการ์ด
+  - renderDocFeeBlock (project detail modal): ลบปุ่ม toggle email
+  - `toggleDocFeeEmail()` function ยังอยู่ (ไม่มีปุ่มเรียกแล้ว — เก็บไว้เผื่อย้อนกลับ ไม่ลบเพื่อลด risk)
+- (ต่อ) ซ่อนที่เหลือเพิ่ม: Add Bid form dropdown "สถานะ Email ยืนยัน" (L831) + emailTo display ใน Doc Fee tab (L2024) — ใช้ `style="display:none"` ไม่ลบโค้ด เพื่อ unhide ได้ทันทีถ้า workflow เปลี่ยนกลับ (ตามคำสั่ง user)
+
+### ✅ Done (2026-08-25)
+- เพิ่ม tab "🏗️ Assets" (read-only) — L656(button), L806-822(section+filters), L1164-1167(ASSETS const), L1215(TABS), L1229-1234(navigate), L2062-2160(renderAssets + helpers), L2447(expose), L2627-2639(fetch assets.json sync, pattern เดียวกับ doc_fees.json, 404-safe, filter pii:true ที่ ingestion)
+- ไม่แตะ assets.json/personnel.json/seed_bids.js/doc_fees.json ตาม scope · commit 344fbb8 pushed เอง (user อนุญาตรอบนี้)
+- 🐛 fix (968de1f): DA generate assets.json มาเป็น `{meta, assets:[]}` envelope ไม่ใช่ bare array ตามที่คุยกันตอนแรก — เจอตอนตรวจ data จริงหลัง DA push (0bda2ab) เลยแก้ fetch handler ให้รองรับทั้งสองแบบ (`Array.isArray(data) ? data : data?.assets`)
+
+### ✅ Done (2026-08-31)
+- **STATUS.DISQUALIFIED — รวมคำเรียกให้เหลือชุดเดียว** "แพ้ ขาดคุณสมบัติ / ถูกปรับตก" (เดิมมี 4 แบบ: "แพ้ เนื่องจากโดนปรับตก" / "แพ้ขาดคุณสมบัติ" / "แพ้ ถูกปรับตก" / "ตัดสิทธิ์" → คนอ่านนึกว่าเป็นคนละช่อง)
+  - display เท่านั้น 9 จุด: L744 pill · L1425 count label · L1516 badge · L1619/1722 section title · L2525 modal tag · L2239 inline select (สั้น "🚫 ขาดคุณสมบัติ/ปรับตก") · L1884 dashboard stat row
+  - L756/790/881 `<option>` เดิม text = value (ไม่มี attr) → pin `value="แพ้ เนื่องจากโดนปรับตก"` ก่อนเปลี่ยน text = enum ไม่ขยับ
+  - ❌ ไม่แตะ L952 enum + L1022 normalize map (635 records อ้างค่าเดิม)
+- **ซ่อน Doc Fee UI ทั้งหมดใน tracker** (workflow เปลี่ยนถาวร — จ่ายพร้อมยื่นประมูล ฟอร์มเก่าไม่ได้ใช้ประโยชน์เลย ยืนยันจาก Marx)
+  - L656 tab button `display:none` · L1238 ตัด 'docfee' ออกจาก TABS
+  - L690 Dashboard card "ค่าเอกสารประมูล — สถานะ" `display:none`
+  - L2585 บล็อกค่าเอกสารใน popup รายละเอียดโครงการ `display:none`
+  - L846-849 ฟอร์มเพิ่ม/แก้โครงการ 4 ช่อง (ยอด/วันที่/วิธีจ่าย/ธนาคาร) `display:none` — email dropdown ซ่อนไปแล้วตั้งแต่ 2569-08-09
+  - ทุก function + fetch doc_fees.json + DOC_FEES คงไว้ครบ → unhide ได้ทันที · DOC agent ทำงานต่อได้ปกติ
+- **คู่แข่งที่ได้งานไปแทน → Top 10 + ปุ่มขยาย**
+  - L1922 `COMP_TOP=10` · L1925 แถว 11+ ใส่ `data-comp-extra` + display:none (render ครบ ไม่ตัดข้อมูล → bar scale เทียบ maxComp เดิม)
+  - L1931 ปุ่ม text-link "ดูทั้งหมด (N) ▾" ⇄ "ย่อ ▴" · L2469 `toggleCompetitorAll()` · L2514 expose
+- Verify: 2661→2674 บรรทัด · `node --check` ทั้ง 3 script block ผ่าน
+

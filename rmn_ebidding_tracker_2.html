@@ -16,9 +16,14 @@
   --radius:12px; --radius-sm:8px;
   --shadow:0 1px 3px rgba(20,20,19,.06),0 2px 8px rgba(20,20,19,.04);
   --pipe-alt:#f3f1ea;
-  --card-border:#eae8e2;
-  --pill-bg:#eeece6; --pill-active:var(--accent);
+  --card-border:#e5e9f2;
+  --pill-bg:#f1f3f9; --pill-active:#2b3990;
   --tag-bg:rgba(0,0,0,.04);
+  /* Report tab (G-Lead style) — merged from 2nd :root block 2026-09-08 */
+  --navy:#1e2a5e; --navy-dk:#15204a;
+  --kpi-blue-1:#2b3990; --kpi-blue-2:#1e2a5e;
+  --kpi-green-1:#0f9d58; --kpi-green-2:#0d8a4d;
+  --status-new:#10b981;
 }
 html.dark{
   --accent:#d97757; --accent-dk:#c4633e;
@@ -277,14 +282,7 @@ html.dark .ytab{border-color:#3a3733}
 .sd-cancelled{background:#374151}
 .sd-withdrawn{background:#7c3aed}
 /* ── Report tab (G-Lead style) ─────────────────────────────────── */
-:root{
-  --navy:#1e2a5e; --navy-dk:#15204a;
-  --kpi-blue-1:#2b3990; --kpi-blue-2:#1e2a5e;
-  --kpi-green-1:#0f9d58; --kpi-green-2:#0d8a4d;
-  --pill-bg:#f1f3f9; --pill-active:#2b3990;
-  --card-border:#e5e9f2;
-  --status-new:#10b981;
-}
+/* tokens merged into the single :root at top of file (2026-09-08, DA opt. A) */
 .report-header{
   background:linear-gradient(135deg,#1e2a5e 0%,#15204a 100%);
   border-radius:var(--radius);

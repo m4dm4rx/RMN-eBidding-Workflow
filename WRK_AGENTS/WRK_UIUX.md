@@ -6,63 +6,10 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 ไม่ยุ่งกับ data/logic/API/seed_bids
 
 ## 📋 My Tasks (this session)
-### ✅ Done (prev sessions)
-- เพิ่ม widget "โครงการที่อัพเดทสถานะล่าสุด" (Dashboard + Records)
-  - Layout: Timeline style · Badge: prevStatus→curStatus
-  - Container: max-height 284px + scrollbar
-  - Filter: decided-only (ชนะ/มีสัญญา/แพ้/ยกเลิก) — ไม่แสดงรอผล
-- Fix card border: `rgba(255,255,255,.09)` → `var(--card-border)` (su widget + bid timeline)
-- Fix file truncation (restore 2515→2680 lines)
-
-### ✅ Done (2026-06-17)
-- SME card: เปลี่ยนจาก "วงเงิน SME / 300M" → "ยอดงานที่ชนะต่อห้าง"
-  - filter: WINNER | CONTRACT เท่านั้น · bar: relative to max winner · สีเขียว
-  - line 648 (title) + line 1838-1862 (logic)
-- Fix date typo: `seed_bids.js` line 178 seq45 อบต.ภารแอ่น
-  - `"5667-05-10"` → `"2567-05-10"` (timeline header แสดง "5667" ผิด)
-
-### ✅ Done (2026-07-15)
-- Verified: light mode toggle + timeline load-more were already implemented (stale pending items, no code change needed)
-- FIX 7 phase 2 — one-off structural styles (3 fixes):
-  - Added `--tag-bg` var (root L21 / dark L34): light `rgba(0,0,0,.04)`, dark `rgba(255,255,255,.06)`
-  - L1142: `color:#155724` → `var(--green)` (sum_price_agree cell, was illegible in dark mode)
-  - Entity-tag pills L1479,1532,1540,1666: `rgba(255,255,255,.06/.04/.09)` → `var(--tag-bg)` (was invisible in light mode)
-  - L1821-1822 kpi-label: `#7a7872`/`#8a8880` → `var(--muted)`
-
-### ✅ Done (2569-08-09)
-- ซ่อน UI เช็ค/ส่ง email ทั้งหมด (workflow เปลี่ยน: จ่ายค่าเอกสารพร้อมยื่นประมูลเลย ไม่ต้องส่ง email ยืนยันอีก) — ไม่แตะ emailSent field ใน doc_fees.json/DOC_FEES array
-  - renderDashDocFee (Dashboard widget): ลบปุ่ม toggle email + chip "รอส่ง", ยุบเหลือ filter เดียว (unpaid), ลบ dead var `_dashDocFeeFilter`, `unsentEmail`
-  - renderDocFeeTab (Doc Fee tab): ลบ stat box "รอส่ง email" + ปุ่ม toggle email ต่อการ์ด
-  - renderDocFeeBlock (project detail modal): ลบปุ่ม toggle email
-  - `toggleDocFeeEmail()` function ยังอยู่ (ไม่มีปุ่มเรียกแล้ว — เก็บไว้เผื่อย้อนกลับ ไม่ลบเพื่อลด risk)
-- (ต่อ) ซ่อนที่เหลือเพิ่ม: Add Bid form dropdown "สถานะ Email ยืนยัน" (L831) + emailTo display ใน Doc Fee tab (L2024) — ใช้ `style="display:none"` ไม่ลบโค้ด เพื่อ unhide ได้ทันทีถ้า workflow เปลี่ยนกลับ (ตามคำสั่ง user)
-
-### ✅ Done (2026-08-25)
-- เพิ่ม tab "🏗️ Assets" (read-only) — L656(button), L806-822(section+filters), L1164-1167(ASSETS const), L1215(TABS), L1229-1234(navigate), L2062-2160(renderAssets + helpers), L2447(expose), L2627-2639(fetch assets.json sync, pattern เดียวกับ doc_fees.json, 404-safe, filter pii:true ที่ ingestion)
-- ไม่แตะ assets.json/personnel.json/seed_bids.js/doc_fees.json ตาม scope · commit 344fbb8 pushed เอง (user อนุญาตรอบนี้)
-- 🐛 fix (968de1f): DA generate assets.json มาเป็น `{meta, assets:[]}` envelope ไม่ใช่ bare array ตามที่คุยกันตอนแรก — เจอตอนตรวจ data จริงหลัง DA push (0bda2ab) เลยแก้ fetch handler ให้รองรับทั้งสองแบบ (`Array.isArray(data) ? data : data?.assets`)
-
-### ✅ Done (2026-08-31)
-- **STATUS.DISQUALIFIED — รวมคำเรียกให้เหลือชุดเดียว** "แพ้ ขาดคุณสมบัติ / ถูกปรับตก" (เดิมมี 4 แบบ: "แพ้ เนื่องจากโดนปรับตก" / "แพ้ขาดคุณสมบัติ" / "แพ้ ถูกปรับตก" / "ตัดสิทธิ์" → คนอ่านนึกว่าเป็นคนละช่อง)
-  - display เท่านั้น 9 จุด: L744 pill · L1425 count label · L1516 badge · L1619/1722 section title · L2525 modal tag · L2239 inline select (สั้น "🚫 ขาดคุณสมบัติ/ปรับตก") · L1884 dashboard stat row
-  - L756/790/881 `<option>` เดิม text = value (ไม่มี attr) → pin `value="แพ้ เนื่องจากโดนปรับตก"` ก่อนเปลี่ยน text = enum ไม่ขยับ
-  - ❌ ไม่แตะ L952 enum + L1022 normalize map (635 records อ้างค่าเดิม)
-- **ซ่อน Doc Fee UI ทั้งหมดใน tracker** (workflow เปลี่ยนถาวร — จ่ายพร้อมยื่นประมูล ฟอร์มเก่าไม่ได้ใช้ประโยชน์เลย ยืนยันจาก Marx)
-  - L656 tab button `display:none` · L1238 ตัด 'docfee' ออกจาก TABS
-  - L690 Dashboard card "ค่าเอกสารประมูล — สถานะ" `display:none`
-  - L2585 บล็อกค่าเอกสารใน popup รายละเอียดโครงการ `display:none`
-  - L846-849 ฟอร์มเพิ่ม/แก้โครงการ 4 ช่อง (ยอด/วันที่/วิธีจ่าย/ธนาคาร) `display:none` — email dropdown ซ่อนไปแล้วตั้งแต่ 2569-08-09
-  - ทุก function + fetch doc_fees.json + DOC_FEES คงไว้ครบ → unhide ได้ทันที · DOC agent ทำงานต่อได้ปกติ
-- **คู่แข่งที่ได้งานไปแทน → Top 10 + ปุ่มขยาย**
-  - L1922 `COMP_TOP=10` · L1925 แถว 11+ ใส่ `data-comp-extra` + display:none (render ครบ ไม่ตัดข้อมูล → bar scale เทียบ maxComp เดิม)
-  - L1931 ปุ่ม text-link "ดูทั้งหมด (N) ▾" ⇄ "ย่อ ▴" · L2469 `toggleCompetitorAll()` · L2514 expose
-- Verify: 2661→2674 บรรทัด · `node --check` ทั้ง 3 script block ผ่าน
+> 📦 session log ก่อน 2026-09-08 ย้ายไป `WRK_AGENTS/WRK_UIUX_ARCHIVE_2569H2.md` แล้ว — ไม่ต้องอ่านตอนเปิด session
 
 ### ⏳ Pending UI tasks
-- **`:root` 2 บล็อก (L10 vs L280) — BLOCKED รอคำตัดสิน DA** · ส่งข้อมูลไปแล้ว 2026-09-08 ยังไม่แตะโค้ด
-  - ซ้ำจริง 3 ตัว: `--card-border` (57 จุด) · `--pill-bg` · `--pill-active` — light mode ใช้ค่า L280 ทั้งแอป
-  - ตายสนิท 4 ตัวใน L280: `--navy-dk` `--kpi-blue-2` `--kpi-green-1` `--kpi-green-2`
-  - ตัวเลือกที่เสนอ DA: (a) ลบซ้ำออกจาก **L10** + ลบ 4 ตัวตาย = หน้าตาไม่ขยับ · (b) คงไว้ + เขียนคอมเมนต์กำกับ · (c) คืน pill เป็นส้ม RMN = **เปลี่ยนดีไซน์ ต้องสั่งแยก + preview ก่อน**
+- _(ว่าง)_ — `:root` dedup ปิดแล้ว 2026-09-08 ตามคำตัดสิน DA ทางเลือก A
 
 ### 🗒️ Context carried over (not a UI task, FYI for continuity)
 - Mark กำลังคิดสถาปัตยกรรมใหญ่: แยกเป็น 2 BASE — "E-BIDDING BASE" (ของเดิม, public) vs "RMN DATABASE" (Employees/Stats-KPI/Asset+expiry/เอกสารสแกนจริง, ต้อง login ID/Pass, มี PII)
@@ -76,6 +23,13 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - 🐛 fix quick-status ขาด `WITHDRAWN` — L2245 เพิ่ม `<option value="${STATUS.WITHDRAWN}">🟣 ห้างขอยกเลิก</option>`
   - audit 7 จุดแล้ว: WITHDRAWN มีครบทุกจุดอยู่ก่อนแล้ว (CONFIG.STATUS L957 · STATUS_MIGRATE L1024 · `<option>` 3 ชุด L758/792/883 · badge map L1142 + L1518 · section title L1621/1724/2540 · `.b-withdrawn` L188/L53 + `.sd-withdrawn` L278) — ขาดที่ quick-status ที่เดียว
   - ไม่แตะค่า STATUS · ไม่แตะ data logic · `node --check` ผ่าน · 2674 → 2675 บรรทัด
+- **merge `:root` 2 บล็อก → เหลือบล็อกเดียวที่ L10** (คำตัดสิน DA ทางเลือก A · มติ King Marx 09-08)
+  - ยกค่าที่ชนะจริงจาก L280 ขึ้น L10: `--pill-bg` `#eeece6`→`#f1f3f9` · `--pill-active` `var(--accent)`→`#2b3990` · `--card-border` `#eae8e2`→`#e5e9f2`
+  - ย้ายตัวที่มีเฉพาะ L280 ขึ้นมาครบ 7: `--navy` `--navy-dk` `--kpi-blue-1` `--kpi-blue-2` `--kpi-green-1` `--kpi-green-2` `--status-new`
+  - ลบบล็อก `:root` ที่ L280 ทั้งบล็อก · คงคอมเมนต์ "Report tab (G-Lead style)" ไว้กับ CSS ที่เหลือ
+  - ไม่แตะ `html.dark` · ไม่แก้ pill กลับเป็นส้ม (King Marx สั่งคงน้ำเงิน `#2b3990`)
+  - verify: `grep -c ':root{'` = 1 · ไม่มีตัวแปรซ้ำใน `:root` · `node --check` ผ่าน 3 block · 2675 → 2673 บรรทัด · หน้าตา light/dark ไม่ขยับ (computed value เดิมทุกตัว)
+- **archive session log** → `WRK_UIUX_ARCHIVE_2569H2.md` (Done ก่อน 2026-09-08) · WRK_UIUX.md 21,099 → ~14.6 KB (ต่ำกว่าเพดาน 20 KB) · ไม่ยุบ § UI Rules / § STATUS values
 
 ## 🎨 UI Rules (current — ตรวจจากโค้ดจริง 2026-09-08)
 > ของเดิมใน `EBIDDING.md` ถูกครอบ ⛔ แล้ว (M4RX-B4SE a98adeb) — ไฟล์นี้คือฉบับจริง
@@ -84,10 +38,10 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - Light เป็น default · persist ที่ `localStorage['rmn_theme']` (`'light'` เมื่อไม่เคยตั้ง) · dark = `html.dark`
 - Toggle 2 ตัวคุมค่าเดียวกัน: ปุ่ม `#theme-btn` (editor) + switch `#vt-chk` (viewer) — `toggleTheme()` อัปเดตทั้งคู่ ห้ามแยก state
 - ห้าม hardcode สีในคอมโพเนนต์ ใช้ CSS var — **ยกเว้น** ราคายื่น / เลขที่ / ชื่อหน่วยงาน / badge สถานะ ที่ต้อง contrast ชัดเสมอ ใช้ hex ตายตัว ห้ามพึ่ง role tint var [[feedback_widget_contrast]]
-- ⚠️ ไฟล์มี `:root` **2 บล็อก** — L10 และ L280 · **L280 ไม่ได้ scope แค่ Report tab** ถึงจะมีคอมเมนต์ว่า "Report tab (G-Lead style)" แต่เป็น `:root` เปล่า = global · specificity เท่ากัน ตัวหลังชนะ → **light mode ใช้ค่าจาก L280 ทั้งแอป** (ตรวจแล้ว 2026-09-08)
-  - ตัวที่ประกาศซ้ำ 3 ตัว: `--pill-bg` `#eeece6`→`#f1f3f9` · `--pill-active` `var(--accent)`→`#2b3990` (navy ไม่ใช่ส้ม RMN) · `--card-border` `#eae8e2`→`#e5e9f2` (ใช้ 57 จุดทั้งไฟล์)
-  - dark mode ไม่โดน — `html.dark` specificity (0,1,1) สูงกว่า `:root` (0,1,0) ชนะทุกกรณีไม่ว่าลำดับไหน
-  - **แก้ตัวแปร 3 ตัวนี้ที่ L10 จะไม่มีผลใน light mode** ต้องแก้ที่ L280
+- ✅ ไฟล์มี `:root` **บล็อกเดียว** (L10) ตั้งแต่ 2026-09-08 — บล็อกที่ 2 ที่ L280 ถูก merge ขึ้นมาแล้ว (คำตัดสิน DA ทางเลือก A) · **แก้ token ทุกตัวที่ L10 ที่เดียว**
+  - `--pill-active` = `#2b3990` (navy ไม่ใช่ส้มแบรนด์ `--accent`) — **ตั้งใจ** มติ King Marx 09-08 ห้ามแก้กลับเป็นส้มโดยไม่มีคำสั่งแยก
+  - dark mode: `html.dark` specificity (0,1,1) > `:root` (0,1,0) → override ทุกกรณีไม่ว่าลำดับไหน · token ที่ `html.dark` ไม่ประกาศ (`--kpi-*` `--status-new`) ตกมาจาก `:root` ตามเดิม
+  - ⛔ ห้ามเพิ่ม `:root` บล็อกที่ 2 อีก — ซ้อนเงียบ debug ยาก
 
 **View mode (mobile / คนดูอย่างเดียว)**
 - Editor = ไม่มี query param · Viewer = `?view=1` → `VIEW_MODE` + `body.view-mode`
