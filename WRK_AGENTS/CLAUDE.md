@@ -23,6 +23,8 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 - **09-08 · 🛠️ `SKILL.md` ของ scheduled task ชี้ `C:\Repos\` แล้ว** — แก้ 3 ตัวที่อ้าง repo (`morning-agent-context-check` · `gmail-bid-auto-update` · `rmn_documentation-expire_date-checker`) · `doc-fee-morning-alert` ไม่อ้าง repo จึงไม่แก้ · 🔴 **ไฟล์ชุดนี้อยู่บน PC MARX เครื่องเดียว ไม่อยู่ git ไม่ sync** → PC MARX ปิด = ไม่มี checker · ⛔ `EBIDDING.md:30-32` ยังสั่ง `git -C "…RMN e-Bidding Tracker" push` แต่โฟลเดอร์นั้น **ไม่ใช่ git repo แล้ว** — ไฟล์ไม่อยู่ใน Matrix **ห้ามแก้จนถาม King Marx**
 - **09-08 · 🎨 UI Rules + 📋 STATUS values ของจริงอยู่ที่ `WRK_AGENTS/WRK_UIUX.md` เท่านั้น** (Sir UI verify จากโค้ด tracker · `6afecce`) — 8 active + 3 legacy (`PENDING` · `WIN_PRICE` · `LOSE_PRICE`) + `STATUS_MIGRATE` contract + checklist 7 จุดเมื่อเพิ่มสถานะ · ⛔ ข้อความเดิมใน `CLAUDE.md` และ `EBIDDING.md` = **รุ่นก่อน ตรงตัวอักษร 0/8** ห้ามอ้าง (ครอบ ⛔ / ย้ายเข้า archive แล้ว)
 
+- **09-08 · 🔐 ห้ามขยาย data boundary ของ Finance Capture เพื่อความสะดวก** (มติ Lord COMMANDER) — ⛔ **ห้าม share backend Sheet / Drive `Evidence`·`Daily Exports`·`_Trash` เข้าบัญชี Gmail ส่วนตัว หรือเข้า connector ของ Claude** แม้เพื่อให้ agent ทำงานแทน · B1+B2 ให้ King Marx ทำใน Workspace ตรงๆ · ปิด blocker ต้อง **read-back verify** เสมอ ไม่รับ inheritance/report เป็นหลักฐาน · เพิ่ม **B8 = verify permission child folder จริง**
+
 ## ⚙️ Core Rules
 - Diff/changelog only — ห้าม output full file/table
 - grep/bash หา section ก่อน — ห้าม Read ทั้งไฟล์
