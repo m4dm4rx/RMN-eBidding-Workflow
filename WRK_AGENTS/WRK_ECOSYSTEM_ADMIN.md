@@ -7,32 +7,11 @@
 > 📦 session log ก่อน 2026-09-07 ย้ายไป `WRK_ECOSYSTEM_ADMIN_ARCHIVE_2569H2.md` — ไม่ต้องอ่านตอนเปิด session
 > 📏 เพดานไฟล์นี้ 20 KB · เกินเมื่อไหร่ตัดท้ายเข้า archive ก่อนเริ่มงานใหม่
 
-## 🔄 Session State (2026-09-07 — DA: naming model + กฎ Raven + จัดระเบียบ working copy)
-- ✅ **มติ King Marx — naming model ใหม่** บันทึกแล้ว: `KB § ชั้นยศ` + `KB § 🐦 Raven Mail` · `DESIGN_PRINCIPLES` Decision log 2 แถว · `CLAUDE.md § 📢` 2 บรรทัด (ประกาศในคอมมิตเดียวกันตามหน้าที่ broadcast)
-- ✅ artifact `process-map.html` แก้ชื่อกล่อง advisor + แถว ownership → **republish ทับ URL เดิม** (ไม่แตะเนื้อหาอื่นตามที่รับปากใน Raven)
-- 🛠️ **พบและแก้: working copy ไม่ตรง origin ทั้ง 2 repo** — `M4RX-B4SE` ค้างบน branch `claude/upbeat-johnson-xdUyN` (1 commit `21cf15d`, **ไม่มี KB_ECOSYSTEM_ADMIN.md / DESIGN_PRINCIPLES.md บนดิสก์เลย**) → `git checkout -B main origin/main` ได้ `ec7af3e` · `RMN-eBidding-Workflow` ช้ากว่า origin **78 commit** → `merge --ff-only` ได้ `c61cfb9` · ⚠️ **ไม่มีข้อมูลหาย** ของครบบน origin/main ทุกไฟล์
-- ⚠️ **บทเรียน PowerShell (จดไว้กันซ้ำ):** `$KL = Get-Content $k` — ถ้าใช้ชื่อ `$K` จะ **ทับตัวแปร `$k` ทันที** เพราะ PowerShell ไม่แยกตัวพิมพ์เล็ก/ใหญ่ → path กลายเป็นค่าว่าง เขียนไฟล์ไม่ได้ (เจอจริง 2 รอบ) · ต่อไปตั้งชื่อ array ว่า `$KL/$DL/$CL` เท่านั้น
-- ⏸️ **pending approval — ยังไม่บันทึกลงดิสก์ ห้ามถือเป็นกฎ:** architecture Workspace/GitHub/LINE · ownership TAB 1/2/3 · ผู้รับสรุปรายวัน + ผู้มีสิทธิเขียน · guard rails ①–⑩ · ถ้อยคำเส้นแบ่ง advisor (เปิด/ปิด) · TAB 2 `basis_amount` รอคำตอบ Top
-- 📌 LINE OA `RMN Finance Capture` **Friends = 1** → office/แม่ ยังไม่เข้าระบบ ยังทดสอบ intake จริงไม่ได้ · สถานะ not operational
-
-## 🔄 Session State (2026-09-07 ต่อ — DA: Finance Capture v1 ส่งมอบ + ย้าย repo ออกจาก OneDrive)
-- ✅ **Execution Card RMN Finance Capture v1 ปิดครบ** — `M4RX-B4SE` `8ddaa84` governance (ก่อน) → `1ee1c0f` implementation · `Workflow` `40f8455` broadcast · RC1–RC9 อยู่ในโค้ดจริง · **60 offline tests ผ่านบนเครื่อง** · dependency 0 ตัว · ไม่มี secret ในไฟล์ใด · **หยุดก่อน deploy ตามคำสั่ง**
-- 📌 MB1 ปิด: Messaging API channel `RMN Finance Capture` **Channel ID 2011458199** (ID ไม่ใช่ secret บันทึกได้)
-- ✅ **ย้าย repo 3 ตัวออกจาก OneDrive → `C:\Repos\`** (path เดียวกันทุกเครื่อง ไม่มีชื่อ user) · `Workflow` `3c44f15` · `M4RX-B4SE` `1d37740`
-- 🔴 **OneDrive ทำ git พังจริง 3 แบบในวันเดียว** — บทเรียนที่แพงที่สุดของวันนี้:
-  ① `.git/*.lock` ค้าง ลบจาก mount ไม่ได้ → commit ไม่ผ่าน (แก้ชั่วคราวด้วย `mv` ได้ แต่ไม่ควรต้องทำ)
-  ② `.git/objects` **ขาด ~60 objects** + reflog เสีย + commit-graph parse ไม่ผ่าน → `RMN-eBidding-Workflow` ต้อง **re-clone ทั้ง repo**
-  ③ clone ลงมา **ผิด branch** เพราะ `origin/HEAD` ของ `M4RX-B4SE` ชี้ `claude/upbeat-johnson-xdUyN` (scaffold 1 commit) — หลอกทั้ง DA ตอนบ่ายและ clone ใหม่ตอนดึก · แก้ default branch บน GitHub แล้ว
-- ⚠️ **path เดิมผูกชื่อ user** `C:\Users\Advice\OneDrive\...` → เครื่องที่ 2 (`asus`) ใช้ไม่ได้ตั้งแต่ต้น ไม่ใช่เพิ่งพัง
-- ⚠️ **บทเรียน git จาก mount**: `device_bash` ลบไฟล์ไม่ได้ทั้ง mount (ไม่ใช่แค่ OneDrive) และ `core.autocrlf` ไม่ตั้งใน VM → ถ้า commit ตรงๆ ไฟล์ CRLF ที่ไม่ได้แตะจะกลายเป็น diff ทั้งไฟล์ · ต้องใส่ `-c core.autocrlf=input` ทุกคำสั่ง · **git ต้องผ่าน PowerShell เท่านั้น กฎเดิมถูกแล้ว**
-- ⏸️ **ค้าง 4 ข้อ**
-  ① `SKILL.md` ของ scheduled task ยังชี้ OneDrive · อยู่นอก git · `Documents\Claude` ขอสิทธิ์ผ่าน bridge ไม่ได้ → user รันสคริปต์เอง **ทั้ง 2 เครื่อง** (จุดนี้เคยทำ checker พังเงียบเป็นสัปดาห์)
-  ② `_old_*` + `.corrupt_20260907` ใน OneDrive — เก็บ 7 วันแล้วลบ
-  ③ Q1 Codex deploy GCP ได้จริงไหม — ถ้าไม่ได้ `runbook/RUNBOOK.md` เขียนให้ King Marx ทำเองครบทุกขั้น + rollback
-  ④ Q2 แม่/Office เป็นเพื่อน OA + OA เข้ากลุ่มแล้วยัง — **Friends ยัง = 1** daily summary ยังส่งไม่ถึงใคร
-- 🔎 **ยังไม่ย้าย ต้องตัดสินแยก** — `BSKNBot\` และ `RMN e-Bidding Tracker\` ยังเป็น repo ใน OneDrive เสี่ยงแบบเดียวกันเป๊ะ
-- 📌 **แต่ละ Sir แก้ path ใน WRK ของตัวเอง** — DA แก้ให้ไม่ได้ตามกฎ ownership · ประกาศรายชื่อไฟล์ไว้ใน `CLAUDE.md § 📢` แล้ว · Sir MM ยังมี `WRK_MAPMAKER.md` uncommitted อยู่บนดิสก์ (ไฟล์ไม่หาย แต่ของที่เคย `git add` หายไปกับ object ที่เสีย ต้อง add ใหม่)
-
+## 📌 Carried forward (ยกมาจาก session 09-07 ที่ย้ายเข้า archive แล้ว — ยังไม่ปิด)
+- ⏸️ **pending approval — ยังไม่บันทึกลงดิสก์ ห้ามถือเป็นกฎ**: architecture Workspace/GitHub/LINE · ownership TAB 1/2/3 · ผู้รับสรุปรายวัน + ผู้มีสิทธิเขียน · guard rails ①–⑩ · ถ้อยคำเส้นแบ่ง advisor · TAB 2 `basis_amount` รอคำตอบ Top
+- 🔎 **repo ที่ยังอยู่ใน OneDrive ต้องตัดสินแยก**: `BSKNBot\` (อยู่ใต้ `OneDrive\BSKN`) · ~~`RMN e-Bidding Tracker\`~~ **หายจาก OneDrive root แล้ว ยืนยัน 09-08**
+- 📌 **Sir MM**: `WRK_MAPMAKER.md` uncommitted บนดิสก์ — ของที่เคย `git add` หายไปกับ object ที่เสีย ต้อง add ใหม่ (เจ้าของทำเอง DA แตะไม่ได้)
+- ⚠️ **บทเรียนที่ต้องไม่หาย** ① PowerShell ไม่แยกพิมพ์เล็ก/ใหญ่ — ตั้ง array เป็น `$KL/$DL/$CL` ห้ามใช้ `$K` ทับ `$k` ② commit จาก mount ต้องใส่ `-c core.autocrlf=input` ไม่งั้นไฟล์ CRLF ที่ไม่ได้แตะกลายเป็น diff ทั้งไฟล์
 
 ## 🔄 Session State (2026-09-08 — DA: จัดระเบียบ path หลังย้าย repo + รับ EBIDDING.md เข้า ownership)
 - ✅ **`SKILL.md` ของ scheduled task 3 ตัวแก้ path → `C:\Repos\...`** (`doc-fee-morning-alert` ไม่ต้องแก้) · ⚠️ ไฟล์อยู่ `%USERPROFILE%\Documents\Claude\Scheduled\` **นอก git และมีแค่บนเครื่อง PC MARX** → เครื่อง `asus` ไม่มีเลย ต้องทำซ้ำเมื่อย้ายเครื่อง
@@ -68,3 +47,4 @@
 - ✅ **gate ปิด blocker = read-back** — B1 ตั้ง header เสร็จต้องอ่านกลับเทียบตัวอักษร+ลำดับ · B2 seed เสร็จต้องอ่านกลับนับให้ได้ 6 · ไม่รับ inheritance/report เป็นหลักฐาน
 - 📋 **สถานะปัจจุบัน B1-B8 = OPEN ทั้งหมด** · ลำดับ: ① Marx ตั้ง header + seed → ② verify child permission → ③ เปิด API 5 ตัว → ④ secret/LINE gate/signed IDs/Friends → ⑤ deploy ขออนุมัติแยกใบ · **NO-GO deploy · ห้ามแตะ LINE · ห้ามใส่ secret**
 - 📏 **archive รอบ 3 (09-08)** `CLAUDE.md` 20,106→**18,433 B** (เหลือ 2,047 B ถึงเพดาน) — ย้ายประกาศปิดเรื่องแล้ว 3 ข้อเข้า `CLAUDE_ARCHIVE_2569H1.md § ประกาศที่ย้ายมาเก็บ (09-08 รอบ 2)`: ① PII เบอร์ติดต่อ (SoT `KB § Rule 19`) ② Git Close-out (SoT `CLAUDE.md § 🔀 Git Push` ในไฟล์เดิม) ③ UI Rules/STATUS (SoT `WRK_UIUX.md` · ป้ายชี้ `§ 🎨` ยังอยู่) · **ไม่ลบ section ที่เป็นกฎ ไม่ขยายเพดาน**
+- 📏 **archive รอบ 4 (09-08)** ไฟล์นี้ 19,950→**14,624 B** — ย้าย session `09-07` + `09-07 ต่อ` เข้า `WRK_ECOSYSTEM_ADMIN_ARCHIVE_2569H2.md` · **ก่อนย้ายกลั่นของที่ยังไม่ปิดขึ้นเป็น `§ 📌 Carried forward`** (pending approval 6 ข้อ · `BSKNBot\` ใน OneDrive · Sir MM uncommitted · บทเรียน PowerShell `$K` + `core.autocrlf=input`) — **ไม่ทิ้งงานค้างลง archive**
