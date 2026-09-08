@@ -123,3 +123,10 @@ push `doc_fees.json` / `doc_fee_queue.json` — **OPY push เอง** (2026-09-
 
 ## 📋 STATUS values (รุ่นก่อน — เลิกใช้ 2026-09-08 · ตรงตัวอักษร 0/8 กับ tracker)
 รอผลพิจารณา/เป็นผู้เสนอต่ำสุด · ไม่ได้เป็นผู้เสนอต่ำสุด · อนุมัติสั่งจ้าง · จัดทำสัญญา · แพ้การประมูล · แพ้/ขาดคุณสมบัติ · ยกเลิกโครงการ · ห้างขอยกเลิก
+
+## 📢 ประกาศที่ย้ายมาเก็บ (09-08 รอบ 2 — ปิดเรื่องแล้ว · SoT อยู่ที่อื่น)
+> ① PII เบอร์ติดต่อ → SoT `KB_ECOSYSTEM_ADMIN.md § Rule 19` · ② Git Close-out → SoT `CLAUDE.md § 🔀 Git Push` (ในไฟล์เดิม) · ③ UI Rules/STATUS → SoT `WRK_UIUX.md` (ป้ายชี้ยังอยู่ `CLAUDE.md § 🎨`)
+
+- **09-05 · 📞 ปิดเคส PII เบอร์ติดต่อ** — `087-223-5093` + ชื่อหุ้นส่วนผู้จัดการ = **เบอร์ธุรกิจ อยู่ใน repo public ได้** (มติ user) · **ไม่ต้อง mask ไม่ต้องย้าย** · Sir OPY ยกเลิกคำสั่งหยุดที่ DA สั่งไว้ · ⚔️ ปิดข้อขัดกัน Rule 19 vs 20 — sync KB ลง `KB/` ได้ตามปกติ · ⛔ ข้อยกเว้นนี้เฉพาะรายการนี้ เลขบัตร/เบอร์ส่วนตัวพนักงาน/เงินเดือน ยังอยู่ใต้ Rule 19 เต็ม
+- **09-03 · ✅ Git Close-out** — งานเสร็จ = `git status` scope ตน → commit → push · ห้าม commit ไฟล์นอก ownership · รอ approval ให้เขียน `pending approval` (รายละเอียด § 🔀 Git Push)
+- **09-08 · 🎨 UI Rules + 📋 STATUS values ของจริงอยู่ที่ `WRK_AGENTS/WRK_UIUX.md` เท่านั้น** (Sir UI verify จากโค้ด tracker · `6afecce`) — 8 active + 3 legacy (`PENDING` · `WIN_PRICE` · `LOSE_PRICE`) + `STATUS_MIGRATE` contract + checklist 7 จุดเมื่อเพิ่มสถานะ · ⛔ ข้อความเดิมใน `CLAUDE.md` และ `EBIDDING.md` = **รุ่นก่อน ตรงตัวอักษร 0/8** ห้ามอ้าง (ครอบ ⛔ / ย้ายเข้า archive แล้ว)
