@@ -59,7 +59,10 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - Verify: 2661→2674 บรรทัด · `node --check` ทั้ง 3 script block ผ่าน
 
 ### ⏳ Pending UI tasks
-- (none currently open)
+- **`:root` 2 บล็อก (L10 vs L280) — BLOCKED รอคำตัดสิน DA** · ส่งข้อมูลไปแล้ว 2026-09-08 ยังไม่แตะโค้ด
+  - ซ้ำจริง 3 ตัว: `--card-border` (57 จุด) · `--pill-bg` · `--pill-active` — light mode ใช้ค่า L280 ทั้งแอป
+  - ตายสนิท 4 ตัวใน L280: `--navy-dk` `--kpi-blue-2` `--kpi-green-1` `--kpi-green-2`
+  - ตัวเลือกที่เสนอ DA: (a) ลบซ้ำออกจาก **L10** + ลบ 4 ตัวตาย = หน้าตาไม่ขยับ · (b) คงไว้ + เขียนคอมเมนต์กำกับ · (c) คืน pill เป็นส้ม RMN = **เปลี่ยนดีไซน์ ต้องสั่งแยก + preview ก่อน**
 
 ### 🗒️ Context carried over (not a UI task, FYI for continuity)
 - Mark กำลังคิดสถาปัตยกรรมใหญ่: แยกเป็น 2 BASE — "E-BIDDING BASE" (ของเดิม, public) vs "RMN DATABASE" (Employees/Stats-KPI/Asset+expiry/เอกสารสแกนจริง, ต้อง login ID/Pass, มี PII)
