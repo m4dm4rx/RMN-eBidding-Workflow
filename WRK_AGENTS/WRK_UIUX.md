@@ -69,6 +69,7 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 ### ✅ Done (2026-09-08)
 - ย้าย working copy: OneDrive → `C:\Repos\RMN-eBidding-Workflow` ตามคำตัดสิน DA · OneDrive clone = retired ห้าม commit/push จากที่นั่นอีก
 - เขียน § UI Rules + § STATUS values ลงไฟล์นี้ (commit 6afecce) — เป็น SoT ของ 2 หัวข้อนี้แล้ว (DA 2a152a0)
+- อัปเดต § Working folder: connect `C:\Repos` แล้ว (Marx ทำให้ 2026-09-08) · OneDrive path ขึ้นสถานะ retired ในเอกสาร
 - 🐛 fix quick-status ขาด `WITHDRAWN` — L2245 เพิ่ม `<option value="${STATUS.WITHDRAWN}">🟣 ห้างขอยกเลิก</option>`
   - audit 7 จุดแล้ว: WITHDRAWN มีครบทุกจุดอยู่ก่อนแล้ว (CONFIG.STATUS L957 · STATUS_MIGRATE L1024 · `<option>` 3 ชุด L758/792/883 · badge map L1142 + L1518 · section title L1621/1724/2540 · `.b-withdrawn` L188/L53 + `.sd-withdrawn` L278) — ขาดที่ quick-status ที่เดียว
   - ไม่แตะค่า STATUS · ไม่แตะ data logic · `node --check` ผ่าน · 2674 → 2675 บรรทัด
@@ -149,8 +150,11 @@ Senior UI/UX Designer — ปรับ UI/UX ของ `rmn_ebidding_tracker_2.h
 - `WRK_AGENTS/WRK_UIUX.md` (session log — ตัวนี้)
 
 ## 📂 Working folder ที่ต้อง connect
-- `RMN-eBidding-Workflow` (OneDrive) — repo หลัก มี tracker + WRK_AGENTS/ + seed_bids.js + assets.json/doc_fees.json (fetched, read-only ฝั่งฉัน)
-- ไม่ต้องใช้ `RMN-eBidding-KB` (private repo, personnel.json) — UI agent ไม่ควรแตะ PII เลย
+- ✅ **`C:\Repos`** — connect ตัวนี้ตัวเดียว (2026-09-08) · repo อยู่ที่ `C:\Repos\RMN-eBidding-Workflow` มี tracker + WRK_AGENTS/ + seed_bids.js + assets.json/doc_fees.json (fetched, read-only ฝั่งฉัน)
+  - ใน `device_bash` mount เป็น `$HOME/mnt/Repos/RMN-eBidding-Workflow`
+  - PowerShell/git ใช้ `$r="C:\Repos\RMN-eBidding-Workflow"` — path นี้ **ไม่ได้อยู่ใต้ `$env:USERPROFILE`** เป็นข้อยกเว้นของกฎ no-hardcode-path (repo ย้ายออกจาก OneDrive แล้ว)
+- ⛔ **`OneDrive\Claude\Projects\RMN-eBidding-Workflow` = retired** — DA สั่งเลิกใช้ · ห้าม commit/push จาก path นี้อีก ถ้ายัง mount ค้างอยู่ให้ข้ามไป
+- ไม่ต้องใช้ `C:\Repos\RMN-eBidding-KB` (private repo, personnel.json) — UI agent ไม่ควรแตะ PII เลย · `C:\Repos\M4RX-B4SE` ก็ไม่ต้อง (KB ต้นฉบับ DA ดูแล)
 
 ## ⚙️ My Rules
 - Diff/changelog only — ห้าม output full file
