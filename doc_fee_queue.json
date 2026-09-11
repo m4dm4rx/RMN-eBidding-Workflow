@@ -242,5 +242,35 @@
     "status": "done",
     "note": "ข้อ ๔.๘(๖): โอน 500฿ เข้า KTB 4051490874 ชื่อบัญชี เทศบาลตำบลพระยืน · ⚠️ ชำระได้เฉพาะ \"ในวันและเวลาเสนอราคา\" เท่านั้น (3 ก.ย. 13:00-16:00) จ่ายก่อน/หลัง = ผิดเงื่อนไข ตัดสิทธิ์ · ต้องแนบหลักฐานเข้า e-GP พร้อมยื่นข้อเสนอ ไม่แนบ = ผิดเงื่อนไข",
     "checkedDate": "2569-09-02"
+  },
+  {
+    "id": "69089707846",
+    "agency": "องค์การบริหารส่วนตำบลหนองภัยศูนย์",
+    "amount": 1000,
+    "bank": null,
+    "bankAccNo": null,
+    "email": null,
+    "paymentMethod": null,
+    "submitMethod": "e-GP",
+    "payWindowStart": "2569-09-11",
+    "payWindowEnd": "2569-09-11",
+    "status": "pending",
+    "note": "ประกาศข้อ ๔ ชำระ 1,000฿ ภายในวันและเวลาเสนอราคา (11 ก.ย. 09:00-12:00) เท่านั้น · ประกาศเชิญชวนไม่ระบุเลขบัญชี ต้องดู doc_*.pdf ข้อ ๔.๘(๖) หรือยึดจากสลิป",
+    "checkedDate": "2569-09-11"
+  },
+  {
+    "id": "69079499517",
+    "agency": "เทศบาลตำบลโนนสัง",
+    "amount": 0,
+    "bank": null,
+    "bankAccNo": null,
+    "email": null,
+    "paymentMethod": null,
+    "submitMethod": null,
+    "payWindowStart": null,
+    "payWindowEnd": "2569-09-11",
+    "status": "no_fee_required",
+    "note": "ประกาศไม่มีข้อค่าซื้อเอกสาร ดาวน์โหลดผ่าน e-GP",
+    "checkedDate": "2569-09-11"
   }
 ]
