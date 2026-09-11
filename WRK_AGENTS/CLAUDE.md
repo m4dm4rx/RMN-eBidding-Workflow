@@ -1,4 +1,4 @@
-﻿# RMN e-Bidding Tracker
+# RMN e-Bidding Tracker
 
 ## 🚫 NEVER USE (no exceptions)
 TaskCreate · TaskUpdate · TaskList · TaskStop · TaskGet · AskUserQuestion · mcp__visualize__read_me
@@ -132,3 +132,10 @@ git -C $r rev-parse --short HEAD; git -C $r rev-parse --short origin/main
 ## 📦 Archive
 - session log ก่อน ก.ค. 69 (3 section) ย้ายไป `WRK_AGENTS/CLAUDE_ARCHIVE_2569H1.md` เมื่อ 2026-09-02 — **ไม่ต้องอ่านตอนเปิด session**
 - 📏 เพดานไฟล์นี้ **20 KB** · เกินเมื่อไหร่ให้ย้าย session log เก่าเข้า archive ก่อน **ห้ามยุบ section ที่เป็นกฎ**
+
+## 🔄 Session State (DA · 2026-09-11 · auto @ 92% usage — session ต้อง restart)
+- e-bidding: seed_bids.js sync กับ OPY แล้ว (a0225b1→3f185d7 chain) · R2'-a backfill 133 records เสร็จโดย OPY แล้ว (commit 3f185d7)
+- ค้าง: BOM fix 2 commit เก่า (9c93cff,6360954) รอไฟเขียว force-push
+- ค้าง: doc fee ที่กำลังจ่ายอยู่ (OPY กำลังทำ 69089707846 ฯลฯ) — ไม่ใช่ scope DA
+- Finance Capture Bot gap-analysis (Raven จาก Lord Commander): **หยุดกลางคัน** ตามคำสั่ง Marx "รอ 1 ชม ถึง reset" — เจอแล้ว: repo C:\Repos\M4RX-B4SE\RMN_Enterprise\Finance-Capture **ไม่มี LIFF/Web App code เลย** (มีแค่ conversational: handler.js/dialog.js/parse.js) · Sheet schema ไม่มี field "vehicle" จริง มีแค่ category text match (เช่น "งวดรถ") · ยังไม่ได้อ่าน RUNBOOK.md เต็ม/service.yaml/store.js — **งานค้างต่อ**: อ่านต่อจากตรงนี้เมื่อ resume
+- B8 scope correction ปิดแล้ว (commit 46b34be, Wanida=pending verification)
