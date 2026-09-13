@@ -133,9 +133,15 @@ git -C $r rev-parse --short HEAD; git -C $r rev-parse --short origin/main
 - session log ก่อน ก.ค. 69 (3 section) ย้ายไป `WRK_AGENTS/CLAUDE_ARCHIVE_2569H1.md` เมื่อ 2026-09-02 — **ไม่ต้องอ่านตอนเปิด session**
 - 📏 เพดานไฟล์นี้ **20 KB** · เกินเมื่อไหร่ให้ย้าย session log เก่าเข้า archive ก่อน **ห้ามยุบ section ที่เป็นกฎ**
 
-## 🔄 Session State (DA · 2026-09-11 · auto @ 92% usage — session ต้อง restart)
-- e-bidding: seed_bids.js sync กับ OPY แล้ว (a0225b1→3f185d7 chain) · R2'-a backfill 133 records เสร็จโดย OPY แล้ว (commit 3f185d7)
-- ค้าง: BOM fix 2 commit เก่า (9c93cff,6360954) รอไฟเขียว force-push
-- ค้าง: doc fee ที่กำลังจ่ายอยู่ (OPY กำลังทำ 69089707846 ฯลฯ) — ไม่ใช่ scope DA
-- Finance Capture Bot gap-analysis (Raven จาก Lord Commander): **หยุดกลางคัน** ตามคำสั่ง Marx "รอ 1 ชม ถึง reset" — เจอแล้ว: repo C:\Repos\M4RX-B4SE\RMN_Enterprise\Finance-Capture **ไม่มี LIFF/Web App code เลย** (มีแค่ conversational: handler.js/dialog.js/parse.js) · Sheet schema ไม่มี field "vehicle" จริง มีแค่ category text match (เช่น "งวดรถ") · ยังไม่ได้อ่าน RUNBOOK.md เต็ม/service.yaml/store.js — **งานค้างต่อ**: อ่านต่อจากตรงนี้เมื่อ resume
+## 🔄 Session State (DA · 2026-09-13 · checkpoint ก่อน invoke session ใหม่ — no error/no memory loss)
+- e-bidding: ปิดแล้ว ไม่มีอะไรค้าง — seed_bids.js sync กับ OPY (a0225b1→3f185d7) · R2'-a backfill 133 records เสร็จ (commit 3f185d7)
+- ค้าง (รอไฟเขียว, ไม่ใช่ error): BOM fix 2 commit เก่า (9c93cff,6360954) · doc fee OPY กำลังทำ (69089707846 ฯลฯ) — ไม่ใช่ scope DA
+- R1-R6 โหมดประหยัดโควตา (WRK_ECOSYSTEM_ADMIN.md): **หมดอายุแล้ว 2026-09-11 16:00 → ถือว่ายกเลิก** เว้น Marx สั่งใหม่
+- Finance Capture — RUNBOOK.md/service.yaml/store.js อ่านครบแล้ว (เดิมค้าง, ตอนนี้เสร็จ):
+  - **Q1 ตอบแล้ว** (เดิมค้างตั้งแต่ 09-08): RUNBOOK.md ระบุชัด "Written for King Marx to run personally, assumption nobody else has GCP deploy rights" → Codex/agent ไม่มีสิทธิ์ deploy จริง เป็น manual guide สำหรับ Marx เท่านั้น
+  - **repo ไม่มี LIFF/Web App code เลย** ยืนยันซ้ำ (grep liff/richmenu = 0 hit, service.yaml ไม่มี LIFF env) — Knight รายงาน LIFF test PASS แต่โค้ดอยู่ที่ไหนไม่ทราบ → **ต้องถาม Marx/Knight ก่อนอ้างอิง route จริงใน hand-off package**
+  - store.js: PENDING tab keyed by group_id เท่านั้น (dialog state ต่อกลุ่ม ไม่ใช่ต่อ user) → ถ้า LIFF ทำ input ต่อ user จริง ต้องเพิ่ม user_id dimension ใน schema ก่อน ไม่งั้นชนกันเวลาแม่+Office ทำพร้อมกัน (design gap ที่พบใหม่ ยังไม่ block งาน)
+  - service.yaml env vars: มีแค่ OWNER_USER_IDS/MEMBER_USER_IDS (binary) → role ใหม่ (balance-viewer แยกจาก office) ต้องเพิ่ม env var ใหม่ (เช่น BALANCE_VIEWER_USER_IDS) + redeploy เพราะ service อ่าน env ตอน startup เท่านั้น
+  - maxScale:1/concurrency:1 ยังคง load-bearing ห้ามแตะ แม้ตอนต่อ LIFF layer
+  - **DECISIONS ที่ยังรอ Marx** (ไม่เปลี่ยนจากรอบก่อน): (1) นิยาม/ที่มา "ยอดคงเหลือ" (2) LINE userId แยกของแม่ vs Office (3) Office ยังมี can_edit ไหมใน role ใหม่ (4) โค้ด LIFF ของ Knight อยู่ที่ไหน
 - B8 scope correction ปิดแล้ว (commit 46b34be, Wanida=pending verification)
