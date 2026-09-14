@@ -272,5 +272,20 @@
     "status": "no_fee_required",
     "note": "ประกาศไม่มีข้อค่าซื้อเอกสาร ดาวน์โหลดผ่าน e-GP",
     "checkedDate": "2569-09-11"
+  },
+  {
+    "id": "69099126557",
+    "agency": "องค์การบริหารส่วนตำบลหนองบัว",
+    "amount": 0,
+    "bank": null,
+    "bankAccNo": null,
+    "email": null,
+    "paymentMethod": null,
+    "submitMethod": null,
+    "payWindowStart": null,
+    "payWindowEnd": "2569-09-14",
+    "status": "no_fee_required",
+    "note": "ประกาศไม่มีข้อค่าซื้อเอกสาร ดาวน์โหลดผ่าน e-GP",
+    "checkedDate": "2569-09-14"
   }
 ]
