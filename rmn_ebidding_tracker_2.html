@@ -320,6 +320,14 @@ html.dark .ytab{border-color:#3a3733}
 .kpi-label{font-size:12px;font-weight:500;color:#7a7872;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
 .kpi-value{font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#1a1917}
 .kpi-unit{font-size:12px;color:#8a8880;margin-top:4px}
+/* KPI card with a side breakdown (โครงการทั้งหมด → E-BIDDING / เฉพาะเจาะจง) */
+.kpi-split{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.kpi-split .kpi-main{flex:1 1 130px;min-width:0}
+.kpi-breakdown{flex:0 1 auto;min-width:118px;font-size:12px}
+.kbd-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0}
+.kbd-row+.kbd-row{border-top:1px solid var(--card-border)}
+.kbd-k{color:var(--muted);letter-spacing:.02em}
+.kbd-v{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
 html.dark .kpi-card{color:#faf9f5;background:rgba(20,20,19,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.4)}
 html.dark .kpi-icon{background:rgba(255,255,255,.1)}
 html.dark .kpi-label{color:rgba(250,249,245,.65)}
@@ -941,6 +949,8 @@ if (VIEW_MODE) {
 
 const CONFIG = Object.freeze({
   STORAGE_KEY:   'rmn_v6',
+  // b.method value set by Sir OPY in seed_bids.js; records without `method` are e-bidding
+  METHOD_SPECIFIC: 'เฉพาะเจาะจง',
   STATUS: Object.freeze({
     PENDING:      'อยู่ระหว่างพิจารณาผล',   // legacy
     WIN_PRICE:    'ราคาต่ำสุด',               // legacy
@@ -1811,6 +1821,8 @@ const App = (() => {
     }
 
     const total      = bids.length;
+    const mSpecific  = bids.filter(b => b.method === CONFIG.METHOD_SPECIFIC).length;
+    const mEbidding  = total - mSpecific;
     const contract   = bids.filter(b => b.status === STATUS.CONTRACT).length;
     const winner     = bids.filter(b => b.status === STATUS.WINNER).length;
     const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING).length;
@@ -1842,11 +1854,17 @@ const App = (() => {
         </div>
         <div class="kpi-chart-wrap"><canvas id="growth-chart"></canvas></div>
       </div></div>
-      <div class="kpi-card blue"><div class="kpi-card-inner">
-        <div class="kpi-icon">📋</div>
-        <div class="kpi-label">โครงการทั้งหมด</div>
-        <div class="kpi-value">${UI.fmt(total)}</div>
-        <div class="kpi-unit">โครงการ (ทุกปีงบ)</div>
+      <div class="kpi-card blue"><div class="kpi-card-inner kpi-split">
+        <div class="kpi-main">
+          <div class="kpi-icon">📋</div>
+          <div class="kpi-label">โครงการทั้งหมด</div>
+          <div class="kpi-value">${UI.fmt(total)}</div>
+          <div class="kpi-unit">โครงการ (ทุกปีงบ)</div>
+        </div>
+        <div class="kpi-breakdown">
+          <div class="kbd-row"><span class="kbd-k">E-BIDDING</span><span class="kbd-v">${UI.fmt(mEbidding)}</span></div>
+          <div class="kbd-row"><span class="kbd-k">เฉพาะเจาะจง</span><span class="kbd-v">${UI.fmt(mSpecific)}</span></div>
+        </div>
       </div></div>
       <div class="kpi-card green"><div class="kpi-card-inner">
         <div class="kpi-icon">💰</div>
