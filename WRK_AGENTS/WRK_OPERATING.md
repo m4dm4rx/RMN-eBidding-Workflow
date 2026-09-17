@@ -16,13 +16,18 @@
 - `pct = round((budget - bid) / budget * 10000) / 100` — double-check ทุกครั้งก่อน commit (เคยพลาด seq167: 47.37 ผิด → 47.36)
 - ต่ำสุด → `"รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]"` · ไม่ต่ำสุด → `"รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]"`
 - ผลเช้า → 12:01 · ผลบ่าย → 16:01 — **ห้ามถามผลก่อนเวลานี้**
-- ⚠️ **seq numbering space แชร์กับ DA (2569-08-27)** — DA backfill ข้อมูลจาก data.go.th เข้ามาในสายเดียวกัน ทำให้ FY2569 max กระโดดจาก 182 → 214 โดยไม่แจ้งล่วงหน้า
-  → **ต้อง re-stage `seed_bids.js` แล้วคำนวณ max(seq) ของ fiscalYear ล่าสุดใหม่ทุกครั้งก่อนเพิ่ม record** ห้ามใช้ "SEQ ถัดไป" ที่จำมาจาก session ก่อน
+- ⚠️ **seq space แชร์กับ DA** (2569-08-27 DA backfill ทำ FY2569 max กระโดด 182→214 เงียบๆ)
+  → **re-stage `seed_bids.js` แล้วคำนวณ max(seq) ของ FY ล่าสุดใหม่ทุกครั้งก่อนเพิ่ม record** ห้ามใช้ SEQ ที่จำมาจาก session ก่อน
 - **`fiscalYear` บังคับทุก record** — คำนวณจาก field `date` (วันประกาศ) เท่านั้น: เดือน ≥ 10 → ปี+1 · เดือน 01–09 → ปี
   ⚠️ **ห้ามคำนวณจากเลข `id`** (id = เดือนที่ขึ้นระบบ e-GP ไม่ตรงวันประกาศจริง 26 records — DA ตรวจพบ 2569-08-13) · schema เต็ม → `KB/OPERATING.md`
 - budget = คอลัมน์ "วงเงิน" เสมอ · bid = ตัวเลขท้าย notes (เช่น "เสริมผิว+ผลงาน.(สารคาม79) ขั้น 968,000" → bid 968,000)
 - workType = ข้อความก่อน "+" ใน notes (เช่น "เสริมผิว+ผลงาน(...)" → `เสริมผิว`)
 - midPrice = ราคากลางจาก PDF ประกาศ (คนละตัวกับ budget — อ่าน PDF ทุกครั้ง ห้ามใช้ budget แทน)
+
+### ✅ Verify ก่อน commit `seed_bids.js` (บทเรียน 2569-09-17)
+`node --check` **ไม่พอ** — `[a,,b]` ผ่าน syntax ได้แต่เป็น sparse array → `renderDash()` พัง (kpi-card เหลือ 0 ใบ)
+ต้อง eval `SEED_BIDS` แล้วเช็กทุกครั้ง: `length` · `holes` ต้อง `[]` · dup `id` · dup `FY/seq` · `pct` ตรงสูตร
+เหตุ: `},,` จาก commit `3f185d7` (tag method) ของ OPY เอง เงียบ 6 commits — Sir UI จับได้ แก้ที่ `ea25633`
 
 ### 🔍 Notes column parsing
 - `(สารคามXX)` / `(ศรีบุญเรืองXX)` / `(สกลนครXX)` = ชื่อ plant + เลขอ้างอิงผลงาน (**ไม่ใช่ระยะทาง**) → ใช้ชื่อ plant ตรงนี้เสมอ
@@ -120,8 +125,7 @@ scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห
   ปิดงานต้องรายงาน HEAD = origin/main ทุกครั้ง
   ข้อความสีแดงใน PS = progress output ของ git **ไม่ใช่ error** · ตรวจซ้ำ `git fetch` แล้วเทียบ local vs origin
 - ⛔ **ห้าม `git add .` / `git add -A`** — มีไฟล์ agent อื่นค้าง uncommitted (`WRK_MAPMAKER.md`, `PROJECT_INSTRUCTIONS_DRAFT.md`, `SKILL_build.md`, `SKILL_ebidding.md` ฯลฯ) → `git add` เจาะจงชื่อไฟล์เสมอ
-- `.git/index.lock` / `HEAD.lock` ค้างบ่อย → sandbox ลบได้หลังเรียก `allow_cowork_file_delete` ครั้งเดียว (สิทธิ์ค้างทั้ง session) ไม่ต้องรบกวน user
-- OneDrive sync ระหว่าง sandbox กับเครื่อง user มี delay — commit จาก sandbox อาจยังไม่เห็นทันทีใน PowerShell
+- `.git/*.lock` ค้างบ่อย → ลบเองได้ · OneDrive sync มี delay commit อาจยังไม่เห็นทันทีใน PS
 - ⛔ **ห้ามใช้ `force:true` ใน device_commit_files เด็ดขาด** (บทเรียน 2569-08-27) — ต้อง **re-stage ก่อน commit ทุกครั้ง** แล้วส่ง `expectedMtimeMs` ที่ได้จาก stage รอบนั้น
   เหตุ: DA push งานเข้า repo ระหว่าง session (`318e98e`, `7d89ec7`) แล้ว OPY เขียนทับด้วยไฟล์เก่า → **ลบ 73 records ของ DA ทิ้ง** (commit `5950a5a`) ต้องกู้ด้วย `git checkout HEAD~1 -- seed_bids.js` (fix `78c8433`)
   ถ้า commit ถูก reject เพราะ mtime drift = **ไฟล์ถูกแก้จริง** → re-stage แล้วรวมงานใหม่ ห้าม force ทับ
