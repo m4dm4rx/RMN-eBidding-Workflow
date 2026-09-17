@@ -192,6 +192,11 @@ tr:hover td{background:var(--bg)}
 .b-cancelled{background:#e2e3e5;color:#555}
 .b-withdrawn{background:#fce8ff;color:#7c3aed}
 .b-new{background:#e2e3e5;color:#383d41}
+/* method tag on Records cards — direct award (เฉพาะเจาะจง) vs e-bidding */
+.proj-method-tag{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;
+  font-size:10px;font-weight:600;line-height:1.4;padding:3px 9px;border-radius:999px;
+  white-space:nowrap;background:#fff3cd;color:#8a6100;border:1px solid #f0dca4}
+html.dark .proj-method-tag{background:rgba(217,160,87,.18);color:#e8c07d;border-color:rgba(232,192,125,.32)}
 /* ── Bars ──────────────────────────────────────────────────────── */
 .bar{height:7px;border-radius:4px;background:#f0f0f0;margin-top:3px}
 .bar-fill{height:100%;border-radius:4px;background:var(--blue)}
@@ -321,10 +326,10 @@ html.dark .ytab{border-color:#3a3733}
 .kpi-value{font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:#1a1917}
 .kpi-unit{font-size:12px;color:#8a8880;margin-top:4px}
 /* KPI card with a side breakdown (โครงการทั้งหมด → E-BIDDING / เฉพาะเจาะจง) */
-.kpi-split{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.kpi-split .kpi-main{flex:1 1 130px;min-width:0}
-.kpi-breakdown{flex:0 1 auto;min-width:118px;font-size:12px}
-.kbd-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0}
+.kpi-split{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+.kpi-split .kpi-main{flex:1 1 auto;min-width:0}
+.kpi-breakdown{flex:0 0 auto;min-width:0;font-size:12px}
+.kbd-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:5px 0;white-space:nowrap}
 .kbd-row+.kbd-row{border-top:1px solid var(--card-border)}
 .kbd-k{color:var(--muted);letter-spacing:.02em}
 .kbd-v{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
@@ -1733,6 +1738,10 @@ const App = (() => {
       : 'จัดทำสัญญาแล้ว';
     const tagClass = type === 'win-pending' ? 'win-pending' : type === 'lose-pending' ? 'pending' : type;
     const subLabel = '';
+    // งานที่ไม่ได้มาจากการแข่งราคา — ติด tag กำกับ (ไม่มี b.method = e-bidding)
+    const methodTag = b.method === CONFIG.METHOD_SPECIFIC
+      ? `<span class="proj-method-tag" style="margin-left:auto" title="จัดซื้อ/จัดจ้างโดยวิธีเฉพาะเจาะจง — ไม่ได้แข่งราคาแบบ e-bidding">เฉพาะเจาะจง</span>`
+      : '';
     // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา/แพ้
     const isLose = type === 'lose' || type === 'disqualified';
     const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', isLose ? 'แพ้' : 'เซ็นสัญญา'];
@@ -1765,7 +1774,8 @@ const App = (() => {
             <span class="proj-id-value" style="font-family:inherit">${UI.fmtDate(b.date)}</span>
           </div>
           ${actionsHtml ? `<div class="proj-header-actions">${actionsHtml}</div>` : ''}
-          <span class="proj-status-tag ${tagClass}" style="margin-left:auto;flex-shrink:0;font-size:10px;padding:3px 10px;min-height:unset;min-width:unset;line-height:1.4">${tagText}${subLabel}</span>
+          ${methodTag}
+          <span class="proj-status-tag ${tagClass}" style="margin-left:${methodTag ? '6px' : 'auto'};flex-shrink:0;font-size:10px;padding:3px 10px;min-height:unset;min-width:unset;line-height:1.4">${tagText}${subLabel}</span>
 
         </div>
         <div class="proj-card-body">
