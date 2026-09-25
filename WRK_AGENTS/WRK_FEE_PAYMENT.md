@@ -170,7 +170,7 @@ Fields:
 **ไม่มีอะไรน่ากังวลอื่นแล้ว** — ไม่ต้อง over-audit ซ้ำรอบหน้าเว้นแต่เจอความผิดปกติจริง
 
 ### 📂 Working folder requirement (Doc Fee Agent)
-- โฟลเดอร์หลัก: `RMN-eBidding-Workflow` (mounted จาก `C:\Users\Advice\OneDrive\Claude\Projects\RMN-eBidding-Workflow`)
+- โฟลเดอร์หลัก: `RMN-eBidding-Workflow` (connect โฟลเดอร์ `C:\Repos` → `C:\Repos\RMN-eBidding-Workflow` · OneDrive clone = retired/ว่าง — DA 09-25)
 - ไฟล์ที่แก้ได้เต็มสิทธิ์: `doc_fees.json`, `doc_fee_queue.json` (แก้/ลบได้ทั้งคู่ — ต่างจาก Operating ที่ append/read เท่านั้น), `WRK_AGENTS/WRK_FEE_PAYMENT.md` (ไฟล์นี้เอง)
 - ไฟล์อ่านอย่างเดียว: `seed_bids.js`, `WRK_AGENTS/WRK_OPERATING.md` (ทั้งคู่ของ Operating Agent — ห้ามเขียนทับอีก)
 - script ที่ต้องใช้: `WRK_AGENTS/scripts/generate_fee_pdf_fixed.py` (ห้ามใช้ตัวเก่าใน .claude/skills)

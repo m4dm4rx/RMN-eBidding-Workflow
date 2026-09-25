@@ -117,7 +117,7 @@ scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห
 - ⛔ **ห้ามรัน git ผ่าน `device_bash` เด็ดขาด** (CLAUDE.md ข้อ 18) — VM ไม่มี network + ลบ `.lock` ไม่ได้ · device_bash = อ่าน/แก้ไฟล์เท่านั้น
 - **git ทั้งหมด (add/commit/push) รันผ่าน Windows-MCP PowerShell**:
   ```
-  $r="$env:USERPROFILE\OneDrive\Claude\Projects\RMN-eBidding-Workflow"
+  $r="C:\Repos\RMN-eBidding-Workflow"
   Remove-Item "$r\.git\HEAD.lock","$r\.git\index.lock" -Force -ErrorAction SilentlyContinue
   git -C $r add <file>; git -C $r commit -m "msg"; git -C $r push
   git -C $r rev-parse --short HEAD; git -C $r rev-parse --short origin/main
@@ -131,13 +131,13 @@ scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห
   ถ้า commit ถูก reject เพราะ mtime drift = **ไฟล์ถูกแก้จริง** → re-stage แล้วรวมงานใหม่ ห้าม force ทับ
 
 ### 📂 Working folder / scope
-- หลัก: `C:\Users\Advice\OneDrive\Claude\Projects\RMN-eBidding-Workflow`
+- หลัก: `C:\Repos\RMN-eBidding-Workflow` (connect โฟลเดอร์ `C:\Repos` · ⛔ `OneDrive\Claude\Projects\...` = retired/ว่าง ห้ามใช้ — DA 09-25 ตามคำสั่ง Marx)
 - แก้ได้: `seed_bids.js` · `doc_fee_queue.json` · **`doc_fees.json` (เขียนได้แล้ว 2026-09-02)** · `WRK_AGENTS\WRK_OPERATING.md`
 - อ่านอย่างเดียว: `WRK_OPERATING_ARCHIVE_2569H2.md`
 - ห้ามแตะ: `rmn_ebidding_tracker_2.html`, `*.skill` ทั้งหมด, ไฟล์ของ agent อื่น
 
 **📄 ปลายทาง PDF ใบแจ้งชำระค่าเอกสาร (ยืนยันจาก user 2569-08-27) — ห้ามทิ้งไว้ในโฟลเดอร์โปรเจกต์:**
-`C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\`
+`C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` · ⚠️ (DA 09-25) ปลายทางนี้จะย้ายไป Google Drive (RMN-18) — จนกว่า DA จะแจ้ง path ใหม่ ใช้ path นี้ต่อ
 ชื่อไฟล์: `ใบแจ้งชำระเงินค่าซื้อเอกสาร_<ชื่อหน่วยงานเต็ม>_<id>.pdf` (ชื่อเต็ม ใช้ `_` ไม่ใช่ `.` — ตาม convention ไฟล์เดิมในโฟลเดอร์)
 โฟลเดอร์นี้ **ไม่ได้ connect เป็น default** → เรียก `device_request_folder_access` ครั้งเดียวต่อ session
 ⚠️ skill `fee-payment` ยังชี้ path เก่า (E-BIDDING/Log fallback Downloads) — **OPY แก้ skill เองไม่ได้** · workaround: สร้าง PDF ในคอนเทนเนอร์ → `SendUserFile` → `device_commit_files` ไป Log folder ด้วยมือ

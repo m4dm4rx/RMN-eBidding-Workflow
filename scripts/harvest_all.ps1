@@ -1,5 +1,5 @@
 ﻿# harvest_all.ps1 — ไล่ทุก dataset สัญญา 2558-2568 แล้วเขียนสถานะลง _tmp_harvest.log
-$w = Join-Path $env:USERPROFILE "OneDrive\Claude\Projects\RMN-eBidding-Workflow"
+$w = "C:\Repos\RMN-eBidding-Workflow"
 $out = Join-Path $w "_tmp_harvest.jsonl"
 $log = Join-Path $w "_tmp_harvest.log"
 Remove-Item $out,$log -Force -ErrorAction SilentlyContinue

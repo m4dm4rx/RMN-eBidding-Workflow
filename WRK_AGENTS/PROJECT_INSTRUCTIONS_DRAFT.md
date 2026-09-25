@@ -18,7 +18,7 @@ WRK root: RMN-eBidding-Workflow\WRK_AGENTS\
 
 ทุก agent อ่านเพิ่มเสมอ: RMN-eBidding-Workflow\WRK_AGENTS\CLAUDE.md (project rules)
 ถ้าไม่รู้ว่าเป็น agent ตัวไหน → ถาม user ก่อน ห้ามเดา
-ถ้ายังไม่เชื่อมโฟลเดอร์ในเครื่องนี้ → แจ้ง user ให้เชื่อม RMN-eBidding-Workflow (OneDrive) ก่อนเป็นอันดับแรก แล้วอ่านไฟล์ข้างต้นทันที
+ถ้ายังไม่เชื่อมโฟลเดอร์ในเครื่องนี้ → แจ้ง user ให้เชื่อมโฟลเดอร์ C:\Repos (repo อยู่ที่ C:\Repos\RMN-eBidding-Workflow — ห้ามใช้ OneDrive) ก่อนเป็นอันดับแรก แล้วอ่านไฟล์ข้างต้นทันที
 
 Core Rules (ทุก agent):
 1. + - คำนวณ usage ก่อนทุก Edit — ถ้า context ไม่พอ ห้าม Edit แจ้ง user แทน

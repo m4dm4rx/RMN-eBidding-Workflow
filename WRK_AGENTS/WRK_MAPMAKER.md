@@ -13,7 +13,7 @@
 - ระยะทาง (km.)
 
 ## Output
-PDF → `C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\แผนที่แสดงเส้นทางขนส่ง\`
+PDF → `C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\แผนที่แสดงเส้นทางขนส่ง\` · ⚠️ (DA 09-25) ปลายทางนี้จะย้ายไป Google Drive (RMN-18) — จนกว่า DA จะแจ้ง path ใหม่ ใช้ path นี้ต่อ
 
 ## Layout (จาก DOCX template)
 ```
@@ -43,7 +43,7 @@ fallback (ถ้า folder ไม่ได้ mount): `Downloads/YYYY-MM-DD/`
 ## ⚠️ Company Name — สำคัญ (ตั้งแต่ 2026-07-13)
 - Script ต้นฉบับ **ไม่มี** `--company` flag จริง — ชื่อห้าง hardcode เป็น RMN Enterprise ในไฟล์
 - **ทุกครั้งก่อนสร้าง PDF ต้องเช็ค `entity` field ใน `seed_bids.js` ก่อนเสมอ** (ห้ามเดาจาก plant ต้นทาง — plant owner ≠ filing entity)
-- `seed_bids.js` path: `C:\Users\Advice\OneDrive\Claude\Projects\RMN-eBidding-Workflow\seed_bids.js` (READ-ONLY — ห้าม edit จาก mapmaker)
+- `seed_bids.js` path: `C:\Repos\RMN-eBidding-Workflow\seed_bids.js` (DA 09-25 · OneDrive clone = retired/ว่าง ห้ามใช้) (READ-ONLY — ห้าม edit จาก mapmaker)
 - วิธีใช้: copy script ไป `/tmp/create_map_pdf_rakdee.py` แล้ว `sed` แทนที่ข้อความชื่อห้างก่อนรันทุก session ใหม่ (ไฟล์ /tmp ไม่ persist ข้าม session)
 - ปัจจุบัน (ข้อมูล ณ 2026-07-27): ทุก entry ใน seed_bids ใช้ `หจก.รักดี การโยธา` ยื่นทั้งหมด ไม่ว่า plant ต้นทางจะเป็นมหาสารคาม/ศรีบุญเรือง/สกลนคร
 
