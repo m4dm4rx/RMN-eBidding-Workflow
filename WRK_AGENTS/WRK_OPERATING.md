@@ -9,6 +9,7 @@
 ## 🎯 Task Scope
 รับข้อมูลการประมูล → เพิ่ม/แก้ `seed_bids.js` → widget card + diff → commit + push เอง
 อ่าน annoudoc PDF → ตรวจค่าซื้อเอกสาร → append `doc_fee_queue.json` → **ทำ fee-payment เองทั้งเส้นจนปิด `doc_fees.json`**
+ทำ **PDF แผนที่เส้นทาง** เองทั้งเส้น (โหลด skill `mapmaker` · รับจาก MM 2026-09-25) → ดู § MM agent
 
 ---
 
@@ -94,6 +95,11 @@ scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห
 สิ่งที่ OPY รับมาเพิ่ม: รับสลิป → ยืนยันเลขบัญชีจากสลิป (**ยึดสลิปเสมอ** เช่น SEQ166 สลิป 404-6-21164-4 vs ประกาศ 406-2-61616-4) → PDF → ส่งตาม submitMethod → ปิด `doc_fees.json` → monitor queue เอง
 ยังห้ามแตะ: ไฟล์ skill `*.skill` ทั้งหมด
 
+## 🗺️ MM agent — DISABLED 2026-09-25 (มติ King Marx · แบบเดียวกับ DOC)
+scope แผนที่ **โอนมาที่ OPY ทั้งหมด** — ห้าม route/dispatch งานไป MM · ไฟล์ `KB_MAPMAKER.md`/`WRK_MAPMAKER.md`/`maps/MAPMAKER.md` เก็บไว้ ห้ามลบ
+เหตุผล: ใช้จริงเหลือ OPY+MM · MM ต้องอ่าน `seed_bids.js` ซ้ำเพื่อหา entity ที่ OPY มีในมืออยู่แล้ว · ลดจาก 2 แชทเหลือ 1
+วิธีทำ: โหลด skill `mapmaker` ในเซสชันนี้ · **อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ก่อนทุกครั้ง** · ชื่อห้างใน PDF = `entity` ใน `seed_bids.js` ห้ามเดาจาก plant · log แผนที่เขียนต่อใน `WRK_MAPMAKER.md`
+
 ---
 
 ## 🎨 Widget Reporting Rules
@@ -132,7 +138,7 @@ scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห
 
 ### 📂 Working folder / scope
 - หลัก: `C:\Repos\RMN-eBidding-Workflow` (connect โฟลเดอร์ `C:\Repos` · ⛔ `OneDrive\Claude\Projects\...` = retired/ว่าง ห้ามใช้ — DA 09-25 ตามคำสั่ง Marx)
-- แก้ได้: `seed_bids.js` · `doc_fee_queue.json` · **`doc_fees.json` (เขียนได้แล้ว 2026-09-02)** · `WRK_AGENTS\WRK_OPERATING.md`
+- แก้ได้: `seed_bids.js` · `doc_fee_queue.json` · **`doc_fees.json` (เขียนได้แล้ว 2026-09-02)** · `WRK_AGENTS\WRK_OPERATING.md` · **`WRK_AGENTS\WRK_MAPMAKER.md` (log แผนที่ · 2026-09-25)**
 - อ่านอย่างเดียว: `WRK_OPERATING_ARCHIVE_2569H2.md`
 - ห้ามแตะ: `rmn_ebidding_tracker_2.html`, `*.skill` ทั้งหมด, ไฟล์ของ agent อื่น
 

@@ -12,6 +12,7 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 ## 📢 ประกาศถึงทุก agent — **อ่านก่อนเริ่มงานทุกครั้ง**
 > 🔴 **DA ต้องเขียนที่นี่ทุกครั้งที่เปลี่ยน registry/ownership/กฎร่วม — ในรอบ commit เดียวกัน** · ไม่ประกาศ = agent อื่นตัดสินใจซ้อนกันเอง (เกิดจริง 09-03: OPY ไม่รู้ว่า DB ปลด) · เก่ากว่า 30 วัน → `CLAUDE_ARCHIVE_*.md`
 
+- **09-25 · 🗺️ MM DISABLED → OPY รับ scope แผนที่ทั้งหมด (มติ King Marx · แบบเดียวกับ DOC 09-02)** — OPY โหลด skill `mapmaker` ในเซสชันเดียวกัน · ⛔ ห้าม dispatch/subagent · ก่อนทำแผนที่อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ทุกครั้ง · e-Bidding ใช้จริง = **OPY ตัวเดียว**
 - **09-07 · 👑 naming model ใหม่ (มติ King Marx)** — ฝั่ง GPT = **`Lord COMMANDER of GPT`** · `COMMANDER GATEWAY` = ชื่อห้องแชทตั้งต้น/จุดรับเรื่อง **ไม่ใช่ตำแหน่ง** · `Grand Maester` = **retired** · Codex เรียกตามหน้าที่ **`Codex / Technical Execution`** · `Lord` = ผู้ดูแลอาณาจักร/ระบบของตน · ชื่อเก่าในบันทึกเดิม **คงไว้** แต่ Raven/เอกสาร/แผนผังที่เป็น **current ต้องใช้ชื่อใหม่**
 - **09-07 · 👑 Raven = บล็อกเดียว copy ได้ + user กดส่ง = ยืนยันแล้ว** — King Marx กดส่ง Raven = ยืนยันเจตนา/ความถูกต้อง **ไม่ต้องขอยืนยันซ้ำ** · **ผู้ตัดสินเมื่อ 2 ฝั่งขัดกัน = King Marx เท่านั้น** · agent เสนอหลักฐานครบ 2 ด้าน **ห้ามตัดสินแทน**
 - **09-07 · 💰 Finance Capture v1 = ระบบใหม่ แยกจาก e-Bidding โดยสิ้นเชิง** — `LINE → Cloud Run → Drive + hidden Sheet` · เจ้าของโค้ด/config = **Lord DA** · เจ้าของ Cloud resource ทุกตัว = **King Marx** (ตาราง 2 ชั้นอยู่ใน `KB_ECOSYSTEM_ADMIN.md § 💰`) · ⛔ **ห้ามอ้างอิงข้อมูล Finance Capture จาก repo public / Pages / tracker ทุกกรณี** — สลิปมีเลขบัญชี+ชื่อ = Rule 19 เต็มตัว · ที่ส่งออกได้คือ `[ยอด · วันที่ · ประเภท · record_id]` เท่านั้น
@@ -126,8 +127,8 @@ git -C $r rev-parse --short HEAD; git -C $r rev-parse --short origin/main
 แต่ละ agent มีหน้าที่เดียวเท่านั้น — ห้ามรับงานนอกขอบเขต
 | Agent | แก้ได้ | ห้ามแตะ |
 |---|---|---|
-| MAPMAKER | PDF แผนที่ | อื่นทั้งหมด |
-| BIDDING OPERATING | `seed_bids.js` · **`doc_fee_queue.json`** · **`doc_fees.json`** | tracker HTML |
+| ~~MAPMAKER~~ | 🚫 **DISABLED 2026-09-25** (มติ King Marx) — scope แผนที่โอนเข้า OPY ทั้งหมด · ห้าม route งานมา · ไฟล์ `KB_MAPMAKER.md`/`WRK_MAPMAKER.md`/`maps/MAPMAKER.md` เก็บไว้ ห้ามลบ | — |
+| BIDDING OPERATING | `seed_bids.js` · **`doc_fee_queue.json`** · **`doc_fees.json`** · **PDF แผนที่ (skill `mapmaker`)** | tracker HTML |
 | UI/UX EDITOR | tracker HTML (UI/CSS/layout/logic) | `DOC_FEES` array, fetch URL |
 | ~~E-BIDDING DOC FEE~~ | 🚫 **DISABLED 2026-09-02** — ห้าม route งานมา · ไฟล์ `KB_FEE_PAYMENT.md`/`WRK_FEE_PAYMENT.md` เก็บไว้ ห้ามลบ | — |
 
