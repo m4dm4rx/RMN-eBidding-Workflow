@@ -83,26 +83,12 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 
 ---
 
-## 🏛️ ระเบียบ กวจ. ว.515 (16 ก.ค. 2569)
-- 2 ทาง: **bank_transfer** (โอนเข้าบัญชีหน่วยงาน) / **bill_payment** (KTB Corporate — Company Code + Ref.1 เลขผู้เสียภาษี + Ref.2 เบอร์โทร)
-- ส่งหลักฐาน: default **e-GP** · อ่านประกาศทุกครั้ง (`email`/`e-GP`/`both`) · สร้าง PDF ใบแจ้งชำระ (ฝังสลิป) เสมอแม้แนบ e-GP
-- ⚠️ บางประกาศบังคับจ่าย **"ในวันและเวลาเสนอราคา" เท่านั้น** (จ่ายก่อน/หลัง = ตัดสิทธิ์) เช่น 69069484638 — อ่านข้อ ๔.๘(๖) ให้ครบ
-
----
-
-## ⚖️ DOC agent — DISABLED 2026-09-02 (CLAUDE.md `8c46853`)
-scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห้าม route/dispatch งานไป DOC · ไฟล์ `KB_FEE_PAYMENT.md`/`WRK_FEE_PAYMENT.md` เก็บไว้ ห้ามลบ
-เหตุผล: ไม่มีคนเปิด session DOC เลย (WRK แก้ครั้งสุดท้าย 04-08-69) → queue ค้างขั้น "รอ DOC ปิด" ตายเงียบ
-สิ่งที่ OPY รับมาเพิ่ม: รับสลิป → ยืนยันเลขบัญชีจากสลิป (**ยึดสลิปเสมอ** เช่น SEQ166 สลิป 404-6-21164-4 vs ประกาศ 406-2-61616-4) → PDF → ส่งตาม submitMethod → ปิด `doc_fees.json` → monitor queue เอง
-ยังห้ามแตะ: ไฟล์ skill `*.skill` ทั้งหมด
-
-## 🗺️ MM agent — DISABLED 2026-09-25 (มติ King Marx · แบบเดียวกับ DOC)
-scope แผนที่ **โอนมาที่ OPY ทั้งหมด** — ห้าม route/dispatch งานไป MM · ไฟล์ `KB_MAPMAKER.md`/`WRK_MAPMAKER.md`/`maps/MAPMAKER.md` เก็บไว้ ห้ามลบ
-เหตุผล: ใช้จริงเหลือ OPY+MM · MM ต้องอ่าน `seed_bids.js` ซ้ำเพื่อหา entity ที่ OPY มีในมืออยู่แล้ว · ลดจาก 2 แชทเหลือ 1
-วิธีทำ: โหลด skill `mapmaker` ในเซสชันนี้ · **อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ก่อนทุกครั้ง** · ชื่อห้างใน PDF = `entity` ใน `seed_bids.js` ห้ามเดาจาก plant · log แผนที่เขียนต่อใน `WRK_MAPMAKER.md`
-
----
-
+## 🧭 OPY = super agent (รับ scope DOC 2026-09-02 + MM 2026-09-25)
+- **ค่าเอกสาร**: รับสลิป → **ยึดเลขบัญชีจากสลิปเสมอ** (SEQ166 สลิป 404-6-21164-4 vs ประกาศ 406-2-61616-4) → PDF → ส่งตาม submitMethod → ปิด `doc_fees.json` → monitor queue เอง
+- **แผนที่**: โหลด skill `mapmaker` · **อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ก่อนทุกครั้ง** · ชื่อห้างใน PDF = `entity` ใน `seed_bids.js` ห้ามเดาจาก plant · log ต่อใน `WRK_MAPMAKER.md`
+- ห้าม route/dispatch งานไป DOC/MM · ไฟล์ KB/WRK ของทั้งคู่เก็บไว้ ห้ามลบ · ยังห้ามแตะ `*.skill`
+- ⛔ งานแก้ระบบทุกอย่าง → แจ้ง Marx เปิดงานใน Linear (OPY ไม่แก้ระบบ)
+> ระเบียบ กวจ. ว.515 + เหตุผลการปิด DOC/MM ฉบับเต็ม → `WRK_OPERATING_ARCHIVE_2569H2.md` (block 2569-09-26)
 ## 🎨 Widget Reporting Rules
 ทุก SEQ ใหม่ → widget การ์ด **คู่กับ diff เสมอ** (diff = source of truth แสดงทีละบรรทัด · widget = อ่านง่าย)
 **🔒 การ์ดเดียวรวมทุกอย่าง** (user 2569-08-27 · ย้ำ 2569-09-02) ห้ามแยกการ์ดที่สองเด็ดขาด · สะสมทุกส่วน ห้ามตัดของเดิมทิ้ง
@@ -151,11 +137,6 @@ scope แผนที่ **โอนมาที่ OPY ทั้งหมด** 
 
 ---
 
-> ประวัติ session ก่อน 2569-08-28 → `WRK_OPERATING_ARCHIVE_2569H2.md` + git log · ชื่อเรียก agent = **"OPY"**
-
----
-
-> 📄 **Session State + Pending ย้ายไปไฟล์แยก → `WRK_AGENTS/WRK_OPERATING_STATE.md`** (แยก 2569-09-03 หลัง DB ปิดตัว)
-> ไฟล์นี้ = **กฎอย่างเดียว** เพดาน 20 KB ยังบังคับ · state โตได้อิสระในไฟล์ state (เพดาน 20 KB เช่นกัน เกินแล้ว archive ท้ายสุดออก)
-> เปิด session: อ่าน **ทั้งสองไฟล์** เสมอ (กฎ + state)
+> ไฟล์นี้ = **กฎอย่างเดียว** เพดาน 20 KB · Session State + Pending → `WRK_AGENTS/WRK_OPERATING_STATE.md` (เพดาน 20 KB เช่นกัน)
+> **เปิด session: อ่านทั้งสองไฟล์เสมอ** · ประวัติก่อน 2569-08-28 → `WRK_OPERATING_ARCHIVE_2569H2.md` + git log
 

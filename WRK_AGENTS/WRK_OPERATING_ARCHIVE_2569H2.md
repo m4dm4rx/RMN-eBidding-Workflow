@@ -340,3 +340,28 @@ Session state ของ Doc Fee Agent ที่เคยบันทึกผิ
 4. **Widget contrast (ยืนยันจาก user)**: ราคายื่นใช้กล่อง `#FAC775` + ตัวเลข `#412402` 28px (hex ตายตัว ห้ามพึ่ง `var(--bg-warning)` ที่พลิกใน dark mode) · เลขที่โครงการ 20px/500 text-primary + badge `SEQ n` ฟ้า (`#B5D4F4`/`#0C447C`) · ชื่อหน่วยงานเต็ม 17px/500 text-primary
 5. `.git/index.lock` ยังค้างบ่อย — sandbox ลบได้แล้วหลังเรียก `allow_cowork_file_delete` ครั้งเดียว (สิทธิ์ค้างทั้ง session) ไม่ต้องรบกวน user
 6. ห้าม `git add .` — ยังมีไฟล์ agent อื่นค้าง uncommitted (`WRK_AGENTS/WRK_MAPMAKER.md`, `PROJECT_INSTRUCTIONS_DRAFT.md`, `SKILL_build.md`, `SKILL_ebidding.md`) ให้ระบุชื่อไฟล์เสมอ
+
+---
+
+# 📦 ตัดออกจาก WRK_OPERATING.md — 2569-09-26 (เพดาน 20 KB)
+> ย้ายมาแบบ verbatim ตอน OPY กลายเป็น super agent · ไฟล์ทำงานเหลือสรุป 5 บรรทัดแทน
+
+## 🏛️ ระเบียบ กวจ. ว.515 (16 ก.ค. 2569)
+- 2 ทาง: **bank_transfer** (โอนเข้าบัญชีหน่วยงาน) / **bill_payment** (KTB Corporate — Company Code + Ref.1 เลขผู้เสียภาษี + Ref.2 เบอร์โทร)
+- ส่งหลักฐาน: default **e-GP** · อ่านประกาศทุกครั้ง (`email`/`e-GP`/`both`) · สร้าง PDF ใบแจ้งชำระ (ฝังสลิป) เสมอแม้แนบ e-GP
+- ⚠️ บางประกาศบังคับจ่าย **"ในวันและเวลาเสนอราคา" เท่านั้น** (จ่ายก่อน/หลัง = ตัดสิทธิ์) เช่น 69069484638 — อ่านข้อ ๔.๘(๖) ให้ครบ
+
+---
+
+## ⚖️ DOC agent — DISABLED 2026-09-02 (CLAUDE.md `8c46853`)
+scope fee-payment **โอนมาที่ OPY ทั้งหมด** — ห้าม route/dispatch งานไป DOC · ไฟล์ `KB_FEE_PAYMENT.md`/`WRK_FEE_PAYMENT.md` เก็บไว้ ห้ามลบ
+เหตุผล: ไม่มีคนเปิด session DOC เลย (WRK แก้ครั้งสุดท้าย 04-08-69) → queue ค้างขั้น "รอ DOC ปิด" ตายเงียบ
+สิ่งที่ OPY รับมาเพิ่ม: รับสลิป → ยืนยันเลขบัญชีจากสลิป (**ยึดสลิปเสมอ** เช่น SEQ166 สลิป 404-6-21164-4 vs ประกาศ 406-2-61616-4) → PDF → ส่งตาม submitMethod → ปิด `doc_fees.json` → monitor queue เอง
+ยังห้ามแตะ: ไฟล์ skill `*.skill` ทั้งหมด
+
+## 🗺️ MM agent — DISABLED 2026-09-25 (มติ King Marx · แบบเดียวกับ DOC)
+scope แผนที่ **โอนมาที่ OPY ทั้งหมด** — ห้าม route/dispatch งานไป MM · ไฟล์ `KB_MAPMAKER.md`/`WRK_MAPMAKER.md`/`maps/MAPMAKER.md` เก็บไว้ ห้ามลบ
+เหตุผล: ใช้จริงเหลือ OPY+MM · MM ต้องอ่าน `seed_bids.js` ซ้ำเพื่อหา entity ที่ OPY มีในมืออยู่แล้ว · ลดจาก 2 แชทเหลือ 1
+วิธีทำ: โหลด skill `mapmaker` ในเซสชันนี้ · **อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ก่อนทุกครั้ง** · ชื่อห้างใน PDF = `entity` ใน `seed_bids.js` ห้ามเดาจาก plant · log แผนที่เขียนต่อใน `WRK_MAPMAKER.md`
+
+---
