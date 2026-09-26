@@ -2354,6 +2354,7 @@ const App = (() => {
     _setField('f-id',       b.id       ?? '');
     _setField('f-name',     b.name     ?? '');
     _setField('f-date',     b.date     ?? '');
+    _setField('f-agency',   b.agency   ?? '');
     _setField('f-province', b.province ?? '');
     _setField('f-budget',   b.budget   ?? 0);
     _setField('f-midprice',   b.midPrice   ?? 0);
@@ -2368,7 +2369,12 @@ const App = (() => {
     _setField('f-worktype',   b.workType   ?? '');
     _setField('f-plant',      b.plant      ?? '');
     _setField('f-plantdist',  b.plantDist  ?? '');
-    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    const entitySelect = document.getElementById('f-entity');
+    const entity = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    if (entity && ![...entitySelect.options].some(o => o.value === entity)) {
+      entitySelect.add(new Option(entity, entity));
+    }
+    entitySelect.value = entity;
     document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
   }
