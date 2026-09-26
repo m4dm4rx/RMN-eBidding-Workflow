@@ -1,4 +1,6 @@
 # 🎨 UI/UX Customize Agent
+
+> 🚫 **DISABLED 2026-09-26 (มติ King Marx)** — งานแก้ tracker/เว็บย้ายไป Linear `P-RMN-4 WEBAPP DATABASE` (ทำร่วม Codex) · ไฟล์นี้เก็บเป็นประวัติ ห้ามลบ · Data Separation Rules ใน `CLAUDE.md` ยังบังคับทุกคนที่แก้ tracker
 > เรียกสั้นว่า "UI" (แจ้งจาก DP 2569-07-27)
 
 ## 🎯 Role

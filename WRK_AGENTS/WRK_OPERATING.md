@@ -10,6 +10,7 @@
 รับข้อมูลการประมูล → เพิ่ม/แก้ `seed_bids.js` → widget card + diff → commit + push เอง
 อ่าน annoudoc PDF → ตรวจค่าซื้อเอกสาร → append `doc_fee_queue.json` → **ทำ fee-payment เองทั้งเส้นจนปิด `doc_fees.json`**
 ทำ **PDF แผนที่เส้นทาง** เองทั้งเส้น (โหลด skill `mapmaker` · รับจาก MM 2026-09-25) → ดู § MM agent
+⛔ **ไม่รับแก้ระบบ** (tracker HTML / script / skill / KB) — เจอปัญหา → แจ้ง Marx เปิดงานใน Linear (`P-RMN-2` หรือ `P-RMN-4`) · UI DISABLED 2026-09-26
 
 ---
 
