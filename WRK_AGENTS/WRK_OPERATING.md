@@ -130,7 +130,7 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 - ห้ามแตะ: `rmn_ebidding_tracker_2.html`, `*.skill` ทั้งหมด, ไฟล์ของ agent อื่น
 
 **📄 ปลายทาง PDF ใบแจ้งชำระค่าเอกสาร (ยืนยันจาก user 2569-08-27) — ห้ามทิ้งไว้ในโฟลเดอร์โปรเจกต์:**
-`C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` · ⚠️ (DA 09-25) ปลายทางนี้จะย้ายไป Google Drive (RMN-18) — จนกว่า DA จะแจ้ง path ใหม่ ใช้ path นี้ต่อ
+`H:\Shared drives\RMN Company Documents\Log\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ
 ชื่อไฟล์: `ใบแจ้งชำระเงินค่าซื้อเอกสาร_<ชื่อหน่วยงานเต็ม>_<id>.pdf` (ชื่อเต็ม ใช้ `_` ไม่ใช่ `.` — ตาม convention ไฟล์เดิมในโฟลเดอร์)
 โฟลเดอร์นี้ **ไม่ได้ connect เป็น default** → เรียก `device_request_folder_access` ครั้งเดียวต่อ session
 ⚠️ skill `fee-payment` ยังชี้ path เก่า (E-BIDDING/Log fallback Downloads) — **OPY แก้ skill เองไม่ได้** · workaround: สร้าง PDF ในคอนเทนเนอร์ → `SendUserFile` → `device_commit_files` ไป Log folder ด้วยมือ

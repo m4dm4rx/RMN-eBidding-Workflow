@@ -13,7 +13,7 @@
 - ระยะทาง (km.)
 
 ## Output
-PDF → `C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\แผนที่แสดงเส้นทางขนส่ง\` · ⚠️ (DA 09-25) ปลายทางนี้จะย้ายไป Google Drive (RMN-18) — จนกว่า DA จะแจ้ง path ใหม่ ใช้ path นี้ต่อ
+PDF → `H:\Shared drives\RMN Company Documents\Log\แผนที่แสดงเส้นทางขนส่ง\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ (Windows path บนเครื่องนี้เท่านั้น)
 
 ## Layout (จาก DOCX template)
 ```
@@ -28,7 +28,7 @@ PDF → `C:\Users\Advice\OneDrive\[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE\Log\�
 ```
 
 ## Output Path (Mounted)
-`[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE/Log/แผนที่แสดงเส้นทางขนส่ง/`
+`[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE/Log/แผนที่แสดงเส้นทางขนส่ง/` ⚠️ ค่าเดิม — ในเซสชัน Cowork/sandbox ที่ mount Google Drive ผ่าน device tools ชื่อ mount point ที่แท้จริงยังไม่ verify (ต้องเช็คตอนเริ่ม session จริงว่า mount มาเป็นชื่ออะไร เช่น `RMN Company Documents/Log/...`) — Windows path ตรงบนเครื่องคือ `H:\Shared drives\RMN Company Documents\Log\แผนที่แสดงเส้นทางขนส่ง\` (ยืนยันแล้ว 2026-09-27)
 fallback (ถ้า folder ไม่ได้ mount): `Downloads/YYYY-MM-DD/`
 
 ## Tech Stack

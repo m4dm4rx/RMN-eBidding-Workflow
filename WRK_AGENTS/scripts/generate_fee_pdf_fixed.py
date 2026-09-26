@@ -260,7 +260,24 @@ def _find_log_dir() -> bytes:
                     return mnt_b  # save_pdf scandir will find the subfolder
         except OSError:
             pass
-    # Pattern 1: [EGP]_E-BIDDING* (main DB folder)
+    # Pattern 0.5 (2026-09-27, RMN-18): Google Drive shared-drive mount ---
+    # top-level mount name is now the Shared Drive's own name (e.g. "RMN Company Documents"),
+    # not "[EGP]_E-BIDDING...". Target subfolder sits two levels down: <mount>/Log/<marker>.
+    for mnt in glob.glob('/sessions/*/mnt/*/'):
+        mnt_b = mnt.encode('utf-8').rstrip(b'/')
+        try:
+            for entry in os.scandir(mnt_b):
+                if entry.is_dir() and entry.name == b'Log':
+                    try:
+                        for sub in os.scandir(entry.path):
+                            if _SUBFOLDER_MARKER in sub.name:
+                                print('  [OK] Found via Google Drive mount (RMN-18) -- saving there')
+                                return entry.path
+                    except OSError:
+                        pass
+        except OSError:
+            pass
+    # Pattern 1: [EGP]_E-BIDDING* (legacy OneDrive main DB folder, kept as fallback)
     for p in glob.glob('/sessions/*/mnt/[[]EGP[]]*E-BIDDING*/Log/'):
         return p.encode('utf-8').rstrip(b'/')
     # Pattern 2: any mounted */E-BIDDING/Log/

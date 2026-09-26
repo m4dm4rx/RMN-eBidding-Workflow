@@ -174,7 +174,7 @@ Fields:
 - ไฟล์ที่แก้ได้เต็มสิทธิ์: `doc_fees.json`, `doc_fee_queue.json` (แก้/ลบได้ทั้งคู่ — ต่างจาก Operating ที่ append/read เท่านั้น), `WRK_AGENTS/WRK_FEE_PAYMENT.md` (ไฟล์นี้เอง)
 - ไฟล์อ่านอย่างเดียว: `seed_bids.js`, `WRK_AGENTS/WRK_OPERATING.md` (ทั้งคู่ของ Operating Agent — ห้ามเขียนทับอีก)
 - script ที่ต้องใช้: `WRK_AGENTS/scripts/generate_fee_pdf_fixed.py` (ห้ามใช้ตัวเก่าใน .claude/skills)
-- ต้องมี mount เพิ่ม: `[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE/Log/` (สำหรับ save PDF), `Downloads`/`uploads` (สำหรับหาสลิป)
+- ปลายทาง PDF: `H:\Shared drives\RMN Company Documents\Log\` (2026-09-27, ย้ายจาก OneDrive ตาม RMN-18) — mount ผ่าน `device_request_folder_access` (ยังไม่ default), `Downloads`/`uploads` (สำหรับหาสลิป)
 - Git: sandbox ไม่มี push credentials — commit ได้เอง, ต้องให้ user รัน `git push` จาก PowerShell เสมอ; ถ้าเจอ `.git/*.lock` ใช้ `allow_cowork_file_delete` ก่อน rm
 
 ### 🚀 Prompt เริ่ม session ถัดไป — Doc Fee Payment Agent (copy-paste ได้เลย)
