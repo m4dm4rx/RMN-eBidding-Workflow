@@ -13,7 +13,7 @@
 - ระยะทาง (km.)
 
 ## Output
-PDF → `H:\Shared drives\RMN Company Documents\Log\แผนที่แสดงเส้นทางขนส่ง\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ (Windows path บนเครื่องนี้เท่านั้น)
+PDF → `H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\แผนที่แสดงเส้นทางขนส่ง\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ (Windows path บนเครื่องนี้เท่านั้น)
 
 ## Layout (จาก DOCX template)
 ```
@@ -28,7 +28,7 @@ PDF → `H:\Shared drives\RMN Company Documents\Log\แผนที่แสด�
 ```
 
 ## Output Path (Mounted)
-`[EGP]_E-BIDDING - [R.M.N_GROUP]_DATABASE/Log/แผนที่แสดงเส้นทางขนส่ง/` ⚠️ ค่าเดิม — ในเซสชัน Cowork/sandbox ที่ mount Google Drive ผ่าน device tools ชื่อ mount point ที่แท้จริงยังไม่ verify (ต้องเช็คตอนเริ่ม session จริงว่า mount มาเป็นชื่ออะไร เช่น `RMN Company Documents/Log/...`) — Windows path ตรงบนเครื่องคือ `H:\Shared drives\RMN Company Documents\Log\แผนที่แสดงเส้นทางขนส่ง\` (ยืนยันแล้ว 2026-09-27)
+`<mount>/Workflow Logs/เอกสารประกอบการเสนอราคา/แผนที่แสดงเส้นทางขนส่ง/` ⚠️ ในเซสชัน Cowork/sandbox ที่ mount Google Drive ผ่าน device tools ชื่อ mount point ที่แท้จริงยังไม่ verify (ต้องเช็คตอนเริ่ม session จริงว่า mount มาเป็นชื่ออะไร เช่น `RMN Company Documents/Workflow Logs/...`) — Windows path ตรงบนเครื่องคือ `H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\แผนที่แสดงเส้นทางขนส่ง\` (ยืนยันแล้ว 2026-09-27)
 fallback (ถ้า folder ไม่ได้ mount): `Downloads/YYYY-MM-DD/`
 
 ## Tech Stack
@@ -48,7 +48,7 @@ fallback (ถ้า folder ไม่ได้ mount): `Downloads/YYYY-MM-DD/`
 - ปัจจุบัน (ข้อมูล ณ 2026-07-27): ทุก entry ใน seed_bids ใช้ `หจก.รักดี การโยธา` ยื่นทั้งหมด ไม่ว่า plant ต้นทางจะเป็นมหาสารคาม/ศรีบุญเรือง/สกลนคร
 
 ## ⚠️ Known Issues (2026-08-31)
-- `ls`/`cp` บน mount `$HOME/mnt/แผนที่แสดงเส้นทางขนส่ง` = **Input/output error** (ไฟล์เยอะ/OneDrive)
+- `ls`/`cp` บน mount `$HOME/mnt/แผนที่แสดงเส้นทางขนส่ง` = **Input/output error** (ไฟล์เยอะ/OneDrive — บันทึกเดิม; ปลายทางปัจจุบันดู ## Output)
   → ห้ามใช้ device_bash cp เข้า output folder. ใช้ `device_commit_files` ด้วย Windows path เต็มแทน
   → ตรวจไฟล์ในโฟลเดอร์ด้วย `device_list_dir` (ใช้ได้ปกติ)
 - ชื่อไฟล์ซ้ำ = ทับของเดิมเงียบๆ → **เช็ค device_list_dir ก่อน commit ทุกครั้ง** ถ้าซ้ำต่อท้าย `_<projectID>`

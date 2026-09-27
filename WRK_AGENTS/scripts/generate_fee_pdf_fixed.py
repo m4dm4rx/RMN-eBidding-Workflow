@@ -16,7 +16,7 @@ Config JSON fields:
     payer_name    : ชื่อผู้ชำระ
     payer_phone   : เบอร์โทร เช่น "087-223-5093"
     slip_path     : path ของไฟล์สลิป (PDF หรือ JPG)
-    log_dir       : path ของโฟลเดอร์ E-BIDDING/Log/ (string, แปลงเป็น bytes ใน script)
+    log_dir       : path โฟลเดอร์ปลายทาง — Drive .../Workflow Logs/เอกสารประกอบการเสนอราคา/ หรือโฟลเดอร์ ใบแจ้งการ... เอง (string, แปลงเป็น bytes ใน script)
 """
 
 import json
@@ -241,28 +241,55 @@ def generate_pdf(config: dict, slip_png: str, font_dir: Path) -> bytes:
 # b'ใบแจ้งการ' in UTF-8 — used to locate the target subfolder
 _SUBFOLDER_MARKER = b'\xe0\xb9\x83\xe0\xb8\x9a\xe0\xb9\x81\xe0\xb8\x88\xe0\xb9\x89\xe0\xb8\x87\xe0\xb8\x81\xe0\xb8\xb2\xe0\xb8\xa3'
 
+# RMN-18 (2026-09-27): official fee-slip destination = Google Drive "Workflow Logs"
+_DRIVE_FEE_DIR_WIN = r'H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา'
+
+
+def _warn_non_drive(where) -> None:
+    print('  WARNING: Drive folder "Workflow Logs/เอกสารประกอบการเสนอราคา/ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา" '
+          f'not found -- falling back to NON-Drive location: {where!r}')
+
+
 def _find_log_dir() -> bytes:
     """
     ค้นหา log_dir อัตโนมัติ ลำดับ:
-    0. /sessions/*/mnt/ — target folder (ใบแจ้งการ...) mount โดยตรง ← PRIORITY
+    A. Drive Windows path (_DRIVE_FEE_DIR_WIN) ถ้ามีอยู่จริง ← PRIORITY (RMN-18)
+    B. Drive mount: /sessions/*/mnt/[*/]Workflow Logs/*/ ที่มี subfolder ใบแจ้งการ...
+    --- ด้านล่าง = fallback เดิม (ยืนยันไม่ได้ว่าเป็น Drive) → print WARNING ---
+    0. /sessions/*/mnt/ — target folder (ใบแจ้งการ...) mount โดยตรง
+    0.5 /sessions/*/mnt/*/Log/ (path RMN-18 รอบแรก — ไม่มีอยู่จริงบน Drive)
     1. /sessions/*/mnt/[EGP]_E-BIDDING*/Log/
     2. /sessions/*/mnt/*/E-BIDDING/Log/
     3. /sessions/*/mnt/Downloads/ (fallback)
     """
     import glob
+    # Pattern A: Drive folder on this Windows PC -> return its parent; save_pdf picks the subfolder
+    if os.path.isdir(_DRIVE_FEE_DIR_WIN):
+        print('  [OK] Drive Workflow Logs folder found -- saving there')
+        return os.path.dirname(_DRIVE_FEE_DIR_WIN).encode('utf-8')
+    # Pattern B: Drive mount -- <mount>/Workflow Logs/<any>/ใบแจ้งการ... (or Workflow Logs mounted directly)
+    for pat in ('/sessions/*/mnt/Workflow Logs/*/', '/sessions/*/mnt/*/Workflow Logs/*/'):
+        for p in sorted(glob.glob(pat)):
+            p_b = os.fsencode(p).rstrip(b'/')
+            try:
+                for entry in os.scandir(p_b):
+                    if entry.is_dir() and _SUBFOLDER_MARKER in entry.name:
+                        print('  [OK] Drive Workflow Logs mount found -- saving there')
+                        return p_b
+            except OSError:
+                pass
     # Pattern 0: target folder mounted directly under mnt/
     for mnt in glob.glob('/sessions/*/mnt/'):
         mnt_b = mnt.encode('utf-8').rstrip(b'/')
         try:
             for entry in os.scandir(mnt_b):
                 if _SUBFOLDER_MARKER in entry.name:
-                    print('  ✅ Target folder mounted directly — saving there')
+                    print('  WARNING: target folder mounted directly -- cannot verify it is the Drive Workflow Logs folder')
                     return mnt_b  # save_pdf scandir will find the subfolder
         except OSError:
             pass
-    # Pattern 0.5 (2026-09-27, RMN-18): Google Drive shared-drive mount ---
-    # top-level mount name is now the Shared Drive's own name (e.g. "RMN Company Documents"),
-    # not "[EGP]_E-BIDDING...". Target subfolder sits two levels down: <mount>/Log/<marker>.
+    # Pattern 0.5 (2026-09-27, RMN-18 first pass): <mount>/Log/<marker> -- wrong path (no 'Log' on Drive),
+    # kept only as a legacy fallback.
     for mnt in glob.glob('/sessions/*/mnt/*/'):
         mnt_b = mnt.encode('utf-8').rstrip(b'/')
         try:
@@ -271,7 +298,7 @@ def _find_log_dir() -> bytes:
                     try:
                         for sub in os.scandir(entry.path):
                             if _SUBFOLDER_MARKER in sub.name:
-                                print('  [OK] Found via Google Drive mount (RMN-18) -- saving there')
+                                _warn_non_drive(entry.path)
                                 return entry.path
                     except OSError:
                         pass
@@ -279,13 +306,15 @@ def _find_log_dir() -> bytes:
             pass
     # Pattern 1: [EGP]_E-BIDDING* (legacy OneDrive main DB folder, kept as fallback)
     for p in glob.glob('/sessions/*/mnt/[[]EGP[]]*E-BIDDING*/Log/'):
+        _warn_non_drive(p)
         return p.encode('utf-8').rstrip(b'/')
     # Pattern 2: any mounted */E-BIDDING/Log/
     for p in glob.glob('/sessions/*/mnt/*/E-BIDDING/Log/'):
+        _warn_non_drive(p)
         return p.encode('utf-8').rstrip(b'/')
     # Fallback: Downloads
     for p in glob.glob('/sessions/*/mnt/Downloads/'):
-        print('  ⚠️  E-BIDDING folder not mounted — saving in Downloads')
+        _warn_non_drive(p)
         return p.encode('utf-8').rstrip(b'/')
     raise RuntimeError('No suitable save directory found')
 
@@ -305,8 +334,10 @@ def save_pdf(data: bytes, config: dict) -> str:
 
     # Find Thai subfolder using bytes scandir (OneDrive encoding workaround)
     target_dir = None
+    if _SUBFOLDER_MARKER in os.path.basename(log_dir_bytes.rstrip(b'/\\')):
+        target_dir = log_dir_bytes  # explicit log_dir already IS the fee-slip folder
     try:
-        for entry in os.scandir(log_dir_bytes):
+        for entry in (os.scandir(log_dir_bytes) if target_dir is None else ()):
             if _SUBFOLDER_MARKER in entry.name:
                 target_dir = entry.path
                 break

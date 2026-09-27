@@ -26,13 +26,13 @@ TaskCreate · TaskUpdate · TaskList · AskUserQuestion · mcp__visualize__read_
 - **⚠️ ระยะห่างระหว่างบรรทัด "หลักฐานการชำระเงิน (สลิป) :" กับกรอบรูปสลิป = 1.0cm (ไม่ใช่ 0.4cm)**
 - **Font**: Sarabun + SarabunBold จาก `/tmp/` (download google/fonts ถ้าไม่มี)
 - **Engine**: reportlab inline script + fitz (PyMuPDF) แปลง slip PDF → PNG
-- **Save**: ใช้ bytes-path `os.scandir()` เพราะ OneDrive mount มี Thai filename encoding issue
+- **Save**: ใช้ bytes-path `os.scandir()` เพราะ mount (เดิม OneDrive · ตอนนี้ Drive) มี Thai filename encoding issue
 
 ### ชื่อไฟล์
 `ใบแจ้งชำระเงินค่าซื้อเอกสาร_[ชื่อย่อหน่วยงาน]_[เลขโครงการ].pdf`
 
 ### Save path
-`E-BIDDING/Log/ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา/`
+`H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` (RMN-18) · mount: `<mount>/Workflow Logs/เอกสารประกอบการเสนอราคา/ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา/`
 
 ---
 
@@ -73,7 +73,7 @@ TaskCreate · TaskUpdate · TaskList · AskUserQuestion · mcp__visualize__read_
 
 ## 🔧 Technical: Thai Filename Workaround
 ```python
-d = b'/sessions/.../mnt/E-BIDDING/Log/'
+d = '/sessions/.../mnt/<mount>/Workflow Logs/เอกสารประกอบการเสนอราคา/'.encode()
 for e in os.scandir(d):
     if b'\xe0\xb9\x83\xe0\xb8\x9a\xe0\xb9\x81\xe0\xb8\x88\xe0\xb9\x89\xe0\xb8\x87\xe0\xb8\x81\xe0\xb8\xb2\xe0\xb8\xa3' in e.name:
         target_dir = e.path; break
@@ -174,7 +174,7 @@ Fields:
 - ไฟล์ที่แก้ได้เต็มสิทธิ์: `doc_fees.json`, `doc_fee_queue.json` (แก้/ลบได้ทั้งคู่ — ต่างจาก Operating ที่ append/read เท่านั้น), `WRK_AGENTS/WRK_FEE_PAYMENT.md` (ไฟล์นี้เอง)
 - ไฟล์อ่านอย่างเดียว: `seed_bids.js`, `WRK_AGENTS/WRK_OPERATING.md` (ทั้งคู่ของ Operating Agent — ห้ามเขียนทับอีก)
 - script ที่ต้องใช้: `WRK_AGENTS/scripts/generate_fee_pdf_fixed.py` (ห้ามใช้ตัวเก่าใน .claude/skills)
-- ปลายทาง PDF: `H:\Shared drives\RMN Company Documents\Log\` (2026-09-27, ย้ายจาก OneDrive ตาม RMN-18) — mount ผ่าน `device_request_folder_access` (ยังไม่ default), `Downloads`/`uploads` (สำหรับหาสลิป)
+- ปลายทาง PDF: `H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` (2026-09-27, ย้ายจาก OneDrive ตาม RMN-18) — mount ผ่าน `device_request_folder_access` (ยังไม่ default), `Downloads`/`uploads` (สำหรับหาสลิป)
 - Git: sandbox ไม่มี push credentials — commit ได้เอง, ต้องให้ user รัน `git push` จาก PowerShell เสมอ; ถ้าเจอ `.git/*.lock` ใช้ `allow_cowork_file_delete` ก่อน rm
 
 ### 🚀 Prompt เริ่ม session ถัดไป — Doc Fee Payment Agent (copy-paste ได้เลย)

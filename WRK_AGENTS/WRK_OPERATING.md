@@ -98,7 +98,7 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 - ตาราง: ประเภทงาน / วงเงิน / ส่วนต่าง / โรงงาน · กล่องแดง: ค่าเอกสาร หรือ plant ≠ entity
 - ค่าเอกสาร → ฝังในการ์ดเดิม: ยอด · ธนาคาร · เลขบัญชี (mono 16px) · ชื่อบัญชี · วิธีจ่าย+ช่องทางส่ง · deadline + คำเตือนถ้าเป็น "ในวันและเวลาเสนอราคา" · ปุ่ม "โอนแล้ว ส่งสลิป"
 - **บล็อกชื่อไฟล์ 3 ตัว (plain text + ปุ่มคัดลอก)** — user save 3 ไฟล์ทุกงาน (2569-09-03) · pattern `<prefix>_<ชื่อหน่วยงานเต็ม>_[หจก RAKDEE]_<id>` ไม่มีนามสกุล
-  prefix: `ใบเสนอราคา_` · `ใบเสนอราคาสำเร็จ_` · `รายละเอียดการยื่น_` (3 โฟลเดอร์ใน `Log\`)
+  prefix: `ใบเสนอราคา_` · `ใบเสนอราคาสำเร็จ_` · `รายละเอียดการยื่น_` (3 โฟลเดอร์ใน `H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารบันทึกจากการเสนอราคา\`)
   tag ตาม entity: รักดี→`[หจก RAKDEE]` · RMN→`[หจก RMN]` · ตักสิลา→`[บจ.ตักสิลา RMN]` · กิจการร่วมค้า = ถามก่อน
 - input "ผลประมูล (ราคาต่ำสุด)" + ปุ่ม → `sendPrompt('ผลประมูล\nSEQ n (label) = value')`
 
@@ -129,10 +129,10 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 - ห้ามแตะ: `rmn_ebidding_tracker_2.html`, `*.skill` ทั้งหมด, ไฟล์ของ agent อื่น
 
 **📄 ปลายทาง PDF ใบแจ้งชำระค่าเอกสาร (ยืนยันจาก user 2569-08-27) — ห้ามทิ้งไว้ในโฟลเดอร์โปรเจกต์:**
-`H:\Shared drives\RMN Company Documents\Log\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ
+`H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ
 ชื่อไฟล์: `ใบแจ้งชำระเงินค่าซื้อเอกสาร_<ชื่อหน่วยงานเต็ม>_<id>.pdf` (ชื่อเต็ม ใช้ `_` ไม่ใช่ `.` — ตาม convention ไฟล์เดิมในโฟลเดอร์)
 โฟลเดอร์นี้ **ไม่ได้ connect เป็น default** → เรียก `device_request_folder_access` ครั้งเดียวต่อ session
-⚠️ skill `fee-payment` ยังชี้ path เก่า (E-BIDDING/Log fallback Downloads) — **OPY แก้ skill เองไม่ได้** · workaround: สร้าง PDF ในคอนเทนเนอร์ → `SendUserFile` → `device_commit_files` ไป Log folder ด้วยมือ
+⚠️ skill `fee-payment` SKILL.md fix pending Marx save (2026-09-27) — จนกว่าจะ save: OPY ส่ง Drive path ข้างบนเป็น `log_dir` ให้ script ตรงๆ (สำรอง: PDF ในคอนเทนเนอร์ → `SendUserFile` → `device_commit_files`)
 
 ---
 
