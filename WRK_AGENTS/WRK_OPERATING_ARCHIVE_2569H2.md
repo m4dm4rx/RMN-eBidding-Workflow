@@ -365,3 +365,14 @@ scope แผนที่ **โอนมาที่ OPY ทั้งหมด** 
 วิธีทำ: โหลด skill `mapmaker` ในเซสชันนี้ · **อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ก่อนทุกครั้ง** · ชื่อห้างใน PDF = `entity` ใน `seed_bids.js` ห้ามเดาจาก plant · log แผนที่เขียนต่อใน `WRK_MAPMAKER.md`
 
 ---
+
+## Archived from WRK_OPERATING.md — 2026-09-27 (RMN-23 size cap)
+
+> 📦 ประวัติถึง 2569-08-20 → `WRK_OPERATING_ARCHIVE_2569H2.md`
+> เก็บเฉพาะ **กฎที่ใช้จริง + state ปัจจุบัน + pending** · เพดาน 20 KB (DB 2026-08-24)
+
+เหตุ: `},,` จาก commit `3f185d7` (tag method) ของ OPY เอง เงียบ 6 commits — Sir UI จับได้ แก้ที่ `ea25633`
+
+- backfill แล้ว 2569-09-11: 133 records (FY2565 65 · 2566 17 · 2567 32 · 2568 17 · 2569 2 · รวม 38.87 ล้าน)
+
+  เหตุ: DA push งานเข้า repo ระหว่าง session (`318e98e`, `7d89ec7`) แล้ว OPY เขียนทับด้วยไฟล์เก่า → **ลบ 73 records ของ DA ทิ้ง** (commit `5950a5a`) ต้องกู้ด้วย `git checkout HEAD~1 -- seed_bids.js` (fix `78c8433`)

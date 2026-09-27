@@ -1,7 +1,6 @@
 # E-bidding Operating Assistance — OPY
 
-> 📦 ประวัติถึง 2569-08-20 → `WRK_OPERATING_ARCHIVE_2569H2.md`
-> เก็บเฉพาะ **กฎที่ใช้จริง + state ปัจจุบัน + pending** · เพดาน 20 KB (DB 2026-08-24)
+> ย้ายไป WRK_OPERATING_ARCHIVE_2569H2.md (2026-09-27, RMN-23)
 > ❌ ห้าม hardcode ตาราง seq ที่นี่อีก — `seed_bids.js` = source of truth เสมอ (หา seq ถัดไป: กรอง fiscalYear ล่าสุด → max(seq)+1)
 
 ---
@@ -29,7 +28,7 @@
 ### ✅ Verify ก่อน commit `seed_bids.js` (บทเรียน 2569-09-17)
 `node --check` **ไม่พอ** — `[a,,b]` ผ่าน syntax ได้แต่เป็น sparse array → `renderDash()` พัง (kpi-card เหลือ 0 ใบ)
 ต้อง eval `SEED_BIDS` แล้วเช็กทุกครั้ง: `length` · `holes` ต้อง `[]` · dup `id` · dup `FY/seq` · `pct` ตรงสูตร
-เหตุ: `},,` จาก commit `3f185d7` (tag method) ของ OPY เอง เงียบ 6 commits — Sir UI จับได้ แก้ที่ `ea25633`
+> ย้ายไป WRK_OPERATING_ARCHIVE_2569H2.md (2026-09-27, RMN-23)
 
 ### 🔍 Notes column parsing
 - `(สารคามXX)` / `(ศรีบุญเรืองXX)` / `(สกลนครXX)` = ชื่อ plant + เลขอ้างอิงผลงาน (**ไม่ใช่ระยะทาง**) → ใช้ชื่อ plant ตรงนี้เสมอ
@@ -40,7 +39,7 @@
 - งาน **เฉพาะเจาะจง อยู่ใน `seed_bids.js` ได้** (เป็นงานที่ห้างรับจริง ต้องนับยอด) — R2 ฉบับเดิมของ DA ที่ห้ามลง **ตกไป**
 - **บังคับ field `method`**: `"เฉพาะเจาะจง"` เมื่อเป็นงานเฉพาะเจาะจง · **ไม่มี field = e-bidding** (default)
 - `workType` = ประเภทงาน (เสริมผิว/ซ่อมแซม ฯลฯ) คนละเรื่องกับ `method` ห้ามเอามาปนกัน
-- backfill แล้ว 2569-09-11: 133 records (FY2565 65 · 2566 17 · 2567 32 · 2568 17 · 2569 2 · รวม 38.87 ล้าน)
+> ย้ายไป WRK_OPERATING_ARCHIVE_2569H2.md (2026-09-27, RMN-23)
 - ⚠️ สถิติ e-bidding (อัตราชนะ / ค่าเฉลี่ย pct) ต้องกรอง `method !== "เฉพาะเจาะจง"` — แจ้ง Sir UI แล้ว
 
 ### 🏭 Plant ownership
@@ -120,7 +119,7 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 - ⛔ **ห้าม `git add .` / `git add -A`** — มีไฟล์ agent อื่นค้าง uncommitted (`WRK_MAPMAKER.md`, `PROJECT_INSTRUCTIONS_DRAFT.md`, `SKILL_build.md`, `SKILL_ebidding.md` ฯลฯ) → `git add` เจาะจงชื่อไฟล์เสมอ
 - `.git/*.lock` ค้างบ่อย → ลบเองได้ · OneDrive sync มี delay commit อาจยังไม่เห็นทันทีใน PS
 - ⛔ **ห้ามใช้ `force:true` ใน device_commit_files เด็ดขาด** (บทเรียน 2569-08-27) — ต้อง **re-stage ก่อน commit ทุกครั้ง** แล้วส่ง `expectedMtimeMs` ที่ได้จาก stage รอบนั้น
-  เหตุ: DA push งานเข้า repo ระหว่าง session (`318e98e`, `7d89ec7`) แล้ว OPY เขียนทับด้วยไฟล์เก่า → **ลบ 73 records ของ DA ทิ้ง** (commit `5950a5a`) ต้องกู้ด้วย `git checkout HEAD~1 -- seed_bids.js` (fix `78c8433`)
+> ย้ายไป WRK_OPERATING_ARCHIVE_2569H2.md (2026-09-27, RMN-23)
   ถ้า commit ถูก reject เพราะ mtime drift = **ไฟล์ถูกแก้จริง** → re-stage แล้วรวมงานใหม่ ห้าม force ทับ
 
 ### 📂 Working folder / scope
