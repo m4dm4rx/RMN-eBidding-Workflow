@@ -1,4 +1,4 @@
-# RMN e-Bidding Tracker
+﻿# RMN e-Bidding Tracker
 
 ## 🚫 NEVER USE (no exceptions)
 TaskCreate · TaskUpdate · TaskList · TaskStop · TaskGet · AskUserQuestion · mcp__visualize__read_me
@@ -10,6 +10,8 @@ TaskCreate · TaskUpdate · TaskList · TaskStop · TaskGet · AskUserQuestion �
 ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มีใน schema จริงๆ
 
 ## 📢 ประกาศถึงทุก agent — **อ่านก่อนเริ่มงานทุกครั้ง**
+
+- **09-27 · session state (auto-save, mid-context)**: RMN-22 = Operating Model v2 (agent จริง = OPY ตัวเดียว · MM/DOC/UI DISABLED ตามตาราง Project instructions · MM→OPY merge ยัง hold RMN-23 · ยศเก่าเลิกใช้) · ⛔ RMN-18/16 ปิด Done แบบ self-verify — ยังไม่ verify จริงว่า skill fee-payment/mapmaker/e-bidding-operating เขียนไฟล์เข้า Google Drive H:\ แล้วจริง ห้ามเชื่อ Done เฉยๆ · Google Drive "Workflow Logs" vs OneDrive "Log" ต่างกัน 16 ไฟล์ (5 ไฟล์ระบุแล้ว = Claude outputs ซ้อนโฟลเดอร์ผิดที่, อีก 11 ไฟล์ยังไม่รู้สาเหตุ) · ⛔ ห้ามลบไฟล์ OneDrive ต้นทางจนกว่า verify ครบ 100% ทั้งจำนวนไฟล์และ path การเขียนจริงของ skill · git: ed26a4b (fix OPY/MM path) pushed แล้ว (อยู่ใน origin/main) · 0c24694 (session log) อยู่แค่ branch hold/mm-into-opy + local/da-session-0925 ไม่เข้า main · RMN-23 (OPY 3 items) ยังไม่เลือก priority · Pre Personal Vault (ไฟล์ส่วนตัว Marx หาย) เช็ค Recycle Bin เครื่อง + OneDrive online recycle bin ครบแล้ว ไม่เจอ Marx รับทราบปิดเรื่อง ไม่ต้องสืบต่อ
 > 🔴 **DA ต้องเขียนที่นี่ทุกครั้งที่เปลี่ยน registry/ownership/กฎร่วม — ในรอบ commit เดียวกัน** · ไม่ประกาศ = agent อื่นตัดสินใจซ้อนกันเอง (เกิดจริง 09-03: OPY ไม่รู้ว่า DB ปลด) · เก่ากว่า 30 วัน → `CLAUDE_ARCHIVE_*.md`
 
 - **09-26 · 🎨 UI DISABLED → e-Bidding = OPY super agent ตัวเดียว (มติ King Marx)** — OPY ทำ: ลง SEQ + ค่าเอกสาร (skill `fee-payment`) + แผนที่ (skill `mapmaker`) + push · ⛔ **ไม่รับแก้ระบบ** (tracker HTML / script / skill / KB) → แจ้ง Marx เปิดงานใน Linear (`P-RMN-2` e-Bidding Operations หรือ `P-RMN-4` WEBAPP DATABASE ทำร่วม Codex) · ประกาศเก่า (naming / Raven / Finance Capture) + Session State 09-13 ย้ายไป `CLAUDE_ARCHIVE_2569H2.md` — ไม่ต้องอ่านตอนเปิด session
