@@ -1,4 +1,4 @@
-﻿# RMN e-Bidding Tracker
+# RMN e-Bidding Tracker
 
 ## 🚫 NEVER USE (no exceptions)
 TaskCreate · TaskUpdate · TaskList · TaskStop · TaskGet · AskUserQuestion · mcp__visualize__read_me
@@ -11,6 +11,7 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 
 ## 📢 ประกาศถึงทุก agent — **อ่านก่อนเริ่มงานทุกครั้ง**
 
+- **09-27 20:35 · D3 FINAL (RMN-22, มติ King Marx)**: ยกเลิก Raven แบบ global (เหลือเฉพาะ Finance Capture, จำกัดแค่ deploy/handoff ข้ามผู้รับผิดชอบ) · ยกเลิกการเขียน session state ลง CLAUDE.md/WRK_*_STATE.md อัตโนมัติทุกที่ · Contract เหลือกฎเดียว: หยุด/หมุน session หรือถึง boundary → เขียน current state ลง Linear issue · Return-path: worker ห้ามโพสต์ Linear เอง ต้องให้ coordinator ตรวจหลักฐานก่อนโพสต์ · รายละเอียดเต็ม → RMN-22 comment 0c07e490
 - **09-27 16:35 · coordinator update**: RMN-18 reopen → path fix pushed `128d598` (Drive `Workflow Logs\<group>\…`) + Marx saved skill mapmaker/fee-payment (STOP ถ้าไม่เจอ Drive) · Drive cleanup เสร็จ (RMN-9) · gap อธิบายครบ ไม่มีข้อมูลหาย · RMN-21 canceled · ⏳ คืนนี้ OPY test แผนที่ (raw เก่า · ห้ามลง seed) → ผ่าน = ปิด RMN-18/16 · state จริงอยู่ Linear RMN-9/18/23 · session ใหม่: skill `rmn-linear-coordinator` → "what's left"
 - **09-27 · session state (auto-save, mid-context)**: RMN-22 = Operating Model v2 (agent จริง = OPY ตัวเดียว · MM/DOC/UI DISABLED ตามตาราง Project instructions · MM→OPY merge เสร็จแล้ว efb769a ใน main · เหลือ real test ใน RMN-23 · ยศเก่าเลิกใช้) · ⛔ RMN-18/16 ปิด Done แบบ self-verify — ยังไม่ verify จริงว่า skill fee-payment/mapmaker/e-bidding-operating เขียนไฟล์เข้า Google Drive H:\ แล้วจริง ห้ามเชื่อ Done เฉยๆ · Google Drive "Workflow Logs" vs OneDrive "Log" ต่างกัน 16 ไฟล์ (5 ไฟล์ระบุแล้ว = Claude outputs ซ้อนโฟลเดอร์ผิดที่, อีก 11 ไฟล์ยังไม่รู้สาเหตุ) · ⛔ ห้ามลบไฟล์ OneDrive ต้นทางจนกว่า verify ครบ 100% ทั้งจำนวนไฟล์และ path การเขียนจริงของ skill · git: ed26a4b (fix OPY/MM path) pushed แล้ว (อยู่ใน origin/main) · 0c24694 (session log) อยู่แค่ branch hold/mm-into-opy + local/da-session-0925 ไม่เข้า main · RMN-23 (OPY 3 items) = Urgent · due 09-28 · Pre Personal Vault (ไฟล์ส่วนตัว Marx หาย) เช็ค Recycle Bin เครื่อง + OneDrive online recycle bin ครบแล้ว ไม่เจอ Marx รับทราบปิดเรื่อง ไม่ต้องสืบต่อ
 > 🔴 **DA ต้องเขียนที่นี่ทุกครั้งที่เปลี่ยน registry/ownership/กฎร่วม — ในรอบ commit เดียวกัน** · ไม่ประกาศ = agent อื่นตัดสินใจซ้อนกันเอง (เกิดจริง 09-03: OPY ไม่รู้ว่า DB ปลด) · เก่ากว่า 30 วัน → `CLAUDE_ARCHIVE_*.md`
@@ -33,7 +34,7 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 - อ่านไฟล์ครั้งเดียว/task — ไม่อ่านซ้ำ verify
 - ห้ามเดาข้อมูล — ถามก่อนถ้าไม่ชัด
 - bash output → pipe | head -40 เสมอ — ห้าม dump .git/objects
-- Auto-update MD @ 90% context → append ## 🔄 Session State → แจ้ง user เริ่ม session ใหม่
+- ~~Auto-update MD @ 90% context → append Session State~~ **CANCELLED (D3, RMN-22, 2026-09-27)** — session state ไม่เขียนลง CLAUDE.md/WRK_*_STATE.md อีกต่อไป → เขียนลง Linear issue ที่เกี่ยวข้องแทน เมื่อหยุด/หมุน session หรือถึง boundary (ไม่ใช้ % context เป็น trigger, ไม่ใช้ข้อความท้ายแชทเป็น fallback)
 - คำนวณ usage ก่อนทุก Edit — ถ้า context ไม่พอ ห้าม Edit แจ้ง user แทน
 - 👑 Preview สิทธิ์นายเท่านั้น — แสดง visual preview ทุกครั้งที่แก้ไข UI (ห้าม skip)
 
