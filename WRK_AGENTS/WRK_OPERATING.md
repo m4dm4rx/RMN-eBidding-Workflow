@@ -41,7 +41,7 @@
 - **บังคับ field `method`**: `"เฉพาะเจาะจง"` เมื่อเป็นงานเฉพาะเจาะจง · **ไม่มี field = e-bidding** (default)
 - `workType` = ประเภทงาน (เสริมผิว/ซ่อมแซม ฯลฯ) คนละเรื่องกับ `method` ห้ามเอามาปนกัน
 > ย้ายไป WRK_OPERATING_ARCHIVE_2569H2.md (2026-09-27, RMN-23)
-- ⚠️ สถิติ e-bidding (อัตราชนะ / ค่าเฉลี่ย pct) ต้องกรอง `method !== "เฉพาะเจาะจง"` — แจ้ง Sir UI แล้ว
+- ⚠️ สถิติ e-bidding (อัตราชนะ / ค่าเฉลี่ย pct) ต้องกรอง `method !== "เฉพาะเจาะจง"`
 
 ### 🏭 Plant ownership
 | Plant | ผู้ถือครอง |
@@ -80,10 +80,12 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 7. **OPY เขียน `doc_fees.json` เอง** (paidDate + submitMethod + payerName + ref) → queue `"status":"done"` → push เอง
    ⚠️ `doc_fees.json` format = **1 บรรทัด/entry** ห้าม pretty-print ทั้งไฟล์ (พลาดจริง 2569-09-02 diff โป่ง 467 บรรทัด)
 `no_fee_required` → ไม่ต้องทำอะไรต่อ ไม่ต้องเปิด doc_*.pdf
+> 🔴 2026-10-03: alert รายวัน `RMN doc-fee morning alert` **ถูกลบ** (workflow = จ่ายพร้อมยื่น ตั้งแต่ ก.ค.) → **append `doc_fee_queue.json` ทุกครั้ง = ด่านเดียวที่เหลือ** ข้ามแล้วไม่มีอะไรจับย้อนหลัง · Linear `RMN-31` `6dc00d60`
 
 ---
 
 ## 🧭 OPY = super agent (รับ scope DOC 2026-09-02 + MM 2026-09-25)
+> 🏷️ 2026-10-02: ยศ "Lord Commander / Lord DA" เลิกใช้ → `[ Taskmaster : GPT / Claude ]` · มติเก่าที่อ้างยศนี้ในไฟล์ยังมีผลเดิม · Linear `RMN-33` `9977a515`
 - **ค่าเอกสาร**: รับสลิป → **ยึดเลขบัญชีจากสลิปเสมอ** (SEQ166 สลิป 404-6-21164-4 vs ประกาศ 406-2-61616-4) → PDF → ส่งตาม submitMethod → ปิด `doc_fees.json` → monitor queue เอง
 - **แผนที่**: โหลด skill `mapmaker` · **อ่าน `WRK_MAPMAKER.md` (Output · entity rule · Known Issues) ก่อนทุกครั้ง** · ชื่อห้างใน PDF = `entity` ใน `seed_bids.js` ห้ามเดาจาก plant · log ต่อใน `WRK_MAPMAKER.md`
 - ห้าม route/dispatch งานไป DOC/MM · ไฟล์ KB/WRK ของทั้งคู่เก็บไว้ ห้ามลบ · ยังห้ามแตะ `*.skill`
@@ -118,7 +120,7 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
   ปิดงานต้องรายงาน HEAD = origin/main ทุกครั้ง
   ข้อความสีแดงใน PS = progress output ของ git **ไม่ใช่ error** · ตรวจซ้ำ `git fetch` แล้วเทียบ local vs origin
 - ⛔ **ห้าม `git add .` / `git add -A`** — มีไฟล์ agent อื่นค้าง uncommitted (`WRK_MAPMAKER.md`, `PROJECT_INSTRUCTIONS_DRAFT.md`, `SKILL_build.md`, `SKILL_ebidding.md` ฯลฯ) → `git add` เจาะจงชื่อไฟล์เสมอ
-- `.git/*.lock` ค้างบ่อย → ลบเองได้ · OneDrive sync มี delay commit อาจยังไม่เห็นทันทีใน PS
+- `.git/*.lock` ค้างบ่อย → ลบเองได้
 - ⛔ **ห้ามใช้ `force:true` ใน device_commit_files เด็ดขาด** (บทเรียน 2569-08-27) — ต้อง **re-stage ก่อน commit ทุกครั้ง** แล้วส่ง `expectedMtimeMs` ที่ได้จาก stage รอบนั้น
 > ย้ายไป WRK_OPERATING_ARCHIVE_2569H2.md (2026-09-27, RMN-23)
   ถ้า commit ถูก reject เพราะ mtime drift = **ไฟล์ถูกแก้จริง** → re-stage แล้วรวมงานใหม่ ห้าม force ทับ
@@ -133,7 +135,6 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
 `H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารประกอบการเสนอราคา\ใบแจ้งการชำระเงินค่าซื้อเอกสารประกวดราคา\` · ✅ (2026-09-27) ย้ายไป Google Drive แล้วตาม RMN-18 — path นี้คือ path ใหม่ทางการ
 ชื่อไฟล์: `ใบแจ้งชำระเงินค่าซื้อเอกสาร_<ชื่อหน่วยงานเต็ม>_<id>.pdf` (ชื่อเต็ม ใช้ `_` ไม่ใช่ `.` — ตาม convention ไฟล์เดิมในโฟลเดอร์)
 โฟลเดอร์นี้ **ไม่ได้ connect เป็น default** → เรียก `device_request_folder_access` ครั้งเดียวต่อ session
-⚠️ skill `fee-payment` SKILL.md fix pending Marx save (2026-09-27) — จนกว่าจะ save: OPY ส่ง Drive path ข้างบนเป็น `log_dir` ให้ script ตรงๆ (สำรอง: PDF ในคอนเทนเนอร์ → `SendUserFile` → `device_commit_files`)
 
 ---
 
