@@ -656,6 +656,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       <button class="btn" onclick="copyViewLink()" data-edit-only title="คัดลอก Link สำหรับแชร์ (view-only)">🔗 Share Link</button>
       <button class="btn" onclick="App.exportCSV()" data-edit-only>⬇ Export CSV</button>
       <button class="btn btn-green" onclick="App.exportAllForPush()" data-edit-only title="Export ข้อมูลทั้งหมดเป็น JSON สำหรับส่งให้ Claude push">📤 Export สำหรับ Push</button>
+      <span id="local-pending-count" data-edit-only style="font-size:12px;font-weight:700" aria-live="polite"></span>
     </div>
   </div>
 
@@ -1016,6 +1017,26 @@ function expandAgency(s) {
    STORE  — single source of truth, persisted to localStorage
 ═══════════════════════════════════════════════════════════════ */
 const Store = (() => {
+  const PENDING_KEY = `${CONFIG.STORAGE_KEY}_pending`;
+  const DELETED_KEY = `${CONFIG.STORAGE_KEY}_deleted`;
+  let pending = (() => { try { return new Set(JSON.parse(localStorage.getItem(PENDING_KEY) || '[]')); } catch (_) { return new Set(); } })();
+  let deleted = (() => { try { return new Set(JSON.parse(localStorage.getItem(DELETED_KEY) || '[]')); } catch (_) { return new Set(); } })();
+  const seedById = new Map(SEED_BIDS.map(s => [String(s.id), s]));
+  const sameAsSeed = b => {
+    const seed = seedById.get(String(b.id));
+    if (!seed) return false;
+    const clean = x => Object.fromEntries(Object.entries(x).filter(([k, v]) => k !== '_id' && v !== undefined).sort(([a], [b]) => a.localeCompare(b)));
+    return JSON.stringify(clean(b)) === JSON.stringify(clean(seed));
+  };
+  const syncPending = () => {
+    pending = new Set(_bids.filter(b => !sameAsSeed(b) && (pending.has(b._id) || !seedById.has(String(b.id)))).map(b => b._id));
+    deleted = new Set([...deleted].filter(id => seedById.has(id)));
+    try { localStorage.setItem(PENDING_KEY, JSON.stringify([...pending])); } catch (_) {}
+    try { localStorage.setItem(DELETED_KEY, JSON.stringify([...deleted])); } catch (_) {}
+    const indicator = document.getElementById('local-pending-count');
+    const count = pending.size + deleted.size;
+    if (indicator) indicator.textContent = count ? `⚠️ ${count} รายการแก้ในเครื่องนี้ ยังไม่ push` : '✓ ข้อมูลตรงกับ seed ที่โหลด';
+  };
   // FIX 9: Corrupt localStorage JSON must not crash app on load
   let _bids = (() => {
     try {
@@ -1039,17 +1060,18 @@ const Store = (() => {
       parsed.forEach(b => { if (b.status && STATUS_MIGRATE[b.status]) b.status = STATUS_MIGRATE[b.status]; });
       // Merge seed_bids → localStorage: seed is authoritative; add missing entries
       const _sm = new Map(SEED_BIDS.map(s => [s.id, s]));
-      parsed.forEach(b => { const s = _sm.get(b.id); if (s) { const _id = b._id; Object.assign(b, s); b._id = _id; b.agency = expandAgency(b.agency); } });
+      parsed.forEach(b => { const s = _sm.get(b.id); if (s && !pending.has(b._id)) { const _id = b._id; Object.assign(b, s); b._id = _id; b.agency = expandAgency(b.agency); } });
       const _localIds = new Set(parsed.map(b => b.id));
-      SEED_BIDS.forEach((s, i) => { if (!_localIds.has(s.id)) parsed.push({ ...s, _id: `x${i}`, agency: expandAgency(s.agency) }); });
+      SEED_BIDS.forEach((s, i) => { if (!_localIds.has(s.id) && !deleted.has(String(s.id))) parsed.push({ ...s, _id: `x${i}`, agency: expandAgency(s.agency) }); });
       return parsed;
     } catch (_) { return null; }
   })() ?? SEED_BIDS.map((b, i) => ({ ...b, _id: `x${i}`, agency: expandAgency(b.agency) }));
 
   const _persistNow = () => { try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(_bids)); } catch (_) {} };
   let _persistTimer = null;
-  const persist = () => { clearTimeout(_persistTimer); _persistTimer = setTimeout(_persistNow, 500); };
+  const persist = () => { syncPending(); clearTimeout(_persistTimer); _persistTimer = setTimeout(_persistNow, 500); };
   window.addEventListener('beforeunload', _persistNow, { once: false });
+  document.addEventListener('DOMContentLoaded', syncPending, { once: true });
 
   return {
     getAll:   ()     => [..._bids], // FIX 5: shallow copy — callers must not mutate internal state
@@ -1060,10 +1082,13 @@ const Store = (() => {
       const idx = _bids.findIndex(b => b._id === bid._id);
       if (idx > -1) _bids[idx] = bid;
       else          _bids.unshift(bid);
+      pending.add(bid._id);
       persist();
     },
 
     remove(id) {
+      const bid = this.findById(id);
+      if (bid && seedById.has(String(bid.id))) deleted.add(String(bid.id));
       _bids = _bids.filter(b => b._id !== id);
       persist();
     },
@@ -1071,13 +1096,13 @@ const Store = (() => {
     updateStatus(id, status) {
       const bid = this.findById(id);
       if (bid) {
-        bid.status = status; persist();
+        bid.status = status; pending.add(bid._id); persist();
       }
     },
 
     patch(id, key, value) {
       const bid = this.findById(id);
-      if (bid) { bid[key] = value; persist(); }
+      if (bid) { bid[key] = value; pending.add(bid._id); persist(); }
     },
 
 
@@ -1088,6 +1113,7 @@ const Store = (() => {
       if (midPrice)                  bid.midPrice      = midPrice;
       if (contractPrice)             bid.contractPrice = contractPrice;
       if (name && !bid.name)         bid.name          = name;   // fill empty names from API
+      pending.add(bid._id);
       persist();
     },
   };
@@ -2328,6 +2354,7 @@ const App = (() => {
     _setField('f-id',       b.id       ?? '');
     _setField('f-name',     b.name     ?? '');
     _setField('f-date',     b.date     ?? '');
+    _setField('f-agency',   b.agency   ?? '');
     _setField('f-province', b.province ?? '');
     _setField('f-budget',   b.budget   ?? 0);
     _setField('f-midprice',   b.midPrice   ?? 0);
@@ -2342,7 +2369,12 @@ const App = (() => {
     _setField('f-worktype',   b.workType   ?? '');
     _setField('f-plant',      b.plant      ?? '');
     _setField('f-plantdist',  b.plantDist  ?? '');
-    document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    const entitySelect = document.getElementById('f-entity');
+    const entity = b.entity ?? CONFIG.DEFAULT_ENTITY;
+    if (entity && ![...entitySelect.options].some(o => o.value === entity)) {
+      entitySelect.add(new Option(entity, entity));
+    }
+    entitySelect.value = entity;
     document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
   }
