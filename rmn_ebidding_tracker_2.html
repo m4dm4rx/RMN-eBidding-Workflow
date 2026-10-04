@@ -868,6 +868,14 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
           <option>สกลนคร</option>
         </select></div>
         <div class="form-group"><label>ระยะทาง Plant (km)</label><input id="f-plantdist" type="number" placeholder="0"></div>
+        <div class="form-group"><label>วันส่งมอบงาน (ค.ศ.)</label><input id="f-delivery-date" type="date"></div>
+        <div class="form-group"><label>วันครบประกัน (ค.ศ.)</label><input id="f-warranty-due-date" type="date" readonly title="อ่านอย่างเดียวจนกว่าจะยืนยันกฎเริ่มนับประกัน"></div>
+        <div class="form-group"><label>สถานะรับคืนหลักประกัน</label><select id="f-retention-return-status">
+          <option value="unknown">ยังไม่ทราบ</option>
+          <option value="not_returned">ยังไม่ได้รับคืน</option>
+          <option value="partially_returned">รับคืนบางส่วน</option>
+          <option value="returned">รับคืนแล้ว</option>
+        </select></div>
         <div class="form-group">
           <label>ห้างที่ใช้เสนอ</label>
           <select id="f-entity">
@@ -992,6 +1000,7 @@ const _debouncedReport = _debounce(() => typeof App !== 'undefined' && App.rende
 const _debouncedTable  = _debounce(() => typeof App !== 'undefined' && App.renderTable(),  200);
 
 </script>
+<script src="bid_schema.js"></script>
 <script src="seed_bids.js"></script>
 <script>
 
@@ -1042,9 +1051,9 @@ const Store = (() => {
       parsed.forEach(b => { const s = _sm.get(b.id); if (s) { const _id = b._id; Object.assign(b, s); b._id = _id; b.agency = expandAgency(b.agency); } });
       const _localIds = new Set(parsed.map(b => b.id));
       SEED_BIDS.forEach((s, i) => { if (!_localIds.has(s.id)) parsed.push({ ...s, _id: `x${i}`, agency: expandAgency(s.agency) }); });
-      return parsed;
+      return parsed.map(BidSchema.normalize);
     } catch (_) { return null; }
-  })() ?? SEED_BIDS.map((b, i) => ({ ...b, _id: `x${i}`, agency: expandAgency(b.agency) }));
+  })() ?? SEED_BIDS.map((b, i) => BidSchema.normalize({ ...b, _id: `x${i}`, agency: expandAgency(b.agency) }));
 
   const _persistNow = () => { try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(_bids)); } catch (_) {} };
   let _persistTimer = null;
@@ -1056,10 +1065,11 @@ const Store = (() => {
     findById: (id)   => _bids.find(b => b._id === id) ?? null,
 
     upsert(bid) {
-      if (bid.agency) bid.agency = expandAgency(bid.agency);  // normalize on save
-      const idx = _bids.findIndex(b => b._id === bid._id);
-      if (idx > -1) _bids[idx] = bid;
-      else          _bids.unshift(bid);
+      const normalized = BidSchema.normalize(bid);
+      if (normalized.agency) normalized.agency = expandAgency(normalized.agency);  // normalize on save
+      const idx = _bids.findIndex(b => b._id === normalized._id);
+      if (idx > -1) _bids[idx] = normalized;
+      else          _bids.unshift(normalized);
       persist();
     },
 
@@ -2290,7 +2300,7 @@ const App = (() => {
     const midPrice = Number(document.getElementById('f-midprice').value) || 0;
     const bid      = Number(document.getElementById('f-bid').value)      || 0;
     const existing = _editId ? Store.findById(_editId) : null;
-    Store.upsert({
+    Store.upsert(BidSchema.merge(existing, {
       _id:      _editId ?? `n${Date.now()}`,
       id:       document.getElementById('f-id').value.trim(),
       name,
@@ -2313,8 +2323,11 @@ const App = (() => {
       workType:   document.getElementById('f-worktype').value.trim()   || undefined,
       plant:      document.getElementById('f-plant').value.trim()      || undefined,
       plantDist:  Number(document.getElementById('f-plantdist').value) || undefined,
+      deliveryDate: document.getElementById('f-delivery-date').value || null,
+      warrantyDueDate: document.getElementById('f-warranty-due-date').value || null,
+      retentionReturnStatus: document.getElementById('f-retention-return-status').value || 'unknown',
       seq:        existing?.seq ?? Store.getAll().length + 1,
-    });
+    }));
     clearForm();
     UI.toast('💾 บันทึกแล้ว!');
     navigate('records');
@@ -2342,6 +2355,9 @@ const App = (() => {
     _setField('f-worktype',   b.workType   ?? '');
     _setField('f-plant',      b.plant      ?? '');
     _setField('f-plantdist',  b.plantDist  ?? '');
+    _setField('f-delivery-date', b.deliveryDate ?? '');
+    _setField('f-warranty-due-date', b.warrantyDueDate ?? '');
+    document.getElementById('f-retention-return-status').value = b.retentionReturnStatus ?? 'unknown';
     document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
@@ -2356,12 +2372,13 @@ const App = (() => {
   }
 
   function clearForm() {
-    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-docfee','f-docfee-date','f-docfee-bank','f-competitor','f-worktype','f-plant','f-plantdist']
+    ['f-id','f-name','f-date','f-agency','f-province','f-budget','f-midprice','f-bid','f-lowest','f-docfee','f-docfee-date','f-docfee-bank','f-competitor','f-worktype','f-plant','f-plantdist','f-delivery-date','f-warranty-due-date']
       .forEach(id => { document.getElementById(id).value = ''; });
     document.getElementById('f-docfee-method').value = '';
     document.getElementById('f-docfee-email').value = '';
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
+    document.getElementById('f-retention-return-status').value = 'unknown';
     document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
     _editId = null;
   }
@@ -2409,7 +2426,7 @@ const App = (() => {
   /* ── CSV export ──────────────────────────────────────────── */
   function exportCSV() {
     const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest\n';
+    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest,deliveryDate,warrantyDueDate,retentionReturnStatus\n';
     const rows = Store.getAll().sort((a,b)=>a.seq-b.seq).map(b => [
       b.seq, b.id,
       esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
@@ -2417,6 +2434,7 @@ const App = (() => {
       esc(b.entity), esc(b.status), b.date,
       b.midPrice ?? '', b.contractPrice ?? '',
       esc(b.workType ?? ''), esc(b.plant ?? ''), b.plantDist ?? '', b.lowest ?? '',
+      b.deliveryDate ?? '', b.warrantyDueDate ?? '', b.retentionReturnStatus ?? 'unknown',
     ].join(',')).join('\n');
 
     const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });
