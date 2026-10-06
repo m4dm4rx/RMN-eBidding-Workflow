@@ -56,4 +56,11 @@ for (const id of ['f-delivery-date', 'f-warranty-due-date', 'f-retention-return-
 assert.match(html, /Store\.upsert\(BidSchema\.merge\(existing,/);
 assert.match(html, /deliveryDate,warrantyDueDate,retentionReturnStatus/);
 
+// RMN-50: delivered status + guarantee labels
+assert.match(html, /DELIVERED:\s*'ส่งงานครบถ้วน'/);
+assert.match(html, /<button class="pill" data-filter="delivered">ส่งงานครบถ้วน<\/button>/);
+assert.match(html, /<option value="not_returned">ผูกพัน<\/option>/);
+assert.match(html, /<option value="returned">รับเงินค้ำประกันคืนแล้ว<\/option>/);
+assert.equal(BidSchema.RETURN_STATUSES.has('not_returned') && BidSchema.RETURN_STATUSES.has('returned'), true);
+
 console.log('RMN-36 schema round-trip: PASS');

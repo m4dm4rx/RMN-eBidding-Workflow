@@ -46,6 +46,7 @@ html.dark .btn:hover{background:#2e2c28}
 html.dark .btn-primary{background:#faf9f5;color:#141413}
 html.dark .btn-primary:hover{background:#e8e6dc}
 html.dark .b-contract{background:#1a2510;color:#8faa6e}
+html.dark .b-delivered{background:#0f2a26;color:#7fc4b4}
 html.dark .b-winner{background:#1a2035;color:#6a9bcc}
 html.dark .b-pending{background:#2e2010;color:#d9a057}
 html.dark .b-win-price{background:#1a2035;color:#6a9bcc}
@@ -181,6 +182,7 @@ tr:hover td{background:var(--bg)}
 .badge{display:inline-block;font-size:10px;padding:3px 9px;
   border-radius:99px;font-weight:600;white-space:nowrap}
 .b-contract{background:#d4edda;color:#155724}
+.b-delivered{background:#ccf2ec;color:#0f5e54}
 .b-winner{background:#d1ecf1;color:#0c5460}
 .b-pending{background:#fff3cd;color:#856404}
 .b-win-price{background:#e0f2fe;color:#075985}
@@ -279,6 +281,7 @@ html.dark .ytab{border-color:#3a3733}
   min-width:22px;text-align:right}
 .sc-n.zero{color:var(--muted)}
 .sd-contract {background:#059669}
+.sd-delivered {background:#0d9488}
 .sd-winner   {background:#0284c7}
 .sd-winpend  {background:#1d4ed8}
 .sd-losepend {background:#d97706}
@@ -379,6 +382,7 @@ html.dark .kpi-unit{color:rgba(250,249,245,.55)}
   display:inline-flex;flex-direction:column;align-items:center;justify-content:center}
 .proj-status-tag.winner{background:#16a34a}
 .proj-status-tag.contract{background:#065f46}
+.proj-status-tag.delivered{background:#0f766e}
 .proj-status-tag.cancelled{background:#1f2937}
 .proj-status-tag.pending{background:#f59e0b}
 .proj-status-tag.win-pending{background:#1d4ed8}
@@ -748,6 +752,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       <div class="report-pills">
         <button class="pill active" data-filter="all">ทั้งหมด</button>
         <button class="pill" data-filter="contract">จัดทำสัญญาแล้ว</button>
+        <button class="pill" data-filter="delivered">ส่งงานครบถ้วน</button>
         <button class="pill" data-filter="winner">อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</button>
         <button class="pill" data-filter="win-pending">รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</button>
         <button class="pill" data-filter="lose-pending">รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</button>
@@ -760,6 +765,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
         <select id="rpt-status" onchange="App.renderReport()">
           <option value="">ทุกสถานะ</option>
           <option>จัดทำสัญญาแล้ว</option>
+          <option>ส่งงานครบถ้วน</option>
           <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
           <option>รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</option>
           <option>รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</option>
@@ -794,6 +800,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       <select id="fstatus" onchange="App.renderTable()">
         <option value="">ทุกสถานะ</option>
         <option>จัดทำสัญญาแล้ว</option>
+        <option>ส่งงานครบถ้วน</option>
         <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
         <option>รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]</option>
         <option>รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</option>
@@ -870,11 +877,11 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
         <div class="form-group"><label>ระยะทาง Plant (km)</label><input id="f-plantdist" type="number" placeholder="0"></div>
         <div class="form-group"><label>วันส่งมอบงาน (ค.ศ.)</label><input id="f-delivery-date" type="date"></div>
         <div class="form-group"><label>วันครบประกัน (ค.ศ.)</label><input id="f-warranty-due-date" type="date" readonly title="อ่านอย่างเดียวจนกว่าจะยืนยันกฎเริ่มนับประกัน"></div>
-        <div class="form-group"><label>สถานะรับคืนหลักประกัน</label><select id="f-retention-return-status">
+        <div class="form-group"><label>หลักประกัน</label><select id="f-retention-return-status">
           <option value="unknown">ยังไม่ทราบ</option>
-          <option value="not_returned">ยังไม่ได้รับคืน</option>
+          <option value="not_returned">ผูกพัน</option>
           <option value="partially_returned">รับคืนบางส่วน</option>
-          <option value="returned">รับคืนแล้ว</option>
+          <option value="returned">รับเงินค้ำประกันคืนแล้ว</option>
         </select></div>
         <div class="form-group">
           <label>ห้างที่ใช้เสนอ</label>
@@ -896,6 +903,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
             <option>รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]</option>
             <option>อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ</option>
             <option>จัดทำสัญญาแล้ว</option>
+            <option>ส่งงานครบถ้วน</option>
             <option>แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด</option>
             <option value="แพ้ เนื่องจากโดนปรับตก">แพ้ ขาดคุณสมบัติ / ถูกปรับตก</option>
             <option>หน่วยงานประกาศยกเลิกโครงการ</option>
@@ -973,6 +981,7 @@ const CONFIG = Object.freeze({
     DISQUALIFIED: 'แพ้ เนื่องจากโดนปรับตก',
     WINNER:       'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',
     CONTRACT:     'จัดทำสัญญาแล้ว',
+    DELIVERED:    'ส่งงานครบถ้วน',
     LOSE:         'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',
     CANCELLED:    'หน่วยงานประกาศยกเลิกโครงการ',
     WITHDRAWN:    'ห้างขอยกเลิกสัญญา',
@@ -1154,6 +1163,7 @@ const UI = (() => {
   /** Badge CSS class from status string */
   const badgeClass = s => ({
     [CONFIG.STATUS.CONTRACT]:   'b-contract',
+    [CONFIG.STATUS.DELIVERED]:  'b-delivered',
     [CONFIG.STATUS.WINNER]:     'b-winner',
     [CONFIG.STATUS.WIN_PRICE]:    'b-win-price',
     [CONFIG.STATUS.LOSE_PRICE]:   'b-lose-price',
@@ -1291,7 +1301,7 @@ const App = (() => {
       if (!groups[e]) groups[e] = [];
       groups[e].push(b);
     }
-    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT]);
+    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT, STATUS.DELIVERED]);
     const entities = Object.keys(groups).sort((a,b) => {
       const wA = groups[a].filter(x=>winSet.has(x.status)).reduce((s,x)=>s+(x.contractPrice||x.bid||0),0);
       const wB = groups[b].filter(x=>winSet.has(x.status)).reduce((s,x)=>s+(x.contractPrice||x.bid||0),0);
@@ -1334,7 +1344,7 @@ const App = (() => {
   function renderDashAllBids() {
     const allBids = Store.getAll();
     const { STATUS } = CONFIG;
-    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT]);
+    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT, STATUS.DELIVERED]);
     const groups = {};
     for (const b of allBids) {
       const e = b.entity || CONFIG.DEFAULT_ENTITY;
@@ -1418,7 +1428,7 @@ const App = (() => {
       return true;
     }).sort(sortFn);
     const total      = bids.length;
-    const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER);
+    const won        = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.DELIVERED || b.status === STATUS.WINNER);
     const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING  || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING);
     const losePending= bids.filter(b => b.status === STATUS.LOSE_PENDING || b.status === STATUS.LOSE_PRICE);
     const disqualified = bids.filter(b => b.status === STATUS.DISQUALIFIED);
@@ -1439,8 +1449,10 @@ const App = (() => {
 
     // Update pill counts
     const contract = bids.filter(b => b.status === STATUS.CONTRACT);
+    const delivered = bids.filter(b => b.status === STATUS.DELIVERED);
     document.querySelector('[data-filter="all"]').textContent          = `ทั้งหมด (${total})`;
     document.querySelector('[data-filter="contract"]').textContent     = `มีสัญญา (${contract.length})`;
+    document.querySelector('[data-filter="delivered"]').textContent    = `ส่งงานครบถ้วน (${delivered.length})`;
     document.querySelector('[data-filter="winner"]').textContent       = `ประกาศผู้ชนะ (${won.filter(b=>b.status===STATUS.WINNER).length})`;
     document.querySelector('[data-filter="win-pending"]').textContent  = `รอผล/เสนอต่ำสุด (${winPending.length})`;
     document.querySelector('[data-filter="lose-pending"]').textContent = `รอผล/ไม่ต่ำสุด (${losePending.length})`;
@@ -1465,6 +1477,7 @@ const App = (() => {
       disqualified:   allBids.filter(b => b.status === STATUS.DISQUALIFIED),
       winner:         allBids.filter(b => b.status === STATUS.WINNER),
       contract:       allBids.filter(b => b.status === STATUS.CONTRACT),
+      delivered:      allBids.filter(b => b.status === STATUS.DELIVERED),
       lose:           allBids.filter(b => b.status === STATUS.LOSE),
       cancelled:      allBids.filter(b => b.status === STATUS.CANCELLED),
       withdrawn:      allBids.filter(b => b.status === STATUS.WITHDRAWN),
@@ -1481,6 +1494,7 @@ const App = (() => {
       b.status === STATUS.DISQUALIFIED  ? 'disqualified'  :
       b.status === STATUS.WINNER        ? 'winner'        :
       b.status === STATUS.CONTRACT      ? 'contract'      :
+      b.status === STATUS.DELIVERED     ? 'delivered'     :
       b.status === STATUS.LOSE          ? 'lose'          :
       b.status === STATUS.CANCELLED     ? 'cancelled'     :
       b.status === STATUS.WITHDRAWN     ? 'withdrawn'     :
@@ -1534,6 +1548,7 @@ const App = (() => {
       if(s===STATUS.WIN_PENDING||s===STATUS.WIN_PRICE||s===STATUS.PENDING)  return {text:'รอผลพิจารณา [ เป็นผู้เสนอต่ำที่สุด ]',        bg:'#1d4ed8'};
       if(s===STATUS.LOSE_PENDING||s===STATUS.LOSE_PRICE)                    return {text:'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]',   bg:'#d97706'};
       if(s===STATUS.CONTRACT)                                                return {text:'จัดทำสัญญาแล้ว',                                bg:'#065f46'};
+      if(s===STATUS.DELIVERED)                                               return {text:'ส่งงานครบถ้วน',                                  bg:'#0f766e'};
       if(s===STATUS.WINNER)                                                  return {text:'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ',          bg:'#16a34a'};
       if(s===STATUS.LOSE)                                                    return {text:'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด',         bg:'#dc2626'};
       if(s===STATUS.DISQUALIFIED)                                            return {text:'แพ้ ขาดคุณสมบัติ / ถูกปรับตก',                  bg:'#dc2626'};
@@ -1638,6 +1653,7 @@ const App = (() => {
       : type === 'lose-pending' ? 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]'
       : type === 'winner'       ? 'อนุมัติสั่งจ้าง/ประกาศให้เป็นผู้ชนะ'
       : type === 'contract'     ? 'จัดทำสัญญาแล้ว'
+      : type === 'delivered'    ? 'ส่งงานครบถ้วน'
       : type === 'lose'         ? 'แพ้ เนื่องจากไม่ได้เสนอราคาต่ำที่สุด'
       : type === 'disqualified' ? 'แพ้ ขาดคุณสมบัติ / ถูกปรับตก'
       : type === 'cancelled'    ? 'หน่วยงานประกาศยกเลิกโครงการ'
@@ -1647,13 +1663,14 @@ const App = (() => {
       : type === 'lose-pending' ? '#d97706'
       : type === 'winner'       ? '#16a34a'
       : type === 'contract'     ? '#065f46'
+      : type === 'delivered'    ? '#0f766e'
       : type === 'lose'         ? '#dc2626'
       : type === 'disqualified' ? '#dc2626'
       : type === 'cancelled'    ? '#6b7280'
       : type === 'withdrawn'    ? '#6b7280'
       : '#1d4ed8';
     const isLose = type === 'lose' || type === 'disqualified';
-    const isWon  = type === 'contract' || type === 'winner';
+    const isWon  = type === 'contract' || type === 'delivered' || type === 'winner';
     const steps  = ['ยื่นประมูล','เปิดซอง','ตรวจเอกสาร','ประกาศผู้ชนะ', isLose ? 'แพ้' : 'เซ็นสัญญา'];
     const doneCount = (isWon || isLose) ? 5 : type === 'winner' ? 4 : (type === 'win-pending' || type === 'lose-pending') ? 2 : 1;
     const activeIdx = (isWon || isLose) ? -1 : (type === 'win-pending' || type === 'lose-pending') ? 2 : 1;
@@ -1745,6 +1762,7 @@ const App = (() => {
       : type === 'disqualified'  ? 'แพ้ ขาดคุณสมบัติ / ถูกปรับตก'
       : type === 'cancelled'     ? 'หน่วยงานประกาศยกเลิกโครงการ'
       : type === 'withdrawn'     ? 'ห้างขอยกเลิกสัญญา'
+      : type === 'delivered' ? 'ส่งงานครบถ้วน'
       : 'จัดทำสัญญาแล้ว';
     const tagClass = type === 'win-pending' ? 'win-pending' : type === 'lose-pending' ? 'pending' : type;
     const subLabel = '';
@@ -1755,11 +1773,11 @@ const App = (() => {
     // 5-step post-bid timeline: ยื่นประมูล → เปิดซอง → ตรวจเอกสาร → ประกาศผู้ชนะ → เซ็นสัญญา/แพ้
     const isLose = type === 'lose' || type === 'disqualified';
     const steps = ['ยื่นประมูล', 'เปิดซอง', 'ตรวจเอกสาร', 'ประกาศผู้ชนะ', isLose ? 'แพ้' : 'เซ็นสัญญา'];
-    const doneCount = (type === 'contract' || type === 'lose' || type === 'disqualified') ? 5
+    const doneCount = (type === 'contract' || type === 'delivered' || type === 'lose' || type === 'disqualified') ? 5
       : type === 'winner'                                            ? 4
       : (type === 'win-pending' || type === 'lose-pending')          ? 2
       : 1;
-    const activeIdx = (type === 'contract' || type === 'winner' || type === 'lose' || type === 'disqualified') ? -1
+    const activeIdx = (type === 'contract' || type === 'delivered' || type === 'winner' || type === 'lose' || type === 'disqualified') ? -1
       : (type === 'win-pending' || type === 'lose-pending')          ? 2
       : 1;
     const tl = steps.map((s, i) => `
@@ -1819,7 +1837,7 @@ const App = (() => {
                   ? (b.competitor ? UI.esc(b.competitor) : '—')
                   : b.contractPrice ? UI.fmt(b.contractPrice)
                   : b.lowest ? UI.fmt(b.lowest)
-                  : (type === 'contract' || type === 'winner') ? UI.fmt(b.bid) : '—'
+                  : (type === 'contract' || type === 'delivered' || type === 'winner') ? UI.fmt(b.bid) : '—'
               }</div>
             </div>
           </div>
@@ -1844,6 +1862,7 @@ const App = (() => {
     const mSpecific  = bids.filter(b => b.method === CONFIG.METHOD_SPECIFIC).length;
     const mEbidding  = total - mSpecific;
     const contract   = bids.filter(b => b.status === STATUS.CONTRACT).length;
+    const delivered  = bids.filter(b => b.status === STATUS.DELIVERED).length;
     const winner     = bids.filter(b => b.status === STATUS.WINNER).length;
     const winPending = bids.filter(b => b.status === STATUS.WIN_PENDING || b.status === STATUS.WIN_PRICE || b.status === STATUS.PENDING).length;
     const losePending= bids.filter(b => b.status === STATUS.LOSE_PENDING || b.status === STATUS.LOSE_PRICE).length;
@@ -1851,10 +1870,10 @@ const App = (() => {
     const lose       = bids.filter(b => b.status === STATUS.LOSE).length;
     const cancelled  = bids.filter(b => b.status === STATUS.CANCELLED).length;
     const withdrawn  = bids.filter(b => b.status === STATUS.WITHDRAWN).length;
-    const decided    = (contract + winner + lose + disqualSt);
-    const won        = contract + winner;
+    const decided    = (contract + delivered + winner + lose + disqualSt);
+    const won        = contract + delivered + winner;
     const winRate    = decided ? Math.round(won / decided * 100) : 0;
-    const income     = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
+    const income     = bids.filter(b => b.status === STATUS.CONTRACT || b.status === STATUS.DELIVERED || b.status === STATUS.WINNER).reduce((s, b) => s + b.bid, 0);
     const avgDrop    = Math.round(bids.reduce((s,b)=>{const base=Math.max(b.budget||0,b.midPrice||0);return s+(base>0?(base-b.bid)/base*100:b.pct);},0)/total);
     const totalDocFee = bids.reduce((s,b)=>{ const f=getDocFee(b); return s+(f?.amount||0); },0);
     const paidDocCnt  = bids.filter(b=>getDocFee(b)?.paid).length;
@@ -1911,6 +1930,7 @@ const App = (() => {
     UI.setHTML('dash-status',
       scCard('h-win',   '🏆','ชนะ / มีสัญญา',
         scRow('sd-contract','จัดทำสัญญาแล้ว',        contract) +
+        scRow('sd-delivered','ส่งงานครบถ้วน',        delivered) +
         scRow('sd-winner',  'ประกาศให้เป็นผู้ชนะ',   winner)) +
       scCard('h-pend',  '⏳','รอผลพิจารณา',
         scRow('sd-winpend', 'เสนอราคาต่ำที่สุด',     winPending) +
@@ -1939,7 +1959,7 @@ const App = (() => {
         </div>`).join(''));
 
     // Won amount per entity card
-    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT]);
+    const winSet = new Set([STATUS.WINNER, STATUS.CONTRACT, STATUS.DELIVERED]);
     renderSme();
 
     // Recent Wins Timeline
@@ -2258,6 +2278,7 @@ const App = (() => {
         : b.status === STATUS.DISQUALIFIED  ? 'disqualified'
         : b.status === STATUS.WINNER        ? 'winner'
         : b.status === STATUS.CONTRACT      ? 'contract'
+        : b.status === STATUS.DELIVERED     ? 'delivered'
         : b.status === STATUS.LOSE          ? 'lose'
         : b.status === STATUS.CANCELLED     ? 'cancelled'
         : b.status === STATUS.WITHDRAWN     ? 'withdrawn'
@@ -2275,6 +2296,7 @@ const App = (() => {
           <option value="${STATUS.LOSE_PENDING}">🔸 ไม่ต่ำสุด</option>
           <option value="${STATUS.WINNER}">🏆 ชนะ</option>
           <option value="${STATUS.CONTRACT}">📝 มีสัญญา</option>
+          <option value="${STATUS.DELIVERED}">📦 ส่งงานครบถ้วน</option>
           <option value="${STATUS.LOSE}">❌ แพ้</option>
           <option value="${STATUS.DISQUALIFIED}">🚫 ขาดคุณสมบัติ/ปรับตก</option>
           <option value="${STATUS.CANCELLED}">⛔ ยกเลิก</option>
@@ -2570,6 +2592,7 @@ const App = (() => {
         : b.status === S.LOSE_PENDING         ? 'lose-pending'
         : b.status === S.WINNER               ? 'winner'
         : b.status === S.CONTRACT             ? 'contract'
+        : b.status === S.DELIVERED            ? 'delivered'
         : b.status === S.LOSE                 ? 'lose'
         : b.status === S.DISQUALIFIED         ? 'disqualified'
         : b.status === S.CANCELLED            ? 'cancelled'
@@ -2579,6 +2602,7 @@ const App = (() => {
         : type === 'lose-pending' ? 'รอผลพิจารณา [ ไม่ได้เป็นผู้เสนอต่ำที่สุด ]'
         : type === 'winner'       ? 'อนุมัติสั่งจ้าง'
         : type === 'contract'     ? 'จัดทำสัญญาแล้ว'
+        : type === 'delivered'    ? 'ส่งงานครบถ้วน'
         : type === 'lose'         ? 'แพ้ ราคาไม่ต่ำสุด'
         : type === 'disqualified' ? 'แพ้ ขาดคุณสมบัติ / ถูกปรับตก'
         : type === 'cancelled'    ? 'ยกเลิกโครงการ'
@@ -2588,10 +2612,11 @@ const App = (() => {
         : type === 'lose-pending' ? '#d97706'
         : type === 'winner'       ? '#16a34a'
         : type === 'contract'     ? '#065f46'
+        : type === 'delivered'    ? '#0f766e'
         : (type === 'lose' || type === 'disqualified') ? '#dc2626'
         : '#6b7280';
       const isLose = type === 'lose' || type === 'disqualified';
-      const isWon  = type === 'contract' || type === 'winner';
+      const isWon  = type === 'contract' || type === 'delivered' || type === 'winner';
       const base = Math.max(b.budget||0, b.midPrice||0);
       const _num = base>0 ? (base-(+(b.bid)||0))/base*100 : (+b.pct||null);
       const pctStr = (_num!=null && isFinite(_num) && _num>=0) ? _num.toFixed(2)+'%' : '—';
