@@ -8,7 +8,7 @@ const BidSchema = require('../bid_schema.js');
 
 const seedSource = fs.readFileSync(path.join(__dirname, '..', 'seed_bids.js'), 'utf8');
 const seedBids = vm.runInNewContext(`${seedSource}\nSEED_BIDS`);
-assert.equal(seedBids.length, 649);
+assert.equal(seedBids.length, 650);
 for (const row of seedBids) {
   const normalized = BidSchema.normalize(row);
   assert.ok(Object.hasOwn(normalized, 'deliveryDate'));
