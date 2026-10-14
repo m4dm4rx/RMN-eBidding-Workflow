@@ -10,7 +10,7 @@
     warrantyDueDate: null,
     retentionReturnStatus: 'unknown',
   });
-  const RETURN_STATUSES = new Set(['unknown', 'not_returned', 'partially_returned', 'returned']);
+  const RETURN_STATUSES = new Set(['unknown', 'not_returned', 'returned']);
 
   function normalizeDate(value) {
     return value === '' || value == null ? null : value;

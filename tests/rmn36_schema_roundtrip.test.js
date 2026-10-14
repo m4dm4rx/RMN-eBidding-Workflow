@@ -24,7 +24,7 @@ const existing = {
   opaqueFutureField: 'keep-me',
   deliveryDate: '2024-05-10',
   warrantyDueDate: '2026-05-10',
-  retentionReturnStatus: 'partially_returned',
+  retentionReturnStatus: 'returned',
 };
 
 const saved = BidSchema.merge(existing, { name: 'แก้แล้ว' });
@@ -33,7 +33,7 @@ assert.equal(saved.contractPrice, 123456);
 assert.equal(saved.opaqueFutureField, 'keep-me');
 assert.equal(saved.deliveryDate, '2024-05-10');
 assert.equal(saved.warrantyDueDate, '2026-05-10');
-assert.equal(saved.retentionReturnStatus, 'partially_returned');
+assert.equal(saved.retentionReturnStatus, 'returned');
 
 const created = BidSchema.merge(null, { id: '69000000002' });
 assert.equal(created.deliveryDate, null);
@@ -62,5 +62,7 @@ assert.match(html, /<button class="pill" data-filter="delivered">ส่งงา
 assert.match(html, /<option value="not_returned">ผูกพัน<\/option>/);
 assert.match(html, /<option value="returned">รับเงินค้ำประกันคืนแล้ว<\/option>/);
 assert.equal(BidSchema.RETURN_STATUSES.has('not_returned') && BidSchema.RETURN_STATUSES.has('returned'), true);
+assert.equal(BidSchema.RETURN_STATUSES.has('partially_returned'), false);
+assert.equal(html.includes('partially_returned'), false);
 
 console.log('RMN-36 schema round-trip: PASS');
