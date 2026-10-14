@@ -857,6 +857,12 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
         <option value="not_returned">ผูกพัน</option>
         <option value="returned">รับเงินค้ำประกันคืนแล้ว</option>
       </select>
+      <select id="fretType" onchange="App.renderRetention()">
+        <option value="">ทุกประเภท (เช็ค + e-LG)</option>
+        <option value="cash">เช็ค/เงินสด</option>
+        <option value="elg">e-LG</option>
+        <option value="unknown">ยังไม่ทราบประเภท</option>
+      </select>
     </div>
     <div id="retention-content"></div>
   </div>
@@ -898,6 +904,11 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
           <option value="unknown">ยังไม่ทราบ</option>
           <option value="not_returned">ผูกพัน</option>
           <option value="returned">รับเงินค้ำประกันคืนแล้ว</option>
+        </select></div>
+        <div class="form-group"><label>ประเภทหลักประกัน</label><select id="f-retention-guarantee-type">
+          <option value="unknown">ยังไม่ทราบ</option>
+          <option value="cash">เช็ค/เงินสด</option>
+          <option value="elg">e-LG (คืน = คืนวงเงิน)</option>
         </select></div>
         <div class="form-group">
           <label>ห้างที่ใช้เสนอ</label>
@@ -2309,25 +2320,40 @@ const App = (() => {
   /* ── Retention guarantee view (status held in seed/Store; TOP only confirms receipt) ── */
   function renderRetention() {
     const f = (document.getElementById('fretStatus') || {}).value || '';
+    const ft = (document.getElementById('fretType') || {}).value || '';
+    const typeOf = b => (b.retentionGuaranteeType === 'cash' || b.retentionGuaranteeType === 'elg') ? b.retentionGuaranteeType : 'unknown';
     const amt = b => Math.round((Number(b.bid) || 0) * 0.05);
     const sum = list => list.reduce((t, b) => t + amt(b), 0);
-    const all = Store.getAll().filter(b => b.retentionReturnStatus === 'not_returned' || b.retentionReturnStatus === 'returned');
+    const all = Store.getAll().filter(b => b.retentionReturnStatus === 'not_returned' || b.retentionReturnStatus === 'returned')
+      .filter(b => !ft || typeOf(b) === ft);
     const held = all.filter(b => b.retentionReturnStatus === 'not_returned');
     const got  = all.filter(b => b.retentionReturnStatus === 'returned');
+    const heldBy = t => held.filter(b => typeOf(b) === t);
     const list = (f === 'not_returned' ? held : f === 'returned' ? got : all)
       .slice().sort((a, b) => (a.deliveryDate || '').localeCompare(b.deliveryDate || ''));
     const summary = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
       ${metric('ผูกพัน', held.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(held)), '#b45309')}
-      ${metric('รับเงินค้ำประกันคืนแล้ว', got.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(got)), '#16a34a')}
+      ${metric('คืนแล้ว (เงินสด / คืนวงเงิน e-LG)', got.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(got)), '#16a34a')}
       ${metric('รวมที่ติดตาม', all.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(all)))}
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      ${metric('ผูกพัน · เช็ค/เงินสด (เงินสดที่ค้าง)', heldBy('cash').length + ' สัญญา', '≈ ฿' + UI.fmt(sum(heldBy('cash'))), '#b45309', '18px')}
+      ${metric('ผูกพัน · e-LG (วงเงินที่ถูกกัน)', heldBy('elg').length + ' สัญญา', '≈ ฿' + UI.fmt(sum(heldBy('elg'))), '#1d4ed8', '18px')}
+      ${metric('ผูกพัน · ยังไม่ทราบประเภท', heldBy('unknown').length + ' สัญญา', '≈ ฿' + UI.fmt(sum(heldBy('unknown'))), '', '18px')}
     </div>`;
     if (!all.length) {
       UI.setHTML('retention-content', `<div style="padding:16px">${summary}<div style="padding:24px;text-align:center;color:var(--muted)">ยังไม่มีสัญญาที่ติดตามหลักประกัน</div></div>`);
       return;
     }
     const badge = st => st === 'returned'
-      ? '<span style="font-size:10px;font-weight:700;color:#166534;background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 8px;white-space:nowrap">รับแล้ว</span>'
+      ? '<span style="font-size:10px;font-weight:700;color:#166534;background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 8px;white-space:nowrap">คืนแล้ว</span>'
       : '<span style="font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:3px;padding:1px 8px;white-space:nowrap">ผูกพัน</span>';
+    const typeBadge = b => {
+      const t = typeOf(b);
+      return t === 'cash' ? '<span style="font-size:10px;font-weight:700;color:#92400e">เช็ค/เงินสด</span>'
+           : t === 'elg'  ? '<span style="font-size:10px;font-weight:700;color:#1d4ed8">e-LG</span>'
+           : '<span style="font-size:10px;color:var(--muted)">ไม่ทราบ</span>';
+    };
     const trs = list.map((b, i) => `<tr>
       <td style="text-align:center;color:var(--muted);font-size:11px">${i + 1}</td>
       <td style="font-size:12px;white-space:nowrap">${UI.fmtDate(b.deliveryDate)}</td>
@@ -2335,10 +2361,11 @@ const App = (() => {
       <td style="font-size:11px;color:var(--muted)">${UI.esc(b.name || '')}<div style="font-family:monospace;color:#1d4ed8">${UI.esc(b.id || '')}</div></td>
       <td style="font-size:12px;text-align:right;white-space:nowrap">${UI.fmt(b.bid)}</td>
       <td style="font-size:12px;font-weight:600;text-align:right;white-space:nowrap">${UI.fmt(amt(b))}</td>
+      <td style="text-align:center;white-space:nowrap">${typeBadge(b)}</td>
       <td style="text-align:center">${badge(b.retentionReturnStatus)}</td>
     </tr>`).join('');
     const table = `<div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>วันส่งมอบ</th><th>หน่วยงาน</th><th>โครงการ</th><th>ราคาเสนอ</th><th>ประกัน 5% (โดยประมาณ)</th><th>สถานะ</th></tr></thead>
+      <thead><tr><th>#</th><th>วันส่งมอบ</th><th>หน่วยงาน</th><th>โครงการ</th><th>ราคาเสนอ</th><th>ประกัน 5% (โดยประมาณ)</th><th>ประเภท</th><th>สถานะ</th></tr></thead>
       <tbody>${trs}</tbody>
     </table></div>`;
     UI.setHTML('retention-content', `<div style="padding:16px">${summary}${table}</div>`);
@@ -2460,6 +2487,7 @@ const App = (() => {
       deliveryDate: document.getElementById('f-delivery-date').value || null,
       warrantyDueDate: document.getElementById('f-warranty-due-date').value || null,
       retentionReturnStatus: document.getElementById('f-retention-return-status').value || 'unknown',
+      retentionGuaranteeType: document.getElementById('f-retention-guarantee-type').value || 'unknown',
       seq:        existing?.seq ?? Store.getAll().length + 1,
     }));
     clearForm();
@@ -2492,6 +2520,7 @@ const App = (() => {
     _setField('f-delivery-date', b.deliveryDate ?? '');
     _setField('f-warranty-due-date', b.warrantyDueDate ?? '');
     document.getElementById('f-retention-return-status').value = b.retentionReturnStatus ?? 'unknown';
+    document.getElementById('f-retention-guarantee-type').value = b.retentionGuaranteeType ?? 'unknown';
     document.getElementById('f-entity').value = b.entity ?? CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = b.status ?? CONFIG.STATUS.WIN_PENDING;
     navigate('add');
@@ -2513,6 +2542,7 @@ const App = (() => {
     document.getElementById('f-entity').value = CONFIG.DEFAULT_ENTITY;
     document.getElementById('f-status').value = CONFIG.STATUS.WIN_PENDING;
     document.getElementById('f-retention-return-status').value = 'unknown';
+    document.getElementById('f-retention-guarantee-type').value = 'unknown';
     document.getElementById('form-title').textContent = 'เพิ่มโครงการใหม่';
     _editId = null;
   }
@@ -2560,7 +2590,7 @@ const App = (() => {
   /* ── CSV export ──────────────────────────────────────────── */
   function exportCSV() {
     const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest,deliveryDate,warrantyDueDate,retentionReturnStatus\n';
+    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest,deliveryDate,warrantyDueDate,retentionReturnStatus,retentionGuaranteeType\n';
     const rows = Store.getAll().sort((a,b)=>a.seq-b.seq).map(b => [
       b.seq, b.id,
       esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
@@ -2568,7 +2598,7 @@ const App = (() => {
       esc(b.entity), esc(b.status), b.date,
       b.midPrice ?? '', b.contractPrice ?? '',
       esc(b.workType ?? ''), esc(b.plant ?? ''), b.plantDist ?? '', b.lowest ?? '',
-      b.deliveryDate ?? '', b.warrantyDueDate ?? '', b.retentionReturnStatus ?? 'unknown',
+      b.deliveryDate ?? '', b.warrantyDueDate ?? '', b.retentionReturnStatus ?? 'unknown', b.retentionGuaranteeType ?? 'unknown',
     ].join(',')).join('\n');
 
     const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });

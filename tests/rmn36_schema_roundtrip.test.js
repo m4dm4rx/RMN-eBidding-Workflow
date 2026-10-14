@@ -64,6 +64,12 @@ assert.match(html, /<option value="returned">รับเงินค้ำป�
 assert.equal(BidSchema.RETURN_STATUSES.has('not_returned') && BidSchema.RETURN_STATUSES.has('returned'), true);
 assert.equal(BidSchema.RETURN_STATUSES.has('partially_returned'), false);
 assert.equal(html.includes('partially_returned'), false);
+assert.match(html, /id="f-retention-guarantee-type"/);
+assert.match(html, /<option value="elg">e-LG/);
+assert.match(html, /deliveryDate,warrantyDueDate,retentionReturnStatus,retentionGuaranteeType/);
+assert.equal(BidSchema.merge(null, { id: '1' }).retentionGuaranteeType, 'unknown');
+assert.equal(BidSchema.merge(null, { id: '1', retentionGuaranteeType: 'elg' }).retentionGuaranteeType, 'elg');
+assert.equal(BidSchema.merge(null, { id: '1', retentionGuaranteeType: 'bogus' }).retentionGuaranteeType, 'unknown');
 assert.match(html, /id="tab-retention"/);
 assert.match(html, /App\.navigate\('retention'\)/);
 assert.match(html, /function renderRetention\(\)/);
