@@ -64,5 +64,8 @@ assert.match(html, /<option value="returned">รับเงินค้ำป�
 assert.equal(BidSchema.RETURN_STATUSES.has('not_returned') && BidSchema.RETURN_STATUSES.has('returned'), true);
 assert.equal(BidSchema.RETURN_STATUSES.has('partially_returned'), false);
 assert.equal(html.includes('partially_returned'), false);
+assert.match(html, /id="tab-retention"/);
+assert.match(html, /App\.navigate\('retention'\)/);
+assert.match(html, /function renderRetention\(\)/);
 
 console.log('RMN-36 schema round-trip: PASS');

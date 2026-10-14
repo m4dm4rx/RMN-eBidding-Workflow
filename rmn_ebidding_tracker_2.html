@@ -670,6 +670,7 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
     <button class="tab" data-edit-only onclick="App.navigate('records')">📋 Records</button>
     <button class="tab" style="display:none" onclick="App.navigate('docfee')">📄 ค่าเอกสาร</button>
     <button class="tab" onclick="App.navigate('assets')">🏗️ Assets</button>
+    <button class="tab" data-edit-only onclick="App.navigate('retention')">🔒 หลักประกัน</button>
     <button class="tab" onclick="App.navigate('add')" data-edit-only>➕ Add Bid</button>
   </div>
 
@@ -842,6 +843,18 @@ html.dark .kpi-chart-legend span{color:rgba(250,249,245,.55)}
       </select>
     </div>
     <div id="assets-content"></div>
+  </div>
+
+  <!-- Retention guarantee (read-only view of seed/Store: retentionReturnStatus) -->
+  <div id="tab-retention" class="section">
+    <div class="filter-row">
+      <select id="fretStatus" onchange="App.renderRetention()">
+        <option value="">ทั้งหมด (ผูกพัน + รับแล้ว)</option>
+        <option value="not_returned">ผูกพัน</option>
+        <option value="returned">รับเงินค้ำประกันคืนแล้ว</option>
+      </select>
+    </div>
+    <div id="retention-content"></div>
   </div>
 
   <!-- Add / Edit -->
@@ -1267,7 +1280,7 @@ function renderDocFeeBlock(b) {
    APP  — view logic, event handlers, navigation
 ═══════════════════════════════════════════════════════════════ */
 const App = (() => {
-  const TABS = ['dashboard', 'report', 'records', 'assets', 'add'];
+  const TABS = ['dashboard', 'report', 'records', 'assets', 'retention', 'add'];
   let _editId    = null;       // null = new record, string = editing existing
   let _activeTab = 'dashboard'; // FIX 8: track current tab
 
@@ -1275,18 +1288,21 @@ const App = (() => {
   function navigate(name, force = false) {
     if (name === _activeTab && !force) return; // FIX 8: skip re-render if same tab
     _activeTab = name;
-    TABS.forEach((t, i) => {
+    TABS.forEach(t => {
       document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
-      document.querySelectorAll('.tab')[i].classList.toggle('active', t === name);
+    });
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('onclick') === `App.navigate('${name}')`);
     });
     // ซ่อน year-tabs บน Dashboard (รวมทุกปี), แสดงบน tab อื่น
     const yt = document.getElementById('year-tabs');
-    if (yt) yt.style.display = (name === 'dashboard' || name === 'docfee' || name === 'assets') ? 'none' : 'flex';
+    if (yt) yt.style.display = (name === 'dashboard' || name === 'docfee' || name === 'assets' || name === 'retention') ? 'none' : 'flex';
     if (name === 'dashboard') renderDash();
     if (name === 'report')    renderReport();
     if (name === 'records')   renderTable();
     if (name === 'docfee')    renderDocFeeTab();
     if (name === 'assets')    renderAssets();
+    if (name === 'retention') renderRetention();
   }
 
   /* ── SME — จำนวนโครงการต่อห้าง ─────────────────────────── */
@@ -2231,6 +2247,44 @@ const App = (() => {
     UI.setHTML('assets-content', `<div style="padding:16px">${summary}${table}</div>`);
   }
 
+  /* ── Retention guarantee view (status held in seed/Store; TOP only confirms receipt) ── */
+  function renderRetention() {
+    const f = (document.getElementById('fretStatus') || {}).value || '';
+    const amt = b => Math.round((Number(b.bid) || 0) * 0.05);
+    const sum = list => list.reduce((t, b) => t + amt(b), 0);
+    const all = Store.getAll().filter(b => b.retentionReturnStatus === 'not_returned' || b.retentionReturnStatus === 'returned');
+    const held = all.filter(b => b.retentionReturnStatus === 'not_returned');
+    const got  = all.filter(b => b.retentionReturnStatus === 'returned');
+    const list = (f === 'not_returned' ? held : f === 'returned' ? got : all)
+      .slice().sort((a, b) => (a.deliveryDate || '').localeCompare(b.deliveryDate || ''));
+    const summary = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      ${metric('ผูกพัน', held.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(held)), '#b45309')}
+      ${metric('รับเงินค้ำประกันคืนแล้ว', got.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(got)), '#16a34a')}
+      ${metric('รวมที่ติดตาม', all.length + ' สัญญา', '≈ ฿' + UI.fmt(sum(all)))}
+    </div>`;
+    if (!all.length) {
+      UI.setHTML('retention-content', `<div style="padding:16px">${summary}<div style="padding:24px;text-align:center;color:var(--muted)">ยังไม่มีสัญญาที่ติดตามหลักประกัน</div></div>`);
+      return;
+    }
+    const badge = st => st === 'returned'
+      ? '<span style="font-size:10px;font-weight:700;color:#166534;background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 8px;white-space:nowrap">รับแล้ว</span>'
+      : '<span style="font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:3px;padding:1px 8px;white-space:nowrap">ผูกพัน</span>';
+    const trs = list.map((b, i) => `<tr>
+      <td style="text-align:center;color:var(--muted);font-size:11px">${i + 1}</td>
+      <td style="font-size:12px;white-space:nowrap">${UI.fmtDate(b.deliveryDate)}</td>
+      <td style="font-size:12px">${UI.esc(b.agency || '')}</td>
+      <td style="font-size:11px;color:var(--muted)">${UI.esc(b.name || '')}<div style="font-family:monospace;color:#1d4ed8">${UI.esc(b.id || '')}</div></td>
+      <td style="font-size:12px;text-align:right;white-space:nowrap">${UI.fmt(b.bid)}</td>
+      <td style="font-size:12px;font-weight:600;text-align:right;white-space:nowrap">${UI.fmt(amt(b))}</td>
+      <td style="text-align:center">${badge(b.retentionReturnStatus)}</td>
+    </tr>`).join('');
+    const table = `<div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>วันส่งมอบ</th><th>หน่วยงาน</th><th>โครงการ</th><th>ราคาเสนอ</th><th>ประกัน 5% (โดยประมาณ)</th><th>สถานะ</th></tr></thead>
+      <tbody>${trs}</tbody>
+    </table></div>`;
+    UI.setHTML('retention-content', `<div style="padding:16px">${summary}${table}</div>`);
+  }
+
   function metric(label, value, sub = '', color = '', fontSize = '24px') {
     return `<div class="metric">
       <div class="metric-label">${label}</div>
@@ -2577,7 +2631,7 @@ const App = (() => {
 
   /* ── Public API ──────────────────────────────────────────── */
   return {
-    navigate, renderDash, renderReport, renderTable, renderDocFeeTab, renderDashDocFee, renderAssets, setYear, hideDocFee, toggleCompetitorAll,
+    navigate, renderDash, renderReport, renderTable, renderDocFeeTab, renderDashDocFee, renderAssets, renderRetention, setYear, hideDocFee, toggleCompetitorAll,
     timelineLoadMore: (targetId) => {
       const page = (_timelinePage[targetId] || 1) + 1;
       renderBidTimeline(_yearBids(), targetId, page);
