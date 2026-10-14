@@ -67,5 +67,7 @@ assert.equal(html.includes('partially_returned'), false);
 assert.match(html, /id="tab-retention"/);
 assert.match(html, /App\.navigate\('retention'\)/);
 assert.match(html, /function renderRetention\(\)/);
+assert.match(html, /id="dash-warranty"/);
+assert.match(html, /function renderDashWarranty\(\)/);
 
 console.log('RMN-36 schema round-trip: PASS');
