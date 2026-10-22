@@ -104,7 +104,8 @@ entity ยื่น ≠ ผู้ถือครอง → **แจ้งเต�
   prefix: `ใบเสนอราคา_` · `ใบเสนอราคาสำเร็จ_` · `รายละเอียดการยื่น_` (3 โฟลเดอร์ใน `H:\Shared drives\RMN Company Documents\Workflow Logs\เอกสารบันทึกจากการเสนอราคา\`)
   tag ตาม entity: รักดี→`[หจก RAKDEE]` · RMN→`[หจก RMN]` · ตักสิลา→`[บจ.ตักสิลา RMN]` · กิจการร่วมค้า = ถามก่อน
 - input "ผลประมูล (ราคาต่ำสุด)" + ปุ่ม → `sendPrompt('ผลประมูล\nSEQ n (label) = value')`
-- **ปุ่มต้อง contrast ชัด (hex ตายตัว ห้าม var/transparent):** ปุ่ม ⧉ ทั่วไป bg `#1A1A1A` text `#FFFFFF` · ปุ่ม ⧉ ในกล่องราคายื่น bg `#412402` text `#FAC775` · ปุ่ม **ส่งผล** bg `#0C447C` text `#FFFFFF` bold · ช่อง input พื้น `#FFFFFF` ตัวอักษร `#1A1A1A` ขอบ `#888` (Marx 2569-10-22)
+- **ปุ่มต้อง contrast ชัด (hex ตายตัว ห้าม var/transparent):** ปุ่ม ⧉ ทั่วไป bg `#1A1A1A` text `#FFFFFF` · ปุ่ม ⧉ ในกล่องราคายื่น bg `#412402` text `#FAC775` · ปุ่ม **ส่งผล** bg `#0C447C` text `#FFFFFF` bold · ช่อง input พื้น `#FFFFFF` ตัวอักษร `#1A1A1A` ขอบ `#888` (ช่องผลประมูล ขอบ `#0C447C` 2px · placeholder `#555`) (Marx 2569-10-22)
+  ⚠️ **ต้องใส่เป็น inline `style="... !important"` ทุกปุ่ม/ช่อง** + `-webkit-text-fill-color` + `opacity:1` — ใช้ class ใน `<style>` แล้วโดน host override (ปุ่มจาง/input พื้นดำ, 2569-10-22) · ปุ่ม ⧉ ใส่ข้อความ "⧉ คัดลอก" ไม่ใช่ไอคอนเปล่า
 - ⚠️ บล็อกชื่อไฟล์ 3 ตัว **ห้ามตกหล่น** — 2569-10-22 การ์ด FY2570 SEQ1 ลืมใส่ Marx ต้องทวง
 
 **🏁 การ์ดผลประมูล** = ผลของการกดปุ่ม **ส่งผล** (บันทึกราคาต่ำสุด) ในการ์ด SEQ → sendPrompt เข้าแชท → แก้ seed (status + lowest) แล้ว render การ์ดนี้ (Marx 2569-10-22)
