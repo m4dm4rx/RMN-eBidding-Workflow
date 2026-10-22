@@ -11,6 +11,8 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 
 ## 📢 ประกาศถึงทุก agent — **อ่านก่อนเริ่มงานทุกครั้ง**
 
+- **10-22 · BOOSTER มาแทนที่ (มติ Marx 2026-10-22)** — Bootstrap Contract = **BOOSTER**: ทุก session เริ่มด้วย BOOSTER → RMN-22 เสมอ · บทบาทปัจจุบันมี 3: **TASKMASTER** (Coordinator ทั้งฝั่ง Claude/GPT) · **SUPER AGENT** (= OPY เดิม, Claude เท่านั้น, รวม MM + DOC Fee + งาน bidding ทั้งหมด) · **C.A.I.M** (R&D) · **Raven ยกเลิกทั้งหมด** (รวม Finance Capture) · ชื่อ Commander/DA/Knight/Sir/Lord เลิกใช้ · ข้อความเก่าในไฟล์นี้และ archive ที่ใช้ชื่อเหล่านั้น = ประวัติ · ชื่อ OPY ในไฟล์/skill/script = SUPER AGENT · ประกาศนี้มีผลก่อนประกาศอื่น
+
 - **09-27 20:35 · D3 FINAL (RMN-22, มติ King Marx)**: ยกเลิก Raven แบบ global (เหลือเฉพาะ Finance Capture, จำกัดแค่ deploy/handoff ข้ามผู้รับผิดชอบ) · ยกเลิกการเขียน session state ลง CLAUDE.md/WRK_*_STATE.md อัตโนมัติทุกที่ · Contract เหลือกฎเดียว: หยุด/หมุน session หรือถึง boundary → เขียน current state ลง Linear issue · Return-path: worker ห้ามโพสต์ Linear เอง ต้องให้ coordinator ตรวจหลักฐานก่อนโพสต์ · รายละเอียดเต็ม → RMN-22 comment 0c07e490
 > 🔴 **DA ต้องเขียนที่นี่ทุกครั้งที่เปลี่ยน registry/ownership/กฎร่วม — ในรอบ commit เดียวกัน** · ไม่ประกาศ = agent อื่นตัดสินใจซ้อนกันเอง (เกิดจริง 09-03: OPY ไม่รู้ว่า DB ปลด) · เก่ากว่า 30 วัน → `CLAUDE_ARCHIVE_*.md`
 
@@ -20,7 +22,7 @@ ToolSearch → โหลดเฉพาะเมื่อ tool ไม่มี�
 - **09-08 · 🛠️ `SKILL.md` ของ scheduled task ชี้ `C:\Repos\` แล้ว** — แก้ 3 ตัวที่อ้าง repo (`morning-agent-context-check` · `gmail-bid-auto-update` · `rmn_documentation-expire_date-checker`) · `doc-fee-morning-alert` ไม่อ้าง repo จึงไม่แก้ · 🔴 **ไฟล์ชุดนี้อยู่บน PC MARX เครื่องเดียว ไม่อยู่ git ไม่ sync** → PC MARX ปิด = ไม่มี checker · ⛔ `EBIDDING.md:30-32` ยังสั่ง `git -C "…RMN e-Bidding Tracker" push` แต่โฟลเดอร์นั้น **ไม่ใช่ git repo แล้ว** — ไฟล์ไม่อยู่ใน Matrix **ห้ามแก้จนถาม King Marx**
 
 ## ⚙️ Core Rules
-- **ปิดงาน/Execution Card เสร็จ → ออก Raven report เองทันทีอัตโนมัติ ห้ามรอ user พิมพ์ "raven report"** (feedback 09-13: รู้สึกต้องถามตลอด)
+- ~~ปิดงาน/Execution Card เสร็จ → ออก Raven report อัตโนมัติ~~ 🚫 **ยกเลิก 2026-10-22** (Raven cancelled · ปิดงานให้เขียน boundary write ลง Linear ตาม BOOSTER)
 - Diff/changelog only — ห้าม output full file/table
 - grep/bash หา section ก่อน — ห้าม Read ทั้งไฟล์
 - Edit (diff) เสมอ — Write เฉพาะ full rewrite
