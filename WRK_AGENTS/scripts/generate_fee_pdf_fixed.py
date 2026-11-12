@@ -41,7 +41,7 @@ def install_deps():
 
 # ─── Fonts ─────────────────────────────────────────────────────────────────────
 
-FONT_DIR = Path('/tmp/sarabun_fonts')
+FONT_DIR = Path(tempfile.gettempdir()) / 'sarabun_fonts'  # OS temp dir: /tmp does not exist for Windows Python
 FONTS = {
     'Sarabun-Regular.ttf':
         'https://github.com/google/fonts/raw/main/ofl/sarabun/Sarabun-Regular.ttf',
@@ -63,7 +63,7 @@ def ensure_fonts() -> Path:
 
 def slip_to_png(slip_path: str) -> str:
     slip = Path(slip_path)
-    out = Path('/tmp') / (slip.stem + '_slip_embed.png')
+    out = Path(tempfile.gettempdir()) / (slip.stem + '_slip_embed.png')
     suffix = slip.suffix.lower()
 
     if suffix == '.pdf':
