@@ -1323,8 +1323,14 @@ const App = (() => {
   /* ── SME — จำนวนโครงการต่อห้าง ─────────────────────────── */
   function renderSme() {
     const { STATUS } = CONFIG;
-    const SME_LIMIT = 300000000;
-    const bids = _yearBids(); // reset ทุกปีงบ
+    // TASKS-77: นับตามปีปฏิทิน ม.ค.–ธ.ค. ของวันลงนามสัญญา (ว 56 ลว. 24 ม.ค. 2566)
+    // ไม่มี contractDate → ใช้วันประมูลแทน แล้วแสดงจำนวนที่ใช้วันแทน
+    // เพดาน = รายได้ตามขนาดที่ห้างขึ้นทะเบียน สสว. (Marx 27 พ.ย. 2569: RMN / ตักสิลา / รักดี ขนาดกลาง 300M)
+    // เกณฑ์ 500M จาก 1 ต.ค. 2569 = มีแต่ข่าว ยังไม่พบประกาศฉบับจริง (NOT CONFIRMED) จึงยังไม่ใช้
+    const SME_LIMITS = { 'ห้างหุ้นส่วน RMN': 300000000, 'บริษัท ตักสิลา อาร์เอ็มเอ็น จำกัด': 300000000, 'หจก.รักดี การโยธา': 300000000 };
+    const SME_DEFAULT_LIMIT = 300000000;
+    const smeYear = b => b.contractDate ? Number(String(b.contractDate).slice(0, 4)) + 543 : Number(String(b.date || '').slice(0, 4));
+    const bids = Store.getAll().filter(b => smeYear(b) === _activeYear); // reset ทุกปีปฏิทิน
     const groups = {};
     for (const b of bids) {
       const e = b.entity || CONFIG.DEFAULT_ENTITY;
@@ -1341,13 +1347,14 @@ const App = (() => {
       UI.setHTML('dash-sme', '<div class="empty" style="font-size:11px">ไม่มีข้อมูล</div>');
       return;
     }
-    const _fyStart = _activeYear - 1;
-    const _period = `ต.ค. ${String(_fyStart).slice(2)} – ก.ย. ${String(_activeYear).slice(2)}`;
+    const _period = `ปีปฏิทิน ม.ค.–ธ.ค. ${_activeYear} · นับตามวันลงนามสัญญา`;
     const html = `<div style="font-size:10px;color:var(--muted);margin-bottom:8px">${_period}</div>` + entities.map(e => {
       const list   = groups[e];
       const cnt    = list.length;
       const won    = list.filter(b => winSet.has(b.status)).length;
       const wonAmt = list.filter(b => winSet.has(b.status)).reduce((s,b)=>s+(b.contractPrice||b.bid||0),0);
+      const SME_LIMIT = SME_LIMITS[e] || SME_DEFAULT_LIMIT;
+      const noSign = list.filter(b => winSet.has(b.status) && !b.contractDate).length;
       const pct    = Math.min(wonAmt / SME_LIMIT * 100, 100);
       const near   = pct >= 80;
       const over   = pct >= 100;
@@ -1360,12 +1367,12 @@ const App = (() => {
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
           <span>วงเงินสะสม <strong style="color:${barColor}">${UI.fmt(wonAmt)}</strong></span>
-          <span>เหลือ ${UI.fmt(remain)} / 300M</span>
+          <span>เหลือ ${UI.fmt(remain)} / ${Math.round(SME_LIMIT / 1e6)}M</span>
         </div>
         <div style="background:var(--card-border);border-radius:4px;overflow:hidden;height:9px;position:relative">
           <div style="height:100%;width:${pct.toFixed(1)}%;background:${barColor};transition:width .4s;border-radius:4px"></div>
         </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right">${pct.toFixed(1)}% ของวงเงิน SME</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right">${pct.toFixed(1)}% ของวงเงิน SME${noSign ? ` · ${noSign} งานยังไม่มีวันลงนาม ใช้วันประมูลแทน` : ''}</div>
       </div>`;
     }).join('');
     UI.setHTML('dash-sme', html);
@@ -2590,7 +2597,7 @@ const App = (() => {
   /* ── CSV export ──────────────────────────────────────────── */
   function exportCSV() {
     const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest,deliveryDate,warrantyDueDate,retentionReturnStatus,retentionGuaranteeType\n';
+    const header = 'seq,id,name,agency,province,budget,bid,pct,entity,status,date,midPrice,contractPrice,workType,plant,plantDist,lowest,deliveryDate,warrantyDueDate,retentionReturnStatus,retentionGuaranteeType,contractDate\n';
     const rows = Store.getAll().sort((a,b)=>a.seq-b.seq).map(b => [
       b.seq, b.id,
       esc(b.name), esc(b.agency), esc((b.province ?? '').trim()),
@@ -2598,7 +2605,7 @@ const App = (() => {
       esc(b.entity), esc(b.status), b.date,
       b.midPrice ?? '', b.contractPrice ?? '',
       esc(b.workType ?? ''), esc(b.plant ?? ''), b.plantDist ?? '', b.lowest ?? '',
-      b.deliveryDate ?? '', b.warrantyDueDate ?? '', b.retentionReturnStatus ?? 'unknown', b.retentionGuaranteeType ?? 'unknown',
+      b.deliveryDate ?? '', b.warrantyDueDate ?? '', b.retentionReturnStatus ?? 'unknown', b.retentionGuaranteeType ?? 'unknown', b.contractDate ?? '',
     ].join(',')).join('\n');
 
     const blob    = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8' });
